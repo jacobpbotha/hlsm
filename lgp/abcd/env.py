@@ -1,5 +1,5 @@
-from typing import Tuple, Dict
 from abc import ABC, abstractmethod
+from typing import Dict, Tuple
 
 from lgp.abcd.action import Action
 from lgp.abcd.observation import Observation

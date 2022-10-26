@@ -1,19 +1,18 @@
-import torch
-from typing import Iterable
 from abc import ABC, abstractmethod
+from typing import Iterable
+
+import torch
 
 
 class StateRepr(ABC):
-
     def __init__(self):
         ...
 
     @classmethod
     @abstractmethod
     def collate(cls, states: Iterable["StateRepr"]) -> "StateRepr":
-        """
-        Creates a single StateRepresentation that represents a batch of states
-        """
+        """Creates a single StateRepresentation that represents a batch of
+        states."""
         ...
 
     @abstractmethod

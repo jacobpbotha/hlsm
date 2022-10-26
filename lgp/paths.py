@@ -1,20 +1,26 @@
-import os
 import datetime
+import os
 
 if "LGP_WS_DIR" in os.environ:
     ROOT_PATH = os.environ["LGP_WS_DIR"]
 else:
-    raise ValueError("Source init.sh or set the LGP_WS_DIR environment variable to your local workspace")
+    raise ValueError(
+        "Source init.sh or set the LGP_WS_DIR environment variable to your local workspace"
+    )
 
 if "LGP_MODEL_DIR" in os.environ:
     MODEL_PATH = os.environ["LGP_MODEL_DIR"]
 else:
-    raise ValueError("Source init.sh or set the LGP_MODEL_DIR environment variable to your model directory")
+    raise ValueError(
+        "Source init.sh or set the LGP_MODEL_DIR environment variable to your model directory"
+    )
 
 if "LGP_DATA_DIR" in os.environ:
     DATA_PATH = os.environ["LGP_DATA_DIR"]
 else:
-    raise ValueError("Source init.sh or set the LGP_DATA_DIR environment variable to your dataset directory")
+    raise ValueError(
+        "Source init.sh or set the LGP_DATA_DIR environment variable to your dataset directory"
+    )
 
 
 import lgp.parameters
@@ -70,14 +76,20 @@ def get_results_dir(exp_name):
 
 
 def get_leaderboard_progress_path(exp_name):
-    leaderboard_file_path = os.path.join(get_results_dir(exp_name), "leaderboard_progress.json")
+    leaderboard_file_path = os.path.join(
+        get_results_dir(exp_name), "leaderboard_progress.json"
+    )
     return leaderboard_file_path
 
 
 def get_leaderboard_result_path(exp_name):
     leaderboard_dir = get_results_dir(exp_name)
-    leaderboard_file = os.path.join(leaderboard_dir, 'tests_actseqs_dump_' + datetime.datetime.now().strftime(
-        "%Y%m%d_%H%M%S_%f") + '.json')
+    leaderboard_file = os.path.join(
+        leaderboard_dir,
+        "tests_actseqs_dump_"
+        + datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        + ".json",
+    )
     return leaderboard_file
 
 

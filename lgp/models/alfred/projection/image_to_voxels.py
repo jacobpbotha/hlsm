@@ -1,12 +1,11 @@
-import torch.nn as nn
 import torch
-
+import torch.nn as nn
 from lgp.models.alfred.projection.image_to_pointcloud import ImageToPointcloud
-from lgp.models.alfred.projection.pointcloud_to_voxelgrid import PointcloudToVoxels
+from lgp.models.alfred.projection.pointcloud_to_voxelgrid import \
+    PointcloudToVoxels
 
 
 class ImageToVoxels(nn.Module):
-
     def __init__(self):
         super().__init__()
         self.image_to_pointcloud = ImageToPointcloud()
@@ -17,6 +16,8 @@ class ImageToVoxels(nn.Module):
         if scene.device == "cpu":
             scene = scene.float()
             depth = depth.float()
-        point_coords, img = self.image_to_pointcloud(scene, depth, extrinsics4f, hfov_deg)
+        point_coords, img = self.image_to_pointcloud(
+            scene, depth, extrinsics4f, hfov_deg
+        )
         voxel_grid = self.pointcloud_to_voxels(point_coords, img)
         return voxel_grid

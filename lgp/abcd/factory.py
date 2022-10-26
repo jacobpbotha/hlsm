@@ -1,20 +1,18 @@
-from typing import Dict
 from abc import abstractmethod
+from typing import Dict
 
 from lgp.abcd.agent import Agent
-from lgp.abcd.model_factory import ModelFactory
 from lgp.abcd.env import Env
-
+from lgp.abcd.model_factory import ModelFactory
 from lgp.parameters import Hyperparams
 
 
 class Factory:
-
     def __init__(self):
         ...
 
     @abstractmethod
-    def get_model_factory(self, setup: Dict, hparams : Hyperparams) -> ModelFactory:
+    def get_model_factory(self, setup: Dict, hparams: Hyperparams) -> ModelFactory:
         ...
 
     @abstractmethod

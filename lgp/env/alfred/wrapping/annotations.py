@@ -1,16 +1,16 @@
-"""
-This file includes code to index, load, and manage the traj_data json files from ALFRED.
-"""
-from typing import List, Dict, Union
-import os
-import json
+"""This file includes code to index, load, and manage the traj_data json files
+from ALFRED."""
 import copy
+import json
+import os
+from typing import Dict, List, Union
 
+from lgp.env.alfred.wrapping.paths import (get_splits_path, get_task_dir_path,
+                                           get_task_traj_data_path,
+                                           get_traj_data_paths)
 
 # imports from ALFRED
 from alfred.gen.utils.image_util import decompress_mask
-
-from lgp.env.alfred.wrapping.paths import get_task_traj_data_path, get_splits_path, get_task_dir_path, get_traj_data_paths
 
 
 class TrajData:
@@ -36,7 +36,7 @@ class TrajData:
         # Sometimes this results in invalid action sequences, when the object the agent is holding collides with
         # the environment.
         self.fix_lookdown()
-        #self.add_rotate_explore()
+        # self.add_rotate_explore()
 
     """
     def add_rotate_explore(self):
@@ -60,26 +60,14 @@ class TrajData:
         n = len(plan)
 
         proto_ld = {
-            "api_action": {
-                "action": "LookDown",
-                "forceAction": True
-            },
-            "discrete_action": {
-                "action": "LookDown_15",
-                "args": {}
-            },
-            "high_idx": 0
+            "api_action": {"action": "LookDown", "forceAction": True},
+            "discrete_action": {"action": "LookDown_15", "args": {}},
+            "high_idx": 0,
         }
         proto_lu = {
-            "api_action": {
-                "action": "LookUp",
-                "forceAction": True
-            },
-            "discrete_action": {
-                "action": "LookUp_15",
-                "args": {}
-            },
-            "high_idx": 0
+            "api_action": {"action": "LookUp", "forceAction": True},
+            "discrete_action": {"action": "LookUp_15", "args": {}},
+            "high_idx": 0,
         }
 
         # First mark for each action (except LookUp, LookDown), how many lookdowns have been done
@@ -95,10 +83,10 @@ class TrajData:
                 step_ldc.append(ldc)
 
         # Then delete all LookDown and LookUp actions
-        for i in range(n-1, -1, -1):
+        for i in range(n - 1, -1, -1):
             act_i = plan[i]["api_action"]["action"]
             if act_i in ["LookDown", "LookUp"]:
-                plan = plan[:i] + plan[i+1:]
+                plan = plan[:i] + plan[i + 1 :]
 
         assert len(plan) == len(step_ldc)
 
@@ -106,7 +94,15 @@ class TrajData:
         new_plan = []
         for i in range(len(step_ldc)):
             act_i = plan[i]["api_action"]["action"]
-            if act_i in ["PickupObject", "PutObject", "SliceObject", "OpenObject", "CloseObject", "ToggleObjectOn", "ToggleObjectOff"]:
+            if act_i in [
+                "PickupObject",
+                "PutObject",
+                "SliceObject",
+                "OpenObject",
+                "CloseObject",
+                "ToggleObjectOn",
+                "ToggleObjectOff",
+            ]:
                 ld = copy.deepcopy(proto_ld)
                 lu = copy.deepcopy(proto_lu)
                 ld["high_idx"] = plan[i]["high_idx"]
@@ -135,10 +131,10 @@ class TrajData:
             for step_desc in step_descs:
                 yield step_desc
 
-    def get_task_id(self): # TODO Type
+    def get_task_id(self):  # TODO Type
         return self.data["task_id"]
 
-    def get_task_type(self): # TODO Type
+    def get_task_type(self):  # TODO Type
         return self.data["task_type"]
 
     def get_num_repeats(self):
@@ -170,15 +166,19 @@ class TrajData:
 
     def get_api_action_sequence(self) -> Union[List[Dict], None]:
         sequence = self.get_low_actions()
-        api_ish_sequence = [{
-            "action": a["api_action"]["action"],
-            "mask": decompress_mask(a["discrete_action"]["args"]["mask"]) if "mask" in a["discrete_action"]["args"] else None
-        } for a in sequence]
+        api_ish_sequence = [
+            {
+                "action": a["api_action"]["action"],
+                "mask": decompress_mask(a["discrete_action"]["args"]["mask"])
+                if "mask" in a["discrete_action"]["args"]
+                else None,
+            }
+            for a in sequence
+        ]
         return api_ish_sequence
 
 
-class AlfredAnnotations():
-
+class AlfredAnnotations:
     def __init__(self):
         self.splits_path = get_splits_path()
         with open(self.splits_path, "r") as fp:
@@ -209,7 +209,9 @@ class AlfredAnnotations():
         return list_of_splits, self.splits
 
     def get_all_task_ids_in_split(self, datasplit: str = "train") -> List[str]:
-        assert datasplit in self.splits, f"Datasplit {datasplit} not found in available splits: {self.splits.keys()}"
+        assert (
+            datasplit in self.splits
+        ), f"Datasplit {datasplit} not found in available splits: {self.splits.keys()}"
         task_ids = list(sorted(set([d["task"] for d in self.splits[datasplit]])))
         return task_ids
 

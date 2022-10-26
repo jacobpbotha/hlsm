@@ -1,6 +1,5 @@
-from typing import List, Dict
-
 import copy
+from typing import Dict, List
 
 from lgp.env.alfred.alfred_action import AlfredAction
 from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
@@ -30,17 +29,19 @@ class AlfredHLPreproc:
 
 
 class AlfredHLChunkingStrategy:
-
     def __init__(self):
         ...
 
     def is_sequence_terminal(self, action: AlfredAction):
-        return action.action_type in AlfredAction.get_interact_action_list() or action.is_stop()
+        return (
+            action.action_type in AlfredAction.get_interact_action_list()
+            or action.is_stop()
+        )
 
     def include_chunk(self, action: AlfredAction):
         return True
 
-    def ll_to_hl(self, samples: List[Dict], start_idx : int):
+    def ll_to_hl(self, samples: List[Dict], start_idx: int):
         rollout_out = []
 
         last_action = samples[-1]["action"]
@@ -56,10 +57,13 @@ class AlfredHLChunkingStrategy:
             rollout_out.append(sample_out)
 
         else:
-            assert self.is_sequence_terminal(last_action), (
-                "Last action is high-level sequence should be either manipulation or stop")
+            assert self.is_sequence_terminal(
+                last_action
+            ), "Last action is high-level sequence should be either manipulation or stop"
 
-            subgoal = AlfredSubgoal.from_action_and_observation(last_action, last_observation)
+            subgoal = AlfredSubgoal.from_action_and_observation(
+                last_action, last_observation
+            )
             sample_out = copy.deepcopy(samples[start_idx])
             sample_out["subgoal"] = subgoal
             sample_out["eventual_action_ll"] = samples[-1]["action"]

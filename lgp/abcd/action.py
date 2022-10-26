@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod, abstractclassmethod
+from abc import ABC, abstractclassmethod, abstractmethod
 
 
 class Action(ABC):

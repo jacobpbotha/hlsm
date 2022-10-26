@@ -1,10 +1,10 @@
-import os
-import torch
-import inspect
-from typing import Dict, List
 import functools
-import compress_pickle as pickle
+import inspect
+import os
+from typing import Dict, List
 
+import compress_pickle as pickle
+import torch
 
 EXT = "gz"
 J = 1
@@ -13,7 +13,7 @@ J = 1
 # In my experiments, I found that compresslevel=2 actually was fastest, but 50% less space efficient than compresslevel=9
 COMPRESSLEVEL = 1
 
-#prof = SimpleProfiler(print=True)
+# prof = SimpleProfiler(print=True)
 
 
 def rollouts_to_device(x, device):
@@ -22,11 +22,11 @@ def rollouts_to_device(x, device):
         x = [y for y in x]
     # Iterate lists
     if isinstance(x, list):
-        for i,y in enumerate(x):
+        for i, y in enumerate(x):
             x[i] = rollouts_to_device(y, device)
     # Iterate dicts
     if isinstance(x, dict):
-        for k,v in x.items():
+        for k, v in x.items():
             x[k] = rollouts_to_device(v, device)
     # Move to the desired device
     if hasattr(x, "to") and callable(x.to):
@@ -83,7 +83,9 @@ def save_rollouts(data: List[List[Dict]], dataset_path: str):
 def list_rollouts(dataset_path: str) -> List[int]:
     rollout_paths = os.listdir(dataset_path)
     rollout_paths = [r for r in rollout_paths if r.endswith(EXT) and "rollout" in r]
-    rollout_numbers = list(sorted([int(r.split("_")[1].split(".")[0]) for r in rollout_paths]))
+    rollout_numbers = list(
+        sorted([int(r.split("_")[1].split(".")[0]) for r in rollout_paths])
+    )
     return rollout_numbers
 
 
@@ -94,7 +96,7 @@ def load_rollouts(dataset_path: str, max_count: int = -1) -> List[List[Dict]]:
     if J == 1:
         rollouts = [load_rollout(dataset_path, i) for i in rollout_numbers]
     else:
-        ctx = mp.get_context('spawn')
+        ctx = mp.get_context("spawn")
         p = ctx.Pool(J)
         rollouts = p.map(functools.partial(load_rollout, dataset_path), rollout_numbers)
         p.close()
@@ -104,9 +106,9 @@ def load_rollouts(dataset_path: str, max_count: int = -1) -> List[List[Dict]]:
 
 # Temp code to move all rollouts to CPU:
 
-import pathlib
 import datetime
 import gzip
+import pathlib
 
 
 def convert_path(arg):
@@ -138,19 +140,24 @@ if __name__ == "__main__":
 
     dataset_dir = "/media/valts/Data/lgdts/data/rollouts/navigation_data"
     dataset_paths = [os.path.join(dataset_dir, f) for f in os.listdir(dataset_dir)]
-    older_than = datetime.datetime(year=2021, month=4, day=22, hour=6, minute=0, second=0, microsecond=0)
+    older_than = datetime.datetime(
+        year=2021, month=4, day=22, hour=6, minute=0, second=0, microsecond=0
+    )
     old_dataset_paths = filter_older(dataset_paths, older_than)
-    print(f"{len(old_dataset_paths)} / {len(dataset_paths)} files are older than {older_than}")
+    print(
+        f"{len(old_dataset_paths)} / {len(dataset_paths)} files are older than {older_than}"
+    )
     old_dataset_paths = dataset_paths
 
     old_dataset_paths = [(i, f) for i, f in enumerate(old_dataset_paths)]
 
     import multiprocessing as mp
+
     mp.set_start_method("spawn")
     # Activate CUDA context
     import torch
+
     torch.cuda.synchronize()
 
     with mp.Pool(6) as p:
         p.map(convert_path, old_dataset_paths)
-

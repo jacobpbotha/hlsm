@@ -1,21 +1,19 @@
-import itertools
 import copy
+import itertools
 import math
 import random
 from typing import List
 
 import torch
-
 from lgp.env.blockworld import config as config
 from lgp.env.blockworld.bwobservation import BwObservation
-from lgp.env.privileged_info import PrivilegedInfo
 from lgp.env.blockworld.state.item import Item
 from lgp.env.blockworld.state.room import Room
 from lgp.env.blockworld.state.visuals import one_hot_to_image
+from lgp.env.privileged_info import PrivilegedInfo
 
 
 class World:
-
     def __init__(self, rooms: List[Room], agent_room_idx: int, inventory: List[Item]):
         self.rooms = rooms
         self.agent_room_idx = agent_room_idx
@@ -25,9 +23,12 @@ class World:
     @classmethod
     def make_random(cls):
         # Make a grid of random rooms
-        rooms = [Room.make_random((i, j))
-                 for (i, j) in itertools.product(range(config.NUM_ROOMS),
-                                                 range(config.NUM_ROOMS))]
+        rooms = [
+            Room.make_random((i, j))
+            for (i, j) in itertools.product(
+                range(config.NUM_ROOMS), range(config.NUM_ROOMS)
+            )
+        ]
 
         # Iterate over pairs of neighboring rooms and connect them
         for room1, room2 in itertools.product(rooms, rooms):
@@ -47,7 +48,12 @@ class World:
         return cls(rooms, agent_room_idx, inventory)
 
     def __eq__(self, other: "World"):
-        return (self.inventory == other.inventory) and (self.agent_room_idx == other.agent_room_idx) and (self.rooms == other.rooms) and (self.stopped == other.stopped)
+        return (
+            (self.inventory == other.inventory)
+            and (self.agent_room_idx == other.agent_room_idx)
+            and (self.rooms == other.rooms)
+            and (self.stopped == other.stopped)
+        )
 
     def _get_grid_size(self):
         return config.NUM_ROOMS * self._get_room_size()
@@ -63,14 +69,19 @@ class World:
         self.inventory.append(item)
 
     def move_agent_to_room(self, new_room_coord: (int, int)):
-        matching_rooms = [i for i, r in enumerate(self.rooms) if r.coord == new_room_coord]
-        assert len(matching_rooms) > 0, f"Attempted to move agent to a room {new_room_coord} which doesn't exist!"
+        matching_rooms = [
+            i for i, r in enumerate(self.rooms) if r.coord == new_room_coord
+        ]
+        assert (
+            len(matching_rooms) > 0
+        ), f"Attempted to move agent to a room {new_room_coord} which doesn't exist!"
         new_room_idx = matching_rooms[0]
         self.agent_room_idx = new_room_idx
 
     def get_one_hot_world_tensor(self) -> torch.tensor:
-        """
-        Creates a tensor CxNxN size tensor representation of the blockworld environment, where
+        """Creates a tensor CxNxN size tensor representation of the blockworld
+        environment, where.
+
          N: (config.ROOM_SIZE + 2) * config.NUM_ROOMS
          C: 2 * <number of colors> + 3
         At each spatial location, the cell is represented by a vector that is a concatenation of:
@@ -102,13 +113,13 @@ class World:
     def get_one_hot_agent_tensor(self):
         c_name_to_idx = config.get_spatial_state_name_to_idx()
 
-        agent_vector = torch.zeros((len(c_name_to_idx) + 1, ))
+        agent_vector = torch.zeros((len(c_name_to_idx) + 1,))
         for item in self.inventory:
             agent_vector[c_name_to_idx[f"item-{item.color}"]] += 1
         agent_vector[-1] = 1 if self.stopped else 0
         return agent_vector
 
-    def get_observability_mask(self, full_observability : bool = False) -> torch.tensor:
+    def get_observability_mask(self, full_observability: bool = False) -> torch.tensor:
         """
         :return: 1xDxD tensor indicating the room the agent is in with ones + additional 1 cell on each side of the room.
          The rest of the cells are filled with zeros.
@@ -130,18 +141,26 @@ class World:
             mask[:, viz_t:viz_b, viz_l:viz_r] = 1.0
         return mask
 
-    def get_observation(self, full_observability : bool = False) -> torch.tensor:
+    def get_observation(self, full_observability: bool = False) -> torch.tensor:
         """
         :return: CxDxD tensor that is the state tensor, masked by the observability mask
         """
         state_tensor = self.get_one_hot_world_tensor().unsqueeze(0)
-        observability_mask = self.get_observability_mask(full_observability).unsqueeze(0)
+        observability_mask = self.get_observability_mask(full_observability).unsqueeze(
+            0
+        )
         observation_tensor = state_tensor * observability_mask
         agent_vector = self.get_one_hot_agent_tensor().unsqueeze(0)
         agent_coordinate = [self.rooms[self.agent_room_idx].get_center_coordinate()]
         privileged_info = PrivilegedInfo([copy.deepcopy(self)])
 
-        observation = BwObservation(observation_tensor, observability_mask, agent_vector, agent_coordinate, privileged_info)
+        observation = BwObservation(
+            observation_tensor,
+            observability_mask,
+            agent_vector,
+            agent_coordinate,
+            privileged_info,
+        )
         return observation
 
     def represent_as_image(self) -> torch.tensor:
@@ -151,6 +170,7 @@ class World:
 
 # Quick main function to test state generation
 from lgp.utils.utils import tensorshow
+
 if __name__ == "__main__":
     # Test generating random world
     print("Creating a random world state!")

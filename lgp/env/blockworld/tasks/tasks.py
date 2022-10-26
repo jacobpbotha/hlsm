@@ -1,8 +1,9 @@
 import random
-from lgp.abcd.task import Task
-from lgp.env.blockworld.state.world import World
-from lgp.env.blockworld.state.room import Room
+
 import lgp.env.blockworld.config as config
+from lgp.abcd.task import Task
+from lgp.env.blockworld.state.room import Room
+from lgp.env.blockworld.state.world import World
 
 
 def get_vocabulary_old():
@@ -10,19 +11,8 @@ def get_vocabulary_old():
     first_tokens = [
         "<null>"
     ]  # NULL has to go first to get an index zero and later allow easier optimizations
-    additional_words = [
-        "pick",
-        "up",
-        "item",
-        "room",
-        "go",
-        "to"
-    ]
-    special_tokens = [
-        "<sos>",
-        "<eos>",
-        "<unk>"
-    ]
+    additional_words = ["pick", "up", "item", "room", "go", "to"]
+    special_tokens = ["<sos>", "<eos>", "<unk>"]
     full_vocab = first_tokens + color_names + additional_words + special_tokens
     numbered_vocab = {w: i for i, w in enumerate(full_vocab)}
     return numbered_vocab
@@ -33,20 +23,8 @@ def get_vocabulary():
     first_tokens = [
         "<null>"
     ]  # NULL has to go first to get an index zero and later allow easier optimizations
-    additional_words = [
-        "move"
-        "pick",
-        "up",
-        "item",
-        "room",
-        "go",
-        "to"
-    ]
-    special_tokens = [
-        "<sos>",
-        "<eos>",
-        "<unk>"
-    ]
+    additional_words = ["move" "pick", "up", "item", "room", "go", "to"]
+    special_tokens = ["<sos>", "<eos>", "<unk>"]
     full_vocab = first_tokens + color_names + additional_words + special_tokens
     numbered_vocab = {w: i for i, w in enumerate(full_vocab)}
     return numbered_vocab
@@ -58,8 +36,9 @@ class BwTask(Task):
         ...
 
     def compute_reward(self, state: World, next_state: World) -> float:
-        """
-        Given a state transition, award a reward if this transition measurably proceeds towards completing the task.
+        """Given a state transition, award a reward if this transition
+        measurably proceeds towards completing the task.
+
         :param state:
         :param next_state:
         :return:
@@ -83,7 +62,9 @@ class BwMoveTask(BwTask):
         return cls(item_color, room_color)
 
     def _agent_has_correct_item(self, state: World):
-        matching_items = [item for item in state.inventory if item.color == self.item_color]
+        matching_items = [
+            item for item in state.inventory if item.color == self.item_color
+        ]
         return len(matching_items) == 1
 
     def _target_room_has_target_item(self, state: World):
@@ -94,15 +75,16 @@ class BwMoveTask(BwTask):
         return False
 
     def compute_reward(self, state: World, next_state: World) -> float:
-        """
-        Given a state transition, award a reward if this transition measurably proceeds towards completing the task.
+        """Given a state transition, award a reward if this transition
+        measurably proceeds towards completing the task.
+
         :param state:
         :param next_state:
         :return:
         """
         STEP_R = -0.05
         already_solved = self.check_goal_conditions(state)
-        #now_solved = self.check_goal_conditions(next_state)
+        # now_solved = self.check_goal_conditions(next_state)
         prev_holding_item = self._agent_has_correct_item(state)
         now_holding_item = self._agent_has_correct_item(next_state)
 
@@ -139,7 +121,6 @@ class BwMoveTask(BwTask):
 
 
 class BwPickupTask(BwTask):
-
     def __init__(self, color: str):
         super().__init__()
         self.color = color
@@ -150,13 +131,16 @@ class BwPickupTask(BwTask):
         return cls(color)
 
     def _room_has_item(self, state: World):
-        current_room : Room = state.get_current_room()
-        matching_items = [item for item in current_room.items if item.color == self.color]
+        current_room: Room = state.get_current_room()
+        matching_items = [
+            item for item in current_room.items if item.color == self.color
+        ]
         return len(matching_items) > 0
 
     def compute_reward(self, state: World, next_state: World) -> float:
-        """
-        Given a state transition, award a reward if this transition measurably proceeds towards completing the task.
+        """Given a state transition, award a reward if this transition
+        measurably proceeds towards completing the task.
+
         :param state:
         :param next_state:
         :return:
@@ -195,9 +179,10 @@ class BwPickupTask(BwTask):
         return f"pick up {self.color} item"
 
 
-#TASK_TYPES = [BwPickupTask, BwMoveTask]
-#TASK_TYPES = [BwMoveTask]
+# TASK_TYPES = [BwPickupTask, BwMoveTask]
+# TASK_TYPES = [BwMoveTask]
 TASK_TYPES = [BwPickupTask]
+
 
 def generate_random_task():
     TaskTypeCls = random.choice(TASK_TYPES)

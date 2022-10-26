@@ -1,20 +1,14 @@
 from typing import Dict
 
+import lgp.env.alfred.segmentation_definitions as segdef
+import lgp.paths
 import torch
 import torch.nn.functional as F
-
-from typing import Dict
-
 from lgp.abcd.skill import Skill
-
-import lgp.env.alfred.segmentation_definitions as segdef
-
 from lgp.env.alfred.alfred_action import AlfredAction
 from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 from lgp.models.alfred.handcoded_skills.go_to import GoToSkill
-
-import lgp.paths
+from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 MAX_NAV_COUNT = 40
 SIMPLE_EXPLORE_BASELINE = False
@@ -48,8 +42,13 @@ class ExploreSkill(Skill):
 
     def _build_floor_edge_mask(self, state_repr):
         floor_ids = [segdef.object_string_to_intid(s) for s in ["Floor"]]
-        wall_ids = [segdef.object_string_to_intid(s) for s in ["Wall", "StandardWallSize", "Door"]]
-        map_floor = state_repr.data.data[:, floor_ids].max(1).values.max(3).values.float()
+        wall_ids = [
+            segdef.object_string_to_intid(s)
+            for s in ["Wall", "StandardWallSize", "Door"]
+        ]
+        map_floor = (
+            state_repr.data.data[:, floor_ids].max(1).values.max(3).values.float()
+        )
         map_wall = state_repr.data.data[:, wall_ids].max(1).values.max(3).values.float()
         map_occupied = state_repr.data.occupancy.max(1).values.max(3).values.float()
         map_free = 1 - map_occupied
@@ -58,14 +57,18 @@ class ExploreSkill(Skill):
         map_unobserved = 1 - map_observed
 
         kern1 = torch.ones((1, 1, 3, 3), device=map_free.device)
-        expanded_unobserved = (F.conv2d(map_unobserved[None, :, :, :], kern1, padding=1)[0] > 0.5).float()
-        expanded_walls = (F.conv2d(map_wall[None, :, :, :], kern1, padding=1)[0] > 0.5).float()
+        expanded_unobserved = (
+            F.conv2d(map_unobserved[None, :, :, :], kern1, padding=1)[0] > 0.5
+        ).float()
+        expanded_walls = (
+            F.conv2d(map_wall[None, :, :, :], kern1, padding=1)[0] > 0.5
+        ).float()
         not_expanded_walls = 1 - expanded_walls
 
         unobserved_floor_boundary = expanded_unobserved * map_floor * not_expanded_walls
         return unobserved_floor_boundary
 
-    def _construct_cost_function(self, state_repr : AlfredSpatialStateRepr):
+    def _construct_cost_function(self, state_repr: AlfredSpatialStateRepr):
         b, c, w, l, h = state_repr.data.data.shape
 
         ground_2d = (state_repr.data.occupancy[:, :, :, :, 0:4].sum(4) == 1).float()
@@ -81,7 +84,11 @@ class ExploreSkill(Skill):
         if len(filt_pos_prob.shape) == 3:
             filt_pos_prob = filt_pos_prob[None, :, :, :]
 
-        idx = torch.distributions.categorical.Categorical(probs=filt_pos_prob.view([-1])).sample().item()
+        idx = (
+            torch.distributions.categorical.Categorical(probs=filt_pos_prob.view([-1]))
+            .sample()
+            .item()
+        )
         x = idx // l
         y = idx % l
         self.rewardmap = torch.zeros_like(filt_pos_prob)
@@ -99,14 +106,17 @@ class ExploreSkill(Skill):
         return False
 
     def _is_found(self, state_repr):
-        weighted_layers = state_repr.data.data * self.hl_action.argument_vector[:, 1:, None, None, None]
+        weighted_layers = (
+            state_repr.data.data
+            * self.hl_action.argument_vector[:, 1:, None, None, None]
+        )
         response = weighted_layers.sum().item()
         if response >= FOUND_THRESHOLD:
             return True
         else:
             return False
 
-    def set_goal(self, hl_action : AlfredSubgoal):
+    def set_goal(self, hl_action: AlfredSubgoal):
         self._reset()
         self.hl_action = hl_action
 
@@ -128,12 +138,14 @@ class ExploreSkill(Skill):
         # This costs very little, but can significantly improve the map representation between
         # failed navigation retries.
         if not self.pre_rotation_finished:
-            action : AlfredAction = AlfredAction(action_type="RotateLeft", argument_mask=None)
+            action: AlfredAction = AlfredAction(
+                action_type="RotateLeft", argument_mask=None
+            )
             self.rotation_count += 1
-            #if self.rotation_count == 1:
+            # if self.rotation_count == 1:
             #    action : AlfredAction = AlfredAction(action_type="LookUp", argument_mask=None)
             if self.rotation_count == 3:
-                #action: AlfredAction = AlfredAction(action_type="LookDown", argument_mask=None)
+                # action: AlfredAction = AlfredAction(action_type="LookDown", argument_mask=None)
                 self.rotation_count = 0
                 self.pre_rotation_finished = True
 
@@ -151,7 +163,7 @@ class ExploreSkill(Skill):
                 if self.rewardmap is None:
                     self.rewardmap = self._construct_cost_function(state_repr)
                     self.goto_skill.set_goal(self.rewardmap)
-                action : AlfredAction = self.goto_skill.act(state_repr)
+                action: AlfredAction = self.goto_skill.act(state_repr)
                 if action.is_stop():
                     self.rewardmap = None
                     count += 1
@@ -163,16 +175,22 @@ class ExploreSkill(Skill):
 
         elif not self.post_rotation_finished:
             # First do 4x RotateLeft to look around
-            action : AlfredAction = AlfredAction(action_type="RotateLeft", argument_mask=None)
+            action: AlfredAction = AlfredAction(
+                action_type="RotateLeft", argument_mask=None
+            )
             self.rotation_count += 1
 
             # Look up before rotating
             if self.rotation_count == 1:
-                action : AlfredAction = AlfredAction(action_type="LookUp", argument_mask=None)
+                action: AlfredAction = AlfredAction(
+                    action_type="LookUp", argument_mask=None
+                )
 
             # Look back down after rotating
             if self.rotation_count == 5:
-                action: AlfredAction = AlfredAction(action_type="LookDown", argument_mask=None)
+                action: AlfredAction = AlfredAction(
+                    action_type="LookDown", argument_mask=None
+                )
                 self.rotation_count = 0
                 self.post_rotation_finished = True
 

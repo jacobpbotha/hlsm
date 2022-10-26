@@ -1,28 +1,23 @@
+import math
 from typing import Dict
 
-import math
 import torch
 import torch.nn.functional as F
-
 from lgp.abcd.skill import Skill
-
 from lgp.env.alfred.alfred_action import AlfredAction
-
+from lgp.flags import GLOBAL_VIZ
 from lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
 from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-
-
 from lgp.utils.viz import show_image
-from lgp.flags import GLOBAL_VIZ
 
 GRID_SIZE = 61
 
-TERMINAL_OBSTACLE_REWARD = -0.9    # Reward for colliding with obstacles
-TERMINAL_STOP_GOAL_REWARD = 1.0    # Reward for stopping at the goal position
-TERMINAL_STOP_ALL_REWARD = 0.001   # Reward for stopping at a non-goal position.
-                                   # This should be slightly positive, so that if the goal is unreachable, the agent stops
-                                   # if it's negative, the agent will roam around forever because a negative reward later
-                                   # is better than a negative reward now
+TERMINAL_OBSTACLE_REWARD = -0.9  # Reward for colliding with obstacles
+TERMINAL_STOP_GOAL_REWARD = 1.0  # Reward for stopping at the goal position
+TERMINAL_STOP_ALL_REWARD = 0.001  # Reward for stopping at a non-goal position.
+# This should be slightly positive, so that if the goal is unreachable, the agent stops
+# if it's negative, the agent will roam around forever because a negative reward later
+# is better than a negative reward now
 
 # Reward for passing through space where ground hasn't been observed
 # This should be bigger than TERMINAL_STOP_GOAL_REWARD * gamma
@@ -35,20 +30,19 @@ S_UNSEEN = 3
 S_ALL = 4
 
 
-class ValueIterationNetwork3D():
-
-    def __init__(self, rewardmap=None, occupancy_map=None, observability_map=None, extra_obstacle_map=None):
+class ValueIterationNetwork3D:
+    def __init__(
+        self,
+        rewardmap=None,
+        occupancy_map=None,
+        observability_map=None,
+        extra_obstacle_map=None,
+    ):
         self.rewardmap = rewardmap
         self.occupancy_map = occupancy_map
         self.observability_map = observability_map
         self.extra_obstacle_map = extra_obstacle_map
-        self._idx_to_gridaction = {
-            0: "UP",
-            1: "RIGHT",
-            2: "DOWN",
-            3: "LEFT",
-            4: "STOP"
-        }
+        self._idx_to_gridaction = {0: "UP", 1: "RIGHT", 2: "DOWN", 3: "LEFT", 4: "STOP"}
         self._gridaction_to_idx = {v: k for k, v in self._idx_to_gridaction.items()}
 
     def _spatial_remap(self, x):
@@ -73,9 +67,16 @@ class ValueIterationNetwork3D():
         # Compute a binary image of all positions that are guaranteed to be free of obstacles
         OBSTACLE_EXPANSION = 0
         batch_size = self.occupancy_map.shape[0]
-        state_map = torch.zeros((batch_size, 5, GRID_SIZE, GRID_SIZE), device=self.occupancy_map.device)
-        K = torch.ones([1, 1, 1 + 2 * OBSTACLE_EXPANSION, 1 + 2 * OBSTACLE_EXPANSION], device=self.occupancy_map.device)
-        occupancy_map_expanded = F.conv2d(self.occupancy_map, K, padding=OBSTACLE_EXPANSION).clamp(0, 1)[0]
+        state_map = torch.zeros(
+            (batch_size, 5, GRID_SIZE, GRID_SIZE), device=self.occupancy_map.device
+        )
+        K = torch.ones(
+            [1, 1, 1 + 2 * OBSTACLE_EXPANSION, 1 + 2 * OBSTACLE_EXPANSION],
+            device=self.occupancy_map.device,
+        )
+        occupancy_map_expanded = F.conv2d(
+            self.occupancy_map, K, padding=OBSTACLE_EXPANSION
+        ).clamp(0, 1)[0]
 
         obstacle_map = (occupancy_map_expanded + self.extra_obstacle_map).clamp(0, 1)
         safe_freespace_map = 1 - obstacle_map
@@ -115,7 +116,9 @@ class ValueIterationNetwork3D():
         return p_kernel
 
     def _init_intermediate_reward_kernel(self):
-        intermediate_r_kernel = torch.zeros((5, 5, 1, 1), device=self.occupancy_map.device)
+        intermediate_r_kernel = torch.zeros(
+            (5, 5, 1, 1), device=self.occupancy_map.device
+        )
         intermediate_r_kernel[0:5, S_UNSEEN] = INTERMEDIATE_UNOBSERVED_REWARD
         return intermediate_r_kernel
 
@@ -134,8 +137,8 @@ class ValueIterationNetwork3D():
         return state_map, t_kernel, intermediate_r_kernel, terminal_r_kernel
 
     def vin_module_q(self, Q, state_image, T, iRK, tRK, gamma=0.99):
-        """
-        Perform one step of value iteration on a grid-MDP with:
+        """Perform one step of value iteration on a grid-MDP with:
+
          - HxW states aligned in a spatial grid, where each state has S semantic properties.
          - A actions with effects described by a 3x3 matrix of transition probabilities.
 
@@ -157,7 +160,7 @@ class ValueIterationNetwork3D():
         V = torch.max(Q, dim=1, keepdim=True).values
 
         # Propagate values to neighboring states according to the transition probabilities
-        Vn = gamma * torch.conv2d(V, T, stride=1, padding=int((T.shape[2]-1)/2))
+        Vn = gamma * torch.conv2d(V, T, stride=1, padding=int((T.shape[2] - 1) / 2))
 
         # Compute intermediate reward R(s,a) for each action in each state
         iR = torch.conv2d(state_image, iRK, stride=1, padding=0)
@@ -178,9 +181,16 @@ class ValueIterationNetwork3D():
         w = self.rewardmap.shape[2]
         # Reset iteration
         q_image = torch.zeros_like(self.rewardmap)
-        state_image, t_kernel, intermediate_r_kernel, terminal_r_kernel = self._initialize()
+        (
+            state_image,
+            t_kernel,
+            intermediate_r_kernel,
+            terminal_r_kernel,
+        ) = self._initialize()
         for i in range(w * 2):
-            q_image = self.vin_module_q(q_image, state_image, t_kernel, intermediate_r_kernel, terminal_r_kernel)
+            q_image = self.vin_module_q(
+                q_image, state_image, t_kernel, intermediate_r_kernel, terminal_r_kernel
+            )
         return q_image
 
     def remap_xy(self, x, y, voxelgrid_size):
@@ -228,11 +238,11 @@ class GoToSkill(Skill):
         self.trace = {
             "reward_map": torch.zeros([1, 1, GRID_SIZE, GRID_SIZE]),
             "v_image": torch.zeros([1, 1, GRID_SIZE, GRID_SIZE]),
-            "occupancy_2d": torch.zeros([1, 1, GRID_SIZE, GRID_SIZE])
+            "occupancy_2d": torch.zeros([1, 1, GRID_SIZE, GRID_SIZE]),
         }
 
     def select_gridaction(self, q_function, x, y):
-        #if (x, y) != self.prev_pos:
+        # if (x, y) != self.prev_pos:
         #    self.tried_and_failed_actions = []
 
         q_function_0 = q_function[0:1, :, x, y]
@@ -282,7 +292,7 @@ class GoToSkill(Skill):
     def act(self, state_repr: AlfredSpatialStateRepr) -> AlfredAction:
         self.count += 1
         occupancy_map_2d = state_repr.get_obstacle_map_2d()
-        self.vin.set_occupancy_map(occupancy_map_2d) # There's only one channel
+        self.vin.set_occupancy_map(occupancy_map_2d)  # There's only one channel
         observability_map_2d = state_repr.get_observability_map_2d(floor_level=True)
         self.vin.set_observability_map(observability_map_2d)
         self.vin.set_extra_obstacle_map(self.bumper_obstacle_map)
@@ -296,8 +306,8 @@ class GoToSkill(Skill):
             self.log_pos(self.prev_gridact, x_vx_q, y_vx_q)
 
         vb, vc, vh, vw = q_image.shape
-        x_vx_q = max(min(x_vx_q, vh-1), 0)
-        y_vx_q = max(min(y_vx_q, vw-1), 0)
+        x_vx_q = max(min(x_vx_q, vh - 1), 0)
+        y_vx_q = max(min(y_vx_q, vw - 1), 0)
         # Mark agent position for debugging purposes
         ANNOTATE_FOR_TREE_VIZ = True
         VIZ = GLOBAL_VIZ
@@ -311,15 +321,23 @@ class GoToSkill(Skill):
             self.trace["occupancy_2d"] = occupancy_map_2d
             self.trace["reward_map"] = self.vin.rewardmap
         if VIZ:
-            v_image_c_neg = torch.tensor([1, 0, 0], device=v_image.device)[:, None, None] * v_image.clamp(-1000, 0) * (-1)
-            v_image_c_pos = torch.tensor([0, 1, 0], device=v_image.device)[:, None, None] * v_image.clamp(0, 1000) * 1
+            v_image_c_neg = (
+                torch.tensor([1, 0, 0], device=v_image.device)[:, None, None]
+                * v_image.clamp(-1000, 0)
+                * (-1)
+            )
+            v_image_c_pos = (
+                torch.tensor([0, 1, 0], device=v_image.device)[:, None, None]
+                * v_image.clamp(0, 1000)
+                * 1
+            )
             peak = max(v_image_c_neg.max().item(), v_image_c_pos.max().item())
             v_image_c = (v_image_c_neg + v_image_c_pos) / peak
             v_image_c[:, x_vx_q, y_vx_q] = torch.tensor([0, 0, 1])
             show_image(v_image_c, "VIN Value Image", scale=4, waitkey=1)
 
         gridaction = self.select_gridaction(q_image, x_vx_q, y_vx_q)
-        self.prev_gridact = gridaction # Log this so that we can keep track of which MoveAhead succeed and fail
+        self.prev_gridact = gridaction  # Log this so that we can keep track of which MoveAhead succeed and fail
 
         # If reached the right place, rotate towards the object and stop
         if gridaction == "STOP":
@@ -328,10 +346,10 @@ class GoToSkill(Skill):
         # Otherwise rotate in the direction according to the gridworld action, and then move forward
         else:
             target_yaw = {
-                "UP": math.pi,              # Negative X direction
-                "RIGHT": math.pi / 2,       # Positive Y direction
-                "DOWN": 0,                  # Positive X direction
-                "LEFT": math.pi * 3 / 2     # Negative Y direction
+                "UP": math.pi,  # Negative X direction
+                "RIGHT": math.pi / 2,  # Positive Y direction
+                "DOWN": 0,  # Positive X direction
+                "LEFT": math.pi * 3 / 2,  # Negative Y direction
             }[gridaction]
             self.rotate_to_yaw_skill.set_goal(target_yaw)
             rotate_action = self.rotate_to_yaw_skill.act(state_repr)

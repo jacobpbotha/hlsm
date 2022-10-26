@@ -1,15 +1,20 @@
 from typing import Dict
 
 from lgp.abcd.skill import Skill
-
 from lgp.env.alfred.alfred_action import AlfredAction
 from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from lgp.flags import LONG_INIT
 from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
-from lgp.flags import LONG_INIT
-
 if LONG_INIT:
-    INIT_SEQUENCE = ["LookDown"] + ["RotateLeft"] * 4 + ["LookUp"] * 3 + ["RotateLeft"] * 4 + ["LookDown"] * 2 + ["Stop"]
+    INIT_SEQUENCE = (
+        ["LookDown"]
+        + ["RotateLeft"] * 4
+        + ["LookUp"] * 3
+        + ["RotateLeft"] * 4
+        + ["LookDown"] * 2
+        + ["Stop"]
+    )
 else:
     INIT_SEQUENCE = ["RotateLeft"] * 4 + ["Stop"]
 
@@ -22,7 +27,7 @@ class InitSkill(Skill):
 
     @classmethod
     def sequence_length(cls):
-        return len(INIT_SEQUENCE) - 1 # -1 because of the Stop action
+        return len(INIT_SEQUENCE) - 1  # -1 because of the Stop action
 
     def start_new_rollout(self):
         self._reset()
@@ -40,13 +45,18 @@ class InitSkill(Skill):
     def has_failed(self) -> bool:
         return False
 
-    def set_goal(self, hl_action : AlfredSubgoal):
+    def set_goal(self, hl_action: AlfredSubgoal):
         self._reset()
 
     def act(self, state_repr: AlfredSpatialStateRepr) -> AlfredAction:
 
         if self.count >= len(INIT_SEQUENCE):
-            raise ValueError("Init skill already output a Stop action! No futher calls allowed")
-        action = AlfredAction(action_type=INIT_SEQUENCE[self.count], argument_mask=AlfredAction.get_empty_argument_mask())
+            raise ValueError(
+                "Init skill already output a Stop action! No futher calls allowed"
+            )
+        action = AlfredAction(
+            action_type=INIT_SEQUENCE[self.count],
+            argument_mask=AlfredAction.get_empty_argument_mask(),
+        )
         self.count += 1
         return action

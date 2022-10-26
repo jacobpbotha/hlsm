@@ -1,8 +1,9 @@
 import torch
-from torch import nn as nn
 import torch.nn.functional as F
-
-from lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv, DoubleConv, objectview
+from lgp.models.alfred.hlsm.unets.unet_blocks import (DoubleConv,
+                                                      UpscaleDoubleConv,
+                                                      objectview)
+from torch import nn as nn
 
 PROFILE = False
 
@@ -18,7 +19,7 @@ class Lingunet3(torch.nn.Module):
             "hc2": 32,
             "out_channels": out_channels,
             "context_size": context_size,
-            "stride": 2
+            "stride": 2,
         }
         self.p = objectview(params)
 
@@ -28,14 +29,25 @@ class Lingunet3(torch.nn.Module):
         ConvOp = DoubleConv
 
         # inchannels, outchannels, kernel size
-        self.conv1 = ConvOp(self.p.in_channels, self.p.hc1, 3, stride=self.p.stride, padding=1)
+        self.conv1 = ConvOp(
+            self.p.in_channels, self.p.hc1, 3, stride=self.p.stride, padding=1
+        )
         self.conv2 = ConvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
         self.conv3 = ConvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
 
-        self.deconv3 = DeconvOp(self.p.hb1, self.p.hc1, 3, stride=self.p.stride, padding=1)
-        self.deconv4 = DeconvOp(self.p.hc1 + self.p.hb1, self.p.hc2, 3, stride=self.p.stride, padding=1)
-        self.deconv5 = DeconvOp(self.p.hb1 + self.p.hc2, self.p.out_channels, 3, stride=self.p.stride, padding=1)
-
+        self.deconv3 = DeconvOp(
+            self.p.hb1, self.p.hc1, 3, stride=self.p.stride, padding=1
+        )
+        self.deconv4 = DeconvOp(
+            self.p.hc1 + self.p.hb1, self.p.hc2, 3, stride=self.p.stride, padding=1
+        )
+        self.deconv5 = DeconvOp(
+            self.p.hb1 + self.p.hc2,
+            self.p.out_channels,
+            3,
+            stride=self.p.stride,
+            padding=1,
+        )
 
         self.act = nn.LeakyReLU()
         self.input_dropout = nn.Dropout(0.5)

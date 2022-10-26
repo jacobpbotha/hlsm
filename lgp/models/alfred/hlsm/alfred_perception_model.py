@@ -1,17 +1,13 @@
 from typing import Dict
 
+import lgp.env.alfred.segmentation_definitions as segdef
 import torch
 import torch.nn as nn
-
 from lgp.abcd.model import LearnableModel
-from lgp.utils.viz import show_image
 from lgp.flags import GLOBAL_VIZ
-
-import lgp.env.alfred.segmentation_definitions as segdef
-
 from lgp.models.alfred.hlsm.unets.unet_5 import UNet5
-
 from lgp.ops.depth_estimate import DepthEstimate
+from lgp.utils.viz import show_image
 
 
 class AlfredSegmentationAndDepthModel(LearnableModel):
@@ -22,6 +18,7 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
     """
     Given a current state s_t, proposes an action distribution that makes sense.
     """
+
     def __init__(self, hparams):
         super().__init__()
         self.hidden_dim = 128
@@ -41,12 +38,19 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
         self.depth_bins = self.params.get("depth_bins", 50)
         self.max_depth_m = self.params.get("max_depth", 5.0)
 
-        assert self.train_for in [self.TRAINFOR_SEG, self.TRAINFOR_DEPTH, self.TRAINFOR_BOTH, None]
+        assert self.train_for in [
+            self.TRAINFOR_SEG,
+            self.TRAINFOR_DEPTH,
+            self.TRAINFOR_BOTH,
+            None,
+        ]
         print(f"Training perception model for: {self.train_for}")
 
         self.net = UNet5(self.distr_depth, self.depth_bins)
 
-        self.iter = nn.Parameter(torch.zeros([1], dtype=torch.double), requires_grad=False)
+        self.iter = nn.Parameter(
+            torch.zeros([1], dtype=torch.double), requires_grad=False
+        )
 
         self.nllloss = nn.NLLLoss(reduce=True, size_average=True)
         self.celoss = nn.CrossEntropyLoss(reduce=True, size_average=True)
@@ -61,7 +65,9 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
                 depth_pred = torch.exp(depth_pred * self.depth_t_beta)
                 depth_pred = depth_pred / (depth_pred.sum(dim=1, keepdim=True))
 
-                depth_pred = DepthEstimate(depth_pred, self.depth_bins, self.max_depth_m)
+                depth_pred = DepthEstimate(
+                    depth_pred, self.depth_bins, self.max_depth_m
+                )
 
                 # Filter segmentations
                 good_seg_mask = seg_pred > 0.3
@@ -72,7 +78,9 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
                 seg_pred = torch.exp(seg_pred)
 
                 good_seg_mask = seg_pred > 0.3
-                good_depth_mask = (seg_pred > 0.5).sum(dim=1, keepdims=True) * (depth_pred > 0.9)
+                good_depth_mask = (seg_pred > 0.5).sum(dim=1, keepdims=True) * (
+                    depth_pred > 0.9
+                )
                 seg_pred = seg_pred * good_seg_mask
                 seg_pred = seg_pred / (seg_pred.sum(dim=1, keepdims=True) + 1e-10)
                 depth_pred = depth_pred * good_depth_mask
@@ -112,13 +120,24 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
         seg_loss = self.nllloss(seg_flat_pred, seg_flat_gt)
 
         if self.distr_depth:
-            depth_flat_pred = depth_pred.permute((0, 2, 3, 1)).reshape([b * h * w, self.depth_bins])
+            depth_flat_pred = depth_pred.permute((0, 2, 3, 1)).reshape(
+                [b * h * w, self.depth_bins]
+            )
             depth_flat_gt = depth_gt.permute((0, 2, 3, 1)).reshape([b * h * w])
-            depth_flat_gt = ((depth_flat_gt / self.max_depth_m).clamp(0, 0.999) * self.depth_bins).long()
+            depth_flat_gt = (
+                (depth_flat_gt / self.max_depth_m).clamp(0, 0.999) * self.depth_bins
+            ).long()
             depth_loss = self.nllloss(depth_flat_pred, depth_flat_gt)
 
-            depth_pred_mean = (torch.arange(0, self.depth_bins, 1, device=depth_pred.device)[None, :, None, None] * torch.exp(depth_pred)).sum(dim=1)
-            depth_mae = (depth_pred_mean.view([-1]) - depth_flat_gt).abs().float().mean() * (self.max_depth_m / self.depth_bins)
+            depth_pred_mean = (
+                torch.arange(0, self.depth_bins, 1, device=depth_pred.device)[
+                    None, :, None, None
+                ]
+                * torch.exp(depth_pred)
+            ).sum(dim=1)
+            depth_mae = (
+                depth_pred_mean.view([-1]) - depth_flat_gt
+            ).abs().float().mean() * (self.max_depth_m / self.depth_bins)
         else:
             depth_flat_pred = depth_pred.reshape([b, h * w])
             depth_flat_gt = depth_gt.reshape([b, h * w])
@@ -141,7 +160,14 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
 
         # Visualization code (removing this doesn't affect functionality)
         if GLOBAL_VIZ and self.distr_depth:
-            self._real_time_visualization(seg_pred_distr, seg_gt_oh, rgb_image, depth_pred, depth_pred_mean, depth_gt)
+            self._real_time_visualization(
+                seg_pred_distr,
+                seg_gt_oh,
+                rgb_image,
+                depth_pred,
+                depth_pred_mean,
+                depth_gt,
+            )
 
         # Outputs
         metrics = {}
@@ -154,7 +180,15 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
 
         return loss, metrics
 
-    def _real_time_visualization(self, seg_pred_distr, seg_gt_oh, rgb_image, depth_pred, depth_pred_mean, depth_gt):
+    def _real_time_visualization(
+        self,
+        seg_pred_distr,
+        seg_gt_oh,
+        rgb_image,
+        depth_pred,
+        depth_pred_mean,
+        depth_gt,
+    ):
         def map_colors_for_viz(cdist):
             # Red - 0,  Blue - 1,    bluegreen - 2,    Yellow - 3
             colors = segdef.get_class_color_vector().to(cdist.device).float() / 255.0
@@ -166,8 +200,20 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
 
         if self.iter.item() % 10 == 0:
             with torch.no_grad():
-                seg_pred_viz = map_colors_for_viz(seg_pred_distr)[0].permute((1, 2, 0)).detach().cpu().numpy()
-                seg_gt_viz = map_colors_for_viz(seg_gt_oh)[0].permute((1, 2, 0)).detach().cpu().numpy()
+                seg_pred_viz = (
+                    map_colors_for_viz(seg_pred_distr)[0]
+                    .permute((1, 2, 0))
+                    .detach()
+                    .cpu()
+                    .numpy()
+                )
+                seg_gt_viz = (
+                    map_colors_for_viz(seg_gt_oh)[0]
+                    .permute((1, 2, 0))
+                    .detach()
+                    .cpu()
+                    .numpy()
+                )
                 rgb_viz = rgb_image[0].permute((1, 2, 0)).detach().cpu().numpy()
 
                 show_image(rgb_viz, "rgb", scale=1, waitkey=1)
@@ -179,16 +225,25 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
                     depth_pred_mean_viz = depth_pred_mean[0].detach().cpu().numpy()
                     depth_pred_std = depth_pred[0].std(0).detach().cpu().numpy()
                     depth_gt_viz = depth_gt[0].permute((1, 2, 0)).detach().cpu().numpy()
-                    show_image(depth_pred_amax_viz, "depth_pred_amax", scale=1, waitkey=1)
-                    show_image(depth_pred_mean_viz, "depth_pred_mean_viz", scale=1, waitkey=1)
+                    show_image(
+                        depth_pred_amax_viz, "depth_pred_amax", scale=1, waitkey=1
+                    )
+                    show_image(
+                        depth_pred_mean_viz, "depth_pred_mean_viz", scale=1, waitkey=1
+                    )
                     show_image(depth_pred_std, "depth_pred_std", scale=1, waitkey=1)
                     show_image(depth_gt_viz, "depth_gt", scale=1, waitkey=1)
                 else:
-                    depth_pred_viz = depth_pred[0].permute((1, 2, 0)).detach().cpu().numpy()
+                    depth_pred_viz = (
+                        depth_pred[0].permute((1, 2, 0)).detach().cpu().numpy()
+                    )
                     depth_gt_viz = depth_gt[0].permute((1, 2, 0)).detach().cpu().numpy()
                     show_image(depth_pred_viz, "depth_pred", scale=1, waitkey=1)
                     show_image(depth_gt_viz, "depth_gt", scale=1, waitkey=1)
 
 
 import lgp.model_registry
-lgp.model_registry.register_model("alfred_perception_model", AlfredSegmentationAndDepthModel)
+
+lgp.model_registry.register_model(
+    "alfred_perception_model", AlfredSegmentationAndDepthModel
+)

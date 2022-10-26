@@ -1,13 +1,11 @@
-from typing import List, Dict
-
 import copy
 import math
+from typing import Dict, List
 
 from lgp.env.alfred.alfred_action import AlfredAction
 from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
 from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-#from lgp.models.alfred.hlsm.hlsm_action_repr import HlsmActionRepr
+# from lgp.models.alfred.hlsm.hlsm_action_repr import HlsmActionRepr
 from lgp.models.alfred.voxel_grid import VoxelGrid
 
 # TODO: HL->Subgoal check
@@ -28,18 +26,21 @@ class NavToGoalChunkingStrategy:
     def __init__(self):
         ...
 
-    #def _interaction_object_observed(self, state_repr: AlfredSpatialStateRepr, action_repr: HlsmActionRepr):
+    # def _interaction_object_observed(self, state_repr: AlfredSpatialStateRepr, action_repr: HlsmActionRepr):
     #    observability_action_intersection = state_repr.obs_mask.data * action_repr.spatial_argument.data
     #    observed = observability_action_intersection.sum().detach().item() > 0.5
     #    return observed
 
     def is_sequence_terminal(self, action: AlfredAction):
-        return action.action_type in AlfredAction.get_interact_action_list() or action.is_stop()
+        return (
+            action.action_type in AlfredAction.get_interact_action_list()
+            or action.is_stop()
+        )
 
     def include_chunk(self, action: AlfredAction):
         return not action.is_stop()
 
-    def ll_to_hl(self, samples: List[Dict], start_idx : int):
+    def ll_to_hl(self, samples: List[Dict], start_idx: int):
         rollout_out = []
 
         last_action = samples[-1]["action"]
@@ -50,7 +51,10 @@ class NavToGoalChunkingStrategy:
         #   - Receptacle Map
         #   - Pickable Map
         #   - ... etc
-        nav_features_2d_all = {t : samples[t]["state_repr"].get_nav_features_2d() for t in range(start_idx, len(samples), 1)}
+        nav_features_2d_all = {
+            t: samples[t]["state_repr"].get_nav_features_2d()
+            for t in range(start_idx, len(samples), 1)
+        }
 
         for t in range(start_idx, len(samples), 1):
 
@@ -64,15 +68,27 @@ class NavToGoalChunkingStrategy:
 
             # Look ahead where the agent went next:
             for tk in range(t, len(samples), 1):
-                x_vx_next, y_vx_next, z_vx_next = samples[tk]["state_repr"].get_pos_xyz_vx()
-                x_vx_next, y_vx_next, z_vx_next = x_vx_next.item(), y_vx_next.item(), z_vx_next.item()
+                x_vx_next, y_vx_next, z_vx_next = samples[tk][
+                    "state_repr"
+                ].get_pos_xyz_vx()
+                x_vx_next, y_vx_next, z_vx_next = (
+                    x_vx_next.item(),
+                    y_vx_next.item(),
+                    z_vx_next.item(),
+                )
                 if x_vx_next != x_vx or y_vx_next != y_vx:
                     break
 
             future_positions = []
-            for tj in range(t+1, len(samples), 1):
-                x_vx_fut, y_vx_fut, z_vx_fut = samples[tj]["state_repr"].get_pos_xyz_vx()
-                x_vx_fut, y_vx_fut, z_vx_fut = x_vx_fut.item(), y_vx_fut.item(), z_vx_fut.item()
+            for tj in range(t + 1, len(samples), 1):
+                x_vx_fut, y_vx_fut, z_vx_fut = samples[tj][
+                    "state_repr"
+                ].get_pos_xyz_vx()
+                x_vx_fut, y_vx_fut, z_vx_fut = (
+                    x_vx_fut.item(),
+                    y_vx_fut.item(),
+                    z_vx_fut.item(),
+                )
                 future_positions.append((x_vx_fut, y_vx_fut, z_vx_fut))
 
             # Which bin does the rotation fall into
@@ -81,7 +97,11 @@ class NavToGoalChunkingStrategy:
 
             # Where the agent ended up
             goal_x_vx, goal_y_vx, goal_z_vx = samples[-1]["state_repr"].get_pos_xyz_vx()
-            goal_x_vx, goal_y_vx, goal_z_vx = goal_x_vx.item(), goal_y_vx.item(), goal_z_vx.item()
+            goal_x_vx, goal_y_vx, goal_z_vx = (
+                goal_x_vx.item(),
+                goal_y_vx.item(),
+                goal_z_vx.item(),
+            )
             goal_pitch, goal_yaw = samples[-1]["state_repr"].get_camera_pitch_yaw()
 
             # Which bin does the goal rotation fall into
@@ -92,7 +112,9 @@ class NavToGoalChunkingStrategy:
             if last_action.is_stop():
                 subgoal = AlfredSubgoal.from_type_str_and_arg_id("Stop", -1)
             else:
-                subgoal = AlfredSubgoal.from_action_and_observation(last_action, last_observation)
+                subgoal = AlfredSubgoal.from_action_and_observation(
+                    last_action, last_observation
+                )
 
             # State image for later visualizing
             state_image = samples[t]["state_repr"].represent_as_image(topdown2d=True)
@@ -117,7 +139,7 @@ class NavToGoalChunkingStrategy:
                 "current_yaw_bin": yaw_bin,
                 "nav_goal_pos": (goal_x_vx, goal_y_vx, goal_z_vx),
                 "nav_goal_rot": (goal_pitch, goal_yaw),
-                "goal_yaw_bin": goal_yaw_bin
+                "goal_yaw_bin": goal_yaw_bin,
             }
             rollout_out.append(sample_out)
         return rollout_out

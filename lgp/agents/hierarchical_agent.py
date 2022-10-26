@@ -1,23 +1,24 @@
 from typing import Dict, List, Type, Union
 
-from lgp.abcd.task import Task
-from lgp.abcd.agent import Agent
-from lgp.abcd.subgoal import Subgoal
 from lgp.abcd.action import Action
-from lgp.abcd.observation import Observation
+from lgp.abcd.agent import Agent
 from lgp.abcd.functions.observation_function import ObservationFunction
+from lgp.abcd.observation import Observation
 from lgp.abcd.repr.state_repr import StateRepr
 from lgp.abcd.skill import Skill
-
+from lgp.abcd.subgoal import Subgoal
+from lgp.abcd.task import Task
 from lgp.env.alfred.alfred_action import AlfredAction
 
 
 class HierarchicalAgent(Agent):
-    def __init__(self,
-                 highlevel_agent : Agent,
-                 skillset : Dict[str, Skill],
-                 observation_function: ObservationFunction,
-                 action_class : Type[Action]):
+    def __init__(
+        self,
+        highlevel_agent: Agent,
+        skillset: Dict[str, Skill],
+        observation_function: ObservationFunction,
+        action_class: Type[Action],
+    ):
         super().__init__()
         self.ActionCls = action_class
         self.skillset = skillset
@@ -25,8 +26,8 @@ class HierarchicalAgent(Agent):
         self.observation_function = observation_function
 
         # State:
-        self.current_skill : Union[Skill, None] = None
-        self.current_goal : Union[Subgoal, None] = None
+        self.current_skill: Union[Skill, None] = None
+        self.current_goal: Union[Subgoal, None] = None
         self.state_repr = None
         self.initialized = False
         self.count = 0
@@ -51,7 +52,7 @@ class HierarchicalAgent(Agent):
         trace = {
             "hl_agent": self.hl_agent.get_trace(device),
             "obs_func": self.observation_function.get_trace(device),
-            "skills": skill_traces
+            "skills": skill_traces,
         }
         return trace
 
@@ -62,7 +63,9 @@ class HierarchicalAgent(Agent):
         self.observation_function.clear_trace()
 
     def act(self, observation: Observation) -> Action:
-        self.state_repr = self.observation_function(observation, self.state_repr, goal=self.current_goal)
+        self.state_repr = self.observation_function(
+            observation, self.state_repr, goal=self.current_goal
+        )
 
         if not self.initialized:
             action = self.skillset["init"].act(self.state_repr)

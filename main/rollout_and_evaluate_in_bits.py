@@ -1,21 +1,18 @@
-"""
-Script that rolls out an agent and does not much else for now
-"""
+"""Script that rolls out an agent and does not much else for now."""
 
-import sys
-import os
-import torch
-import json
 import datetime
+import json
+import os
+import sys
 
-from lgp.agents.agents import get_agent
-from lgp.rollout.rollout_actor import RolloutActorLocal
-from lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
 import lgp.rollout.rollout_data as rd
-from main.visualize_rollout import visualize_rollout
-from lgp.parameters import Hyperparams, load_experiment_definition
-
+import torch
+from lgp.agents.agents import get_agent
 from lgp.env.alfred.alfred_env import AlfredEnv
+from lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
+from lgp.parameters import Hyperparams, load_experiment_definition
+from lgp.rollout.rollout_actor import RolloutActorLocal
+from main.visualize_rollout import visualize_rollout
 
 
 def evaluate_rollouts(exp_def, rollouts):
@@ -30,14 +27,18 @@ class LeaderboardProgress:
         if os.path.exists(self.progress_file):
             with open(self.progress_file, "r") as fp:
                 self.progress = json.load(fp)
-                print(f"Continue where left off? {len(self.progress)} rollouts completed!")
+                print(
+                    f"Continue where left off? {len(self.progress)} rollouts completed!"
+                )
                 inp = input("y/n >")
                 if inp != "y":
                     print("Stopping")
                     sys.exit(0)
                 # Convert old format with only the first repeat to new format indexed by repeats:
                 if len(self.progress[0]) == 3:
-                    print("Converting progress representation to new format with repeat_idx")
+                    print(
+                        "Converting progress representation to new format with repeat_idx"
+                    )
                     self.progress = [[x[0], 0, x[1], x[2]] for x in self.progress]
         else:
             self.progress = []
@@ -51,7 +52,9 @@ class LeaderboardProgress:
         task_id = rollout[0]["task"].get_task_id()
         repeat_idx = rollout[0]["task"].get_repeat_idx()
         datasplit = rollout[0]["task"].get_data_split()
-        actseq = [s["md"]["api_action"] for s in rollout if s["md"]["api_action"] is not None]
+        actseq = [
+            s["md"]["api_action"] for s in rollout if s["md"]["api_action"] is not None
+        ]
         tagged_actseq = [task_id, repeat_idx, datasplit, actseq]
         self.progress.append(tagged_actseq)
         self.tasks_done.append((task_id, repeat_idx))
@@ -64,14 +67,18 @@ class LeaderboardProgress:
         print(f"Saved progress in {self.progress_file}")
 
     def export_leaderboard_json(self):
-        leaderboard_json = {
-        }
+        leaderboard_json = {}
         for task_id, repeat_idx, datasplit, actseq in self.progress:
             if datasplit not in leaderboard_json:
                 leaderboard_json[datasplit] = []
             leaderboard_json[datasplit].append({task_id: actseq})
         leaderboard_dir = os.path.dirname(self.progress_file)
-        leaderboard_file = os.path.join(leaderboard_dir, 'tests_actseqs_dump_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f") + '.json')
+        leaderboard_file = os.path.join(
+            leaderboard_dir,
+            "tests_actseqs_dump_"
+            + datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            + ".json",
+        )
         with open(leaderboard_file, "w") as fp:
             json.dump(leaderboard_json, fp, indent=4, sort_keys=True)
             print(f"Dumped action sequences to: {leaderboard_file}")
@@ -91,20 +98,24 @@ def collect_rollouts(exp_def):
     load_rollouts_dir = exp_def.Setup.get("load_rollouts_dir", False)
     save_rollouts_dir = exp_def.Setup.get("save_rollouts_dir", False)
 
-    env = AlfredEnv(device=device, setup=exp_def.Setup.env_setup.d, hparams=exp_def.Hyperparams.d)
+    env = AlfredEnv(
+        device=device, setup=exp_def.Setup.env_setup.d, hparams=exp_def.Hyperparams.d
+    )
 
     agent = get_agent(exp_def.Setup, exp_def.Hyperparams, device)
 
-    rollout_actor = RolloutActorLocal(experiment_name=exp_name,
-                                      agent=agent,
-                                      env=env,
-                                      dataset_proc=None,
-                                      param_server_proc=None,
-                                      max_horizon=horizon,
-                                      dataset_device=dataset_device,
-                                      index=1,
-                                      collect_trace=visualize_rollouts,
-                                      lightweight_mode=not visualize_rollouts)
+    rollout_actor = RolloutActorLocal(
+        experiment_name=exp_name,
+        agent=agent,
+        env=env,
+        dataset_proc=None,
+        param_server_proc=None,
+        max_horizon=horizon,
+        dataset_device=dataset_device,
+        index=1,
+        collect_trace=visualize_rollouts,
+        lightweight_mode=not visualize_rollouts,
+    )
 
     if exp_def.Setup.leaderboard_progress_file:
         leaderboard_progress = LeaderboardProgress(exp_def)
@@ -115,7 +126,10 @@ def collect_rollouts(exp_def):
     # Load previously saved rollouts # TODO: Delete this code
     if load_rollouts_dir:
         rollouts = rd.load_rollouts(load_rollouts_dir)
-        tasks_done = [(r[0]["task"].get_task_id(), r[0]["task"].get_repeat_idx()) for r in rollouts]
+        tasks_done = [
+            (r[0]["task"].get_task_id(), r[0]["task"].get_repeat_idx())
+            for r in rollouts
+        ]
         print(f"Loaded {len(rollouts)} rollouts from: {load_rollouts_dir}")
     else:
         rollouts = []
@@ -131,7 +145,13 @@ def collect_rollouts(exp_def):
             ret = None
             done = False
             while not done:
-                rollout, ret, done = rollout_actor.split_rollout(skip_tasks=leaderboard_progress.tasks_done if leaderboard_progress else tasks_done, max_section=20, ret=None)
+                rollout, ret, done = rollout_actor.split_rollout(
+                    skip_tasks=leaderboard_progress.tasks_done
+                    if leaderboard_progress
+                    else tasks_done,
+                    max_section=20,
+                    ret=None,
+                )
 
             if rollout is not None:
                 for s in rollout:

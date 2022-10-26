@@ -1,11 +1,11 @@
-import torch
-from torch import nn as nn
-import torch.nn.functional as F
-
-from lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv, DoubleConv, objectview
-from lgp.ops.spatial_distr import multidim_logsoftmax
-
 import lgp.env.alfred.segmentation_definitions as segdef
+import torch
+import torch.nn.functional as F
+from lgp.models.alfred.hlsm.unets.unet_blocks import (DoubleConv,
+                                                      UpscaleDoubleConv,
+                                                      objectview)
+from lgp.ops.spatial_distr import multidim_logsoftmax
+from torch import nn as nn
 
 
 class UNet5(torch.nn.Module):
@@ -19,9 +19,11 @@ class UNet5(torch.nn.Module):
             "in_channels": 3,
             "hc1": 256,
             "hc2": 256,
-            "out_channels": self.num_c + self.depth_bins if distr_depth else self.num_c + 1,
+            "out_channels": self.num_c + self.depth_bins
+            if distr_depth
+            else self.num_c + 1,
             "out_vec_length": self.num_c + 1,
-            "stride": 2
+            "stride": 2,
         }
 
         self.p = objectview(params)
@@ -31,19 +33,37 @@ class UNet5(torch.nn.Module):
         ConvOp = DoubleConv
 
         # inchannels, outchannels, kernel size
-        self.conv1 = ConvOp(self.p.in_channels, self.p.hc1, 3, stride=self.p.stride, padding=1)
+        self.conv1 = ConvOp(
+            self.p.in_channels, self.p.hc1, 3, stride=self.p.stride, padding=1
+        )
         self.conv2 = ConvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
         self.conv3 = ConvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
         self.conv4 = ConvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
         self.conv5 = ConvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
         self.conv6 = ConvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
 
-        self.deconv1 = DeconvOp(self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1)
-        self.deconv2 = DeconvOp(self.p.hc1 * 2, self.p.hc1, 3, stride=self.p.stride, padding=1)
-        self.deconv3 = DeconvOp(self.p.hc1 * 2, self.p.hc1, 3, stride=self.p.stride, padding=1)
-        self.deconv4 = DeconvOp(self.p.hc1 * 2, self.p.hc1, 3, stride=self.p.stride, padding=1)
-        self.deconv5 = DeconvOp(self.p.hc1 * 2, self.p.hc2, 3, stride=self.p.stride, padding=1)
-        self.deconv6 = DeconvOp(self.p.hc1 + self.p.hc2, self.p.out_channels, 3, stride=self.p.stride, padding=1)
+        self.deconv1 = DeconvOp(
+            self.p.hc1, self.p.hc1, 3, stride=self.p.stride, padding=1
+        )
+        self.deconv2 = DeconvOp(
+            self.p.hc1 * 2, self.p.hc1, 3, stride=self.p.stride, padding=1
+        )
+        self.deconv3 = DeconvOp(
+            self.p.hc1 * 2, self.p.hc1, 3, stride=self.p.stride, padding=1
+        )
+        self.deconv4 = DeconvOp(
+            self.p.hc1 * 2, self.p.hc1, 3, stride=self.p.stride, padding=1
+        )
+        self.deconv5 = DeconvOp(
+            self.p.hc1 * 2, self.p.hc2, 3, stride=self.p.stride, padding=1
+        )
+        self.deconv6 = DeconvOp(
+            self.p.hc1 + self.p.hc2,
+            self.p.out_channels,
+            3,
+            stride=self.p.stride,
+            padding=1,
+        )
 
         self.act = nn.LeakyReLU()
         self.dropout = nn.Dropout(0.5)
@@ -69,7 +89,7 @@ class UNet5(torch.nn.Module):
         self.deconv2.init_weights()
         self.deconv3.init_weights()
         self.deconv4.init_weights()
-        #self.deconv5.init_weights()
+        # self.deconv5.init_weights()
 
     def forward(self, input):
         x1 = self.norm2(self.act(self.conv1(input)))
@@ -100,8 +120,8 @@ class UNet5(torch.nn.Module):
         xy1 = torch.cat([x1, y1], 1)
         out = self.deconv6(xy1, output_size=input.size())
 
-        out_a = out[:, :self.num_c]
-        out_b = out[:, self.num_c:]
+        out_a = out[:, : self.num_c]
+        out_b = out[:, self.num_c :]
 
         out_a = multidim_logsoftmax(out_a, dims=(1,))
 

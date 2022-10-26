@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 import lgp.paths
 
 EXPERIMENT_DEFINITION = None
@@ -7,12 +8,14 @@ EXPERIMENT_DEFINITION = None
 
 def assert_present(hparams, required_params):
     for h in required_params:
-        assert hasattr(hparams, h), f"Required hyperparameters: {required_params}. {h} is missing!"
+        assert hasattr(
+            hparams, h
+        ), f"Required hyperparameters: {required_params}. {h} is missing!"
 
 
 def dict_merge(dict1, dict2):
     outdict = dict1.copy()
-    for k,v in dict2.items():
+    for k, v in dict2.items():
         if k in dict1 and isinstance(dict1[k], dict) and isinstance(v, dict):
             outdict[k] = dict_merge(dict1[k], v)
         else:
@@ -34,7 +37,9 @@ def resolve_includes(definition):
 
 
 def load_experiment_definition(name):
-    json_path = os.path.join(os.path.dirname(__file__), "experiment_definitions", f"{name}.json")
+    json_path = os.path.join(
+        os.path.dirname(__file__), "experiment_definitions", f"{name}.json"
+    )
     if not os.path.isfile(json_path):
         raise ValueError(f"The experiment definition is not found at {json_path}")
     with open(json_path, "r") as fp:
@@ -48,7 +53,9 @@ def load_experiment_definition(name):
 
 def get_experiment_definition():
     global EXPERIMENT_DEFINITION
-    assert EXPERIMENT_DEFINITION is not None, "Experiment definiton not loaded. Please call load_experiment_definiton first"
+    assert (
+        EXPERIMENT_DEFINITION is not None
+    ), "Experiment definiton not loaded. Please call load_experiment_definiton first"
     return Hyperparams(EXPERIMENT_DEFINITION)
 
 

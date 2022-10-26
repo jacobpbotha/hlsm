@@ -1,15 +1,16 @@
-import cv2
-import os
-import numpy as np
 import functools
-from imageio import imwrite
+import os
+
+import cv2
 import moviepy.editor as mpy
+import numpy as np
+from imageio import imwrite
 from lgp import paths
 from lgp.parameters import Hyperparams
 
 
 def save_png(frame, fname):
-    #frame = standardize_image(frame, normalize=False)
+    # frame = standardize_image(frame, normalize=False)
     imwrite(fname, frame)
 
 
@@ -87,13 +88,15 @@ def standardize_image(ndarray_or_tensor, scale=1, normalize=True, uint8=False):
     # Shift and scale to 0-1 range
     if normalize:
         img -= img.min()
-        img /= (img.max() + 1e-10)
+        img /= img.max() + 1e-10
 
     # Scale according to the scaling factor
     if scale != 1:
-        img = cv2.resize(img,
-                         dsize=(int(img.shape[1] * scale), int(img.shape[0] * scale)),
-                         interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(
+            img,
+            dsize=(int(img.shape[1] * scale), int(img.shape[0] * scale)),
+            interpolation=cv2.INTER_NEAREST,
+        )
 
     if uint8:
         if np.max(img) < 1.01:
@@ -110,16 +113,20 @@ import torch
 
 def millis():
     import datetime
+
     stampnow = datetime.datetime.now().timestamp()
     m = stampnow * 1000.0
     return m
+
 
 """
 A profiler used to time execution of code.
 Every time "tick" is called, it adds the amount of elapsed time to the "key" accumulator
 This allows timing multiple things simultaneously and keeping track of how much time each takes
 """
-class SimpleProfilerDummy():
+
+
+class SimpleProfilerDummy:
     def __init__(self, torch_sync=False, print=True):
         pass
 
@@ -135,10 +142,12 @@ class SimpleProfilerDummy():
     def print_stats(self, every_n_times=1):
         pass
 
-class SimpleProfilerReal():
+
+class SimpleProfilerReal:
     def __init__(self, torch_sync=False, print=True):
-        """
-        When debugging GPU code, torch_sync must be true, because GPU and CPU computation is asynchronous
+        """When debugging GPU code, torch_sync must be true, because GPU and
+        CPU computation is asynchronous.
+
         :param torch_sync: If true, will call cuda synchronize.
         :param print: If true, will print stats when print_stats is called. Pass False to disable output for release code
         """
@@ -177,12 +186,13 @@ class SimpleProfilerReal():
             if len(self.avg_times) > 0:
                 print("Avg times per loop: ")
                 pprint.pprint(self.avg_times)
-                for k,v in self.avg_times.items():
+                for k, v in self.avg_times.items():
                     if k != "out" and k != ".":
                         total_time += v
                 print(f"Total avg loop time: {total_time}")
             else:
                 print("Cumulative times: ")
                 pprint.pprint(self.times)
+
 
 SimpleProfiler = SimpleProfilerReal

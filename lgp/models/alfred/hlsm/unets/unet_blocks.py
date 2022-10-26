@@ -1,6 +1,6 @@
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 
 class objectview(object):
@@ -47,7 +47,7 @@ class UpscaleDoubleConv(torch.nn.Module):
         x = F.interpolate(x, scale_factor=2, mode="nearest")
         x = self.conv2(x)
         if x.shape[2] > output_size[2]:
-            x = x[:, :, :output_size[2], :]
+            x = x[:, :, : output_size[2], :]
         if x.shape[3] > output_size[3]:
-            x = x[:, :, :, :output_size[3]]
+            x = x[:, :, :, : output_size[3]]
         return x

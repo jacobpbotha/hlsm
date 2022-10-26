@@ -1,8 +1,8 @@
 from abc import abstractmethod
-import torch.nn as nn
 
-from lgp.abcd.repr.state_repr import StateRepr
+import torch.nn as nn
 from lgp.abcd.repr.action_repr import ActionRepr
+from lgp.abcd.repr.state_repr import StateRepr
 
 
 class DynamicsFunction(nn.Module):

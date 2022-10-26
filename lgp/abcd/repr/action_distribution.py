@@ -1,12 +1,11 @@
-from typing import Iterable, List
 from abc import ABC, abstractmethod
+from typing import Iterable, List
 
 import torch
 from lgp.abcd.action import Action
 
 
 class ActionDistribution(ABC):
-
     def __init__(self):
         ...
 
@@ -17,9 +16,8 @@ class ActionDistribution(ABC):
     @classmethod
     @abstractmethod
     def collate(cls, actions: Iterable["Action"]):
-        """
-        Creates a single ActionDistribution that represents a batch of actions
-        """
+        """Creates a single ActionDistribution that represents a batch of
+        actions."""
         ...
 
     @abstractmethod
@@ -36,8 +34,9 @@ class ActionDistribution(ABC):
 
     @abstractmethod
     def probs(self, actions: List[Action]) -> torch.tensor:
-        """
-        Returns a tensor of probabilities corresponding to these actions under this distribution
+        """Returns a tensor of probabilities corresponding to these actions
+        under this distribution.
+
         :param actions:
         :return:
         """

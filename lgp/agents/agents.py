@@ -1,17 +1,18 @@
 import os
+
+import lgp.paths
 import torch
 from lgp.parameters import Hyperparams
-import lgp.paths
 
 
 def build_alfred_hierarchical_agent(agent_setup, hparams, device):
     # Import agents (hierarchichal, high-level, and low-level)
-    from lgp.agents.hierarchical_agent import HierarchicalAgent
     from lgp.agents.action_proposal_agent import ActionProposalAgent
-    # Import model factory
-    from lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
+    from lgp.agents.hierarchical_agent import HierarchicalAgent
     # Import classes
     from lgp.env.alfred.alfred_action import AlfredAction
+    # Import model factory
+    from lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
     from lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
 
     model_factory = HlsmModelFactory(hparams)
@@ -30,29 +31,38 @@ def build_alfred_hierarchical_agent(agent_setup, hparams, device):
     actprop.eval()
 
     highlevel_agent = ActionProposalAgent(actprop, obsfunc, HlsmTaskRepr, device)
-    hierarchical_agent = HierarchicalAgent(highlevel_agent, skillset, obsfunc, AlfredAction)
+    hierarchical_agent = HierarchicalAgent(
+        highlevel_agent, skillset, obsfunc, AlfredAction
+    )
     return hierarchical_agent
 
 
 def build_alfred_deviant_agent(agent_setup, hparams, device):
     deviance_p = hparams.get("agent_setup").get("deviance")
-    from lgp.agents.deviant_agent import DeviantAgent
-    from lgp.agents.alfred.demonstration_replay_agent import DemonstrationReplayAgent
+    from lgp.agents.alfred.demonstration_replay_agent import \
+        DemonstrationReplayAgent
     from lgp.agents.alfred.random_valid_agent import RandomValidAgent
-    agent = DeviantAgent(oracle_agent=DemonstrationReplayAgent(),
-                         random_agent=RandomValidAgent(),
-                         deviance_prob=deviance_p)
+    from lgp.agents.deviant_agent import DeviantAgent
+
+    agent = DeviantAgent(
+        oracle_agent=DemonstrationReplayAgent(),
+        random_agent=RandomValidAgent(),
+        deviance_prob=deviance_p,
+    )
     return agent
 
 
 def build_demo_replay_agent(agent_setup, hparams, device):
-    from lgp.agents.alfred.demonstration_replay_agent import DemonstrationReplayAgent
+    from lgp.agents.alfred.demonstration_replay_agent import \
+        DemonstrationReplayAgent
+
     agent = DemonstrationReplayAgent()
     return agent
 
 
 def build_alfred_random_agent(*args, **kwargs):
     from lgp.agents.alfred.random_valid_agent import RandomValidAgent
+
     return RandomValidAgent()
 
 
@@ -60,7 +70,7 @@ AGENT_BUILDERS = {
     "alfred_random_agent": build_alfred_random_agent,
     "build_alfred_hierarchical_agent": build_alfred_hierarchical_agent,
     "alfred_deviant_agent": build_alfred_deviant_agent,
-    "alfred_demo_replay_agent": build_demo_replay_agent
+    "alfred_demo_replay_agent": build_demo_replay_agent,
 }
 
 

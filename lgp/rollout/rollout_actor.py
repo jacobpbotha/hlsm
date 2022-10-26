@@ -1,28 +1,33 @@
 import ray
 import torch
-from lgp.abcd.agent import TrainableAgent
 from lgp import paths
+from lgp.abcd.agent import TrainableAgent
 
 
 class RolloutActorLocal:
-
-    def __init__(self,
-                 experiment_name: str,
-                 agent : TrainableAgent,
-                 env,
-                 dataset_proc,
-                 param_server_proc,
-                 max_horizon,
-                 dataset_device,
-                 index,
-                 collect_trace=False,
-                 lightweight_mode=False):
+    def __init__(
+        self,
+        experiment_name: str,
+        agent: TrainableAgent,
+        env,
+        dataset_proc,
+        param_server_proc,
+        max_horizon,
+        dataset_device,
+        index,
+        collect_trace=False,
+        lightweight_mode=False,
+    ):
         self.dataset_process = dataset_proc
         self.param_server_proc = param_server_proc
         self.actor_index = index
         if self.actor_index == 0:
             from lgp.utils.better_summary_writer import BetterSummaryWriter
-            self.writer = BetterSummaryWriter(f"{paths.get_experiment_runs_dir(experiment_name)}-rollout", start_iter=0)
+
+            self.writer = BetterSummaryWriter(
+                f"{paths.get_experiment_runs_dir(experiment_name)}-rollout",
+                start_iter=0,
+            )
         else:
             self.writer = None
 
@@ -32,14 +37,18 @@ class RolloutActorLocal:
         self.env.set_horizon(max_horizon)
         self.counter = 0
 
-        self.collect_trace = collect_trace       # Whether to eval outputs of agent.get_trace in the rollout
-        self.lightweight_mode = lightweight_mode # Whether to produce stripped-down rollouts with task and metadata only
+        self.collect_trace = (
+            collect_trace  # Whether to eval outputs of agent.get_trace in the rollout
+        )
+        self.lightweight_mode = lightweight_mode  # Whether to produce stripped-down rollouts with task and metadata only
 
         self.dataset_device = dataset_device
 
     def _load_agent_state_from_ps(self):
         for model in self.agent.get_learnable_models():
-            model.load_state_dict(ray.get(self.param_server_proc.get.remote(model.get_name())))
+            model.load_state_dict(
+                ray.get(self.param_server_proc.get.remote(model.get_name()))
+            )
 
     def rollout_and_send_forever(self):
         while True:
@@ -70,34 +79,42 @@ class RolloutActorLocal:
                 next_observation, reward, done, md = self.env.step(action)
                 total_reward += reward
 
-                rollout.append({
-                    "task": task,
-                    "observation": None if self.lightweight_mode else (
-                        observation.to(self.dataset_device)),
-                    "action": None if self.lightweight_mode else action,
-                    "reward": reward,
-                    "return": total_reward,
-                    "agent_trace": self.agent.get_trace(device=self.dataset_device) if (
-                            self.collect_trace and not self.lightweight_mode) else None,
-                    "done": done,
-                    "md": md
-                })
+                rollout.append(
+                    {
+                        "task": task,
+                        "observation": None
+                        if self.lightweight_mode
+                        else (observation.to(self.dataset_device)),
+                        "action": None if self.lightweight_mode else action,
+                        "reward": reward,
+                        "return": total_reward,
+                        "agent_trace": self.agent.get_trace(device=self.dataset_device)
+                        if (self.collect_trace and not self.lightweight_mode)
+                        else None,
+                        "done": done,
+                        "md": md,
+                    }
+                )
                 self.agent.clear_trace()
 
                 observation = next_observation
 
                 if done:
                     self.agent.finalize(total_reward)
-                    rollout.append({
-                        "task": task,
-                        "observation": None if self.lightweight_mode else next_observation.to(self.dataset_device),
-                        "action": None,
-                        "agent_trace": None,
-                        "reward": 0,
-                        "return": total_reward,
-                        "done": True,
-                        "md": md  # TODO: This gets added twice, which might be confusing
-                    })
+                    rollout.append(
+                        {
+                            "task": task,
+                            "observation": None
+                            if self.lightweight_mode
+                            else next_observation.to(self.dataset_device),
+                            "action": None,
+                            "agent_trace": None,
+                            "reward": 0,
+                            "return": total_reward,
+                            "done": True,
+                            "md": md,  # TODO: This gets added twice, which might be confusing
+                        }
+                    )
                     new_ret = None
                     break
                 else:
@@ -109,7 +126,7 @@ class RolloutActorLocal:
                         "task": task,
                         "rollout_idx": rollout_idx,
                         "observation": observation,
-                        "action": action
+                        "action": action,
                     }
                     break
                 else:
@@ -138,38 +155,46 @@ class RolloutActorLocal:
             action = self.agent.act(observation)
             total_reward = 0
             for t in range(self.horizon):
-                #print(f"Taking action: {action}")
+                # print(f"Taking action: {action}")
                 next_observation, reward, done, md = self.env.step(action)
                 total_reward += reward
 
-                rollout.append({
-                    "task": task,
-                    "observation": None if self.lightweight_mode else (
-                        observation.to(self.dataset_device)),
-                    "action": None if self.lightweight_mode else action,
-                    "reward": reward,
-                    "return": total_reward,
-                    "agent_trace": self.agent.get_trace(device=self.dataset_device) if (
-                            self.collect_trace and not self.lightweight_mode) else None,
-                    "done": done,
-                    "md": md
-                })
+                rollout.append(
+                    {
+                        "task": task,
+                        "observation": None
+                        if self.lightweight_mode
+                        else (observation.to(self.dataset_device)),
+                        "action": None if self.lightweight_mode else action,
+                        "reward": reward,
+                        "return": total_reward,
+                        "agent_trace": self.agent.get_trace(device=self.dataset_device)
+                        if (self.collect_trace and not self.lightweight_mode)
+                        else None,
+                        "done": done,
+                        "md": md,
+                    }
+                )
                 self.agent.clear_trace()
 
                 observation = next_observation
 
                 if done:
                     self.agent.finalize(total_reward)
-                    rollout.append({
-                        "task": task,
-                        "observation": None if self.lightweight_mode else next_observation.to(self.dataset_device),
-                        "action": None,
-                        "agent_trace": None,
-                        "reward": 0,
-                        "return": total_reward,
-                        "done": True,
-                        "md": md # TODO: This gets added twice, which might be confusing
-                    })
+                    rollout.append(
+                        {
+                            "task": task,
+                            "observation": None
+                            if self.lightweight_mode
+                            else next_observation.to(self.dataset_device),
+                            "action": None,
+                            "agent_trace": None,
+                            "reward": 0,
+                            "return": total_reward,
+                            "done": True,
+                            "md": md,  # TODO: This gets added twice, which might be confusing
+                        }
+                    )
                     break
                 else:
                     action = self.agent.act(observation)
@@ -186,7 +211,7 @@ class RolloutActorLocal:
         self.dataset_process.add_rollout.remote(rollout)
 
         # Write metrics to tensorboard
-        #if self.writer is not None:
+        # if self.writer is not None:
         #    metrics = get_multiple_rollout_metrics_bw([rollout])
         #    self.writer.add_scalar_dict("tsa_rollout", metrics)
         #    self.writer.inc_iter()

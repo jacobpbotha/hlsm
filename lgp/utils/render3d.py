@@ -1,7 +1,7 @@
 import time
+
 import numpy as np
 import open3d as o3d
-
 from lgp.models.alfred.voxel_grid import VoxelGrid
 
 
@@ -31,7 +31,9 @@ def voxelgrid_to_geometry(voxel_grid: VoxelGrid):
     occupied_mask = voxel_grid.occupancy > 0.5
     # Make sure occupied mask aligns with the data that it is used to index
     occupied_coords = coord_grid[occupied_mask.repeat((1, 3, 1, 1, 1))]
-    occupied_data = voxel_grid.data[occupied_mask.repeat((1, voxel_grid.data.shape[1], 1, 1, 1))]
+    occupied_data = voxel_grid.data[
+        occupied_mask.repeat((1, voxel_grid.data.shape[1], 1, 1, 1))
+    ]
     # Build a PointCloud representation of the VoxelGrid
     pcd = o3d.geometry.PointCloud()
     np_points = occupied_coords.view([3, -1]).permute((1, 0)).detach().cpu().numpy()
@@ -40,7 +42,9 @@ def voxelgrid_to_geometry(voxel_grid: VoxelGrid):
     np_colors = occupied_data.view([3, -1]).permute((1, 0)).detach().cpu().numpy()
     pcd.points = o3d.utility.Vector3dVector(np_points)
     pcd.colors = o3d.utility.Vector3dVector(np_colors)
-    o3dvoxels = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd, voxel_size=voxel_grid.voxel_size)
+    o3dvoxels = o3d.geometry.VoxelGrid.create_from_point_cloud(
+        pcd, voxel_size=voxel_grid.voxel_size
+    )
     return o3dvoxels, centroid
 
 
@@ -71,67 +75,71 @@ def get_topdown_extrinsics():
         1.3062022702693259,
         0.45217550214016428,
         10.14637563106116,
-        1.0
+        1.0,
     ]
     intrinsics = {
         "height": 1080,
-        "intrinsic_matrix":
-            [
-                935.30743608719376,
-                0.0,
-                0.0,
-                0.0,
-                935.30743608719376,
-                0.0,
-                959.5,
-                539.5,
-                1.0
-            ],
-        "width": 1920
+        "intrinsic_matrix": [
+            935.30743608719376,
+            0.0,
+            0.0,
+            0.0,
+            935.30743608719376,
+            0.0,
+            959.5,
+            539.5,
+            1.0,
+        ],
+        "width": 1920,
     }
     T_extrinsics = np.asarray(extrinsics).reshape((4, 4)).T
-    intrinsics["intrinsic_matrix"] = np.asarray(intrinsics["intrinsic_matrix"]).reshape((3, 3)).T
+    intrinsics["intrinsic_matrix"] = (
+        np.asarray(intrinsics["intrinsic_matrix"]).reshape((3, 3)).T
+    )
     return T_extrinsics, intrinsics
 
 
 # Good for val unseen kitchen
 def get_side_extrnsics():
-    extrinsics = [
-        0.44710135406621537,
-        -0.64330548915175789,
-        0.62149692422358327,
-        0.0,
-        -0.8944782407754126,
-        -0.3238875800558948,
-        0.30822964209313075,
-        0.0,
-        0.003009314121165479,
-        -0.6937253657700243,
-        -0.72023333782585097,
-        0.0,
-        1.3569806463340897,
-        1.9256778598660822,
-        5.1905799138297688,
-        1.0
-    ],
+    extrinsics = (
+        [
+            0.44710135406621537,
+            -0.64330548915175789,
+            0.62149692422358327,
+            0.0,
+            -0.8944782407754126,
+            -0.3238875800558948,
+            0.30822964209313075,
+            0.0,
+            0.003009314121165479,
+            -0.6937253657700243,
+            -0.72023333782585097,
+            0.0,
+            1.3569806463340897,
+            1.9256778598660822,
+            5.1905799138297688,
+            1.0,
+        ],
+    )
     intrinsics = {
         "height": 1080,
-        "intrinsic_matrix":
-            [
-                935.30743608719376,
-                0.0,
-                0.0,
-                0.0,
-                935.30743608719376,
-                0.0,
-                959.5,
-                539.5,
-                1.0
-            ],
-        "width": 1920
+        "intrinsic_matrix": [
+            935.30743608719376,
+            0.0,
+            0.0,
+            0.0,
+            935.30743608719376,
+            0.0,
+            959.5,
+            539.5,
+            1.0,
+        ],
+        "width": 1920,
     }
     T_extrinsics = np.asarray(extrinsics).reshape((4, 4)).T
-    intrinsics["intrinsic_matrix"] = np.asarray(intrinsics["intrinsic_matrix"]).reshape((3, 3)).T
+    intrinsics["intrinsic_matrix"] = (
+        np.asarray(intrinsics["intrinsic_matrix"]).reshape((3, 3)).T
+    )
     return T_extrinsics, intrinsics
 
 
@@ -152,26 +160,27 @@ def get_side_extrnsics():
         -0.44183541050442121,
         0.95600381984128813,
         8.4431486580534347,
-        1.0
+        1.0,
     ]
     intrinsics = {
         "height": 1080,
-        "intrinsic_matrix":
-            [
-                1483.6378065054962,
-                0.0,
-                0.0,
-                0.0,
-                1483.6378065054962,
-                0.0,
-                959.5,
-                539.5,
-                1.0
-            ],
-        "width": 1920
+        "intrinsic_matrix": [
+            1483.6378065054962,
+            0.0,
+            0.0,
+            0.0,
+            1483.6378065054962,
+            0.0,
+            959.5,
+            539.5,
+            1.0,
+        ],
+        "width": 1920,
     }
     T_extrinsics = np.asarray(extrinsics).reshape((4, 4)).T
-    intrinsics["intrinsic_matrix"] = np.asarray(intrinsics["intrinsic_matrix"]).reshape((3, 3)).T
+    intrinsics["intrinsic_matrix"] = (
+        np.asarray(intrinsics["intrinsic_matrix"]).reshape((3, 3)).T
+    )
 
     return T_extrinsics, intrinsics
 
@@ -181,7 +190,9 @@ def render_geometries(geometry, animate=False, num_frames=18, centroid=None):
 
     T_extrinsic, intrinsics = get_topdown_extrinsics()  # (centroid)
 
-    vis.create_window(width=intrinsics["width"], height=intrinsics["height"], visible=True)
+    vis.create_window(
+        width=intrinsics["width"], height=intrinsics["height"], visible=True
+    )
     time.sleep(0.1)
 
     vis.add_geometry(geometry)
@@ -220,6 +231,6 @@ def render_geometries(geometry, animate=False, num_frames=18, centroid=None):
         nparray = np.asarray(picture)
         vis.destroy_window()
 
-    #show_image(nparray, "frame3d", scale=1, waitkey=True)
+    # show_image(nparray, "frame3d", scale=1, waitkey=True)
 
     return nparray

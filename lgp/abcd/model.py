@@ -6,9 +6,7 @@ import torch.nn as nn
 
 
 class LearnableModel(nn.Module, ABC):
-    """
-    Represents a model that can be trained on batches of transitions.
-    """
+    """Represents a model that can be trained on batches of transitions."""
 
     @abstractmethod
     def loss(self, batch: Dict) -> (torch.tensor, Dict):
@@ -16,6 +14,6 @@ class LearnableModel(nn.Module, ABC):
 
     @abstractmethod
     def get_name(self) -> str:
-        """Name to identify this model as opposed to other models used within the same agent"""
+        """Name to identify this model as opposed to other models used within
+        the same agent."""
         ...
-

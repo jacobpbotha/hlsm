@@ -1,13 +1,10 @@
-from typing import Iterable, Dict, List
+from typing import Dict, Iterable, List
 
 import torch
-from transformers import AutoTokenizer, AutoModel, PreTrainedTokenizer
-
-from lgp.abcd.repr.task_repr import TaskRepr
 from lgp.abcd.functions.task_repr_function import TaskReprFunction
-
+from lgp.abcd.repr.task_repr import TaskRepr
 from lgp.env.alfred.tasks import AlfredTask
-
+from transformers import AutoModel, AutoTokenizer, PreTrainedTokenizer
 
 MAX_STRLEN = 50
 
@@ -31,9 +28,21 @@ class HlsmTaskReprFunction(TaskReprFunction):
         tokenizer = self._get_tokenizer()
         str_repr = [str(t) for t in tasks]
         if callable(tokenizer):
-            tokens = tokenizer(str_repr, padding='max_length', truncation=True, max_length=MAX_STRLEN, return_tensors="pt")
+            tokens = tokenizer(
+                str_repr,
+                padding="max_length",
+                truncation=True,
+                max_length=MAX_STRLEN,
+                return_tensors="pt",
+            )
         else:
-            tokens = tokenizer.encode(str_repr, padding='max_length', truncation=True, max_length=MAX_STRLEN, return_tensors="pt")
+            tokens = tokenizer.encode(
+                str_repr,
+                padding="max_length",
+                truncation=True,
+                max_length=MAX_STRLEN,
+                return_tensors="pt",
+            )
         tokens = tokens.to(device)
         return HlsmTaskRepr(tokens, text=str_repr)
 
@@ -46,9 +55,8 @@ class HlsmTaskReprFunction(TaskReprFunction):
 
 
 class HlsmTaskRepr(TaskRepr):
-    """
-    Represents a task specified in natural language as a tensor of integer tokens
-    """
+    """Represents a task specified in natural language as a tensor of integer
+    tokens."""
 
     def __init__(self, data: torch.tensor, text=None):
         super().__init__()
@@ -74,9 +82,7 @@ class HlsmTaskRepr(TaskRepr):
 
     @classmethod
     def collate(cls, states: Iterable["HlsmTaskRepr"]) -> "HlsmTaskRepr":
-        """
-        Creates a single Action that represents a batch of actions
-        """
+        """Creates a single Action that represents a batch of actions."""
         datas = torch.cat([s.data for s in states], dim=0)
         return cls(datas)
 

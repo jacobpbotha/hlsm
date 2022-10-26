@@ -3,11 +3,12 @@ import torch.nn as nn
 
 
 class TransformerEncoderLayer(nn.Module):
-
     def __init__(self, d_model, n_head, dim_ff, dropout=0.1, kvdim=None):
         super().__init__()
         kvdim = kvdim if kvdim is not None else d_model
-        self.mh_attention = nn.MultiheadAttention(d_model, n_head, dropout, kdim=kvdim, vdim=kvdim)
+        self.mh_attention = nn.MultiheadAttention(
+            d_model, n_head, dropout, kdim=kvdim, vdim=kvdim
+        )
         self.linear1 = nn.Linear(d_model, dim_ff)
         self.dropout = nn.Dropout(dropout)
         self.linear2 = nn.Linear(dim_ff, d_model)
@@ -19,11 +20,19 @@ class TransformerEncoderLayer(nn.Module):
 
         self.act = nn.LeakyReLU()
 
-    def forward(self, src_labels: torch.Tensor, attn_mask: torch.Tensor, inputs_are_labels=True, return_attn=False):
+    def forward(
+        self,
+        src_labels: torch.Tensor,
+        attn_mask: torch.Tensor,
+        inputs_are_labels=True,
+        return_attn=False,
+    ):
         src_labels = src_labels[:, None, :]
         # Create an extra "batch" dimension, and treat the current batch dimension as a pos dimension
         seq_mask = attn_mask
-        x, attn_w = self.mh_attention(src_labels, src_labels, src_labels, attn_mask=attn_mask)
+        x, attn_w = self.mh_attention(
+            src_labels, src_labels, src_labels, attn_mask=attn_mask
+        )
 
         # inputs contain information about ground truth of the outputs for each element
         # and thus cannot be added with a residual connection.

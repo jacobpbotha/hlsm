@@ -1,20 +1,15 @@
-"""
-Script that rolls out an agent and does not much else for now
-"""
-import sys
+"""Script that rolls out an agent and does not much else for now."""
 import os
+import sys
+
 import torch
-
-
 from lgp.agents.agents import get_agent
-from lgp.rollout.rollout_actor import RolloutActorLocal
-from lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
-from main.visualize_rollout import visualize_rollout
-from lgp.parameters import Hyperparams, load_experiment_definition
-
-from main.eval_progress import EvalProgress
-
 from lgp.env.alfred.alfred_env import AlfredEnv
+from lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
+from lgp.parameters import Hyperparams, load_experiment_definition
+from lgp.rollout.rollout_actor import RolloutActorLocal
+from main.eval_progress import EvalProgress
+from main.visualize_rollout import visualize_rollout
 
 
 def evaluate_rollouts(exp_def, rollouts):
@@ -33,22 +28,24 @@ def collect_rollouts(exp_def):
     visualize_rollouts = exp_def.Setup.visualize_rollouts
     save_animation_dir = exp_def.Setup.get("save_rollout_animations_dir", False)
 
-    env = AlfredEnv(device=device,
-                    setup=exp_def.Setup.env_setup.d,
-                    hparams=exp_def.Hyperparams.d)
+    env = AlfredEnv(
+        device=device, setup=exp_def.Setup.env_setup.d, hparams=exp_def.Hyperparams.d
+    )
 
     agent = get_agent(exp_def.Setup, exp_def.Hyperparams, device)
 
-    rollout_actor = RolloutActorLocal(experiment_name=exp_name,
-                                      agent=agent,
-                                      env=env,
-                                      dataset_proc=None,
-                                      param_server_proc=None,
-                                      max_horizon=horizon,
-                                      dataset_device=dataset_device,
-                                      index=1,
-                                      collect_trace=visualize_rollouts,
-                                      lightweight_mode=not visualize_rollouts)
+    rollout_actor = RolloutActorLocal(
+        experiment_name=exp_name,
+        agent=agent,
+        env=env,
+        dataset_proc=None,
+        param_server_proc=None,
+        max_horizon=horizon,
+        dataset_device=dataset_device,
+        index=1,
+        collect_trace=visualize_rollouts,
+        lightweight_mode=not visualize_rollouts,
+    )
 
     # Track progress
     eval_progress = EvalProgress(exp_name)
@@ -67,7 +64,9 @@ def collect_rollouts(exp_def):
                         if s["observation"] is not None:
                             s["observation"].compress()
                     os.makedirs(save_animation_dir, exist_ok=True)
-                    visualize_rollout(rollout, save_animation_dir, f"rollout_{i}", start_t=0)
+                    visualize_rollout(
+                        rollout, save_animation_dir, f"rollout_{i}", start_t=0
+                    )
 
                 eval_progress.save()
         except StopIteration as e:

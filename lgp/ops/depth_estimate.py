@@ -1,15 +1,17 @@
 import math
+
 import torch
 
 
-class DepthEstimate():
-
+class DepthEstimate:
     def __init__(self, depth_pred, num_bins, max_depth):
         # depth_pred: BxCxHxW tensor of depth probabilities over C depth bins
         # Convert logprobabilities to probabilities
         if depth_pred.max() < 0:
             depth_pred = torch.exp(depth_pred)
-        assert ((depth_pred.sum(dim=1) - 1).abs() < 1e-3).all(), "Depth prediction needs to be a simplex at each pixel"
+        assert (
+            (depth_pred.sum(dim=1) - 1).abs() < 1e-3
+        ).all(), "Depth prediction needs to be a simplex at each pixel"
 
         self.depth_pred = depth_pred
         self.num_bins = num_bins
@@ -22,21 +24,29 @@ class DepthEstimate():
     def domain(self, res=None):
         if res is None:
             res = self.num_bins
-        return torch.arange(0, res, 1, device=self.depth_pred.device)[None, :, None, None]
+        return torch.arange(0, res, 1, device=self.depth_pred.device)[
+            None, :, None, None
+        ]
 
     def domain_image(self, res=None):
         if res is None:
             res = self.num_bins
         domain = self.domain(res)
-        domain_image = domain.repeat((1, 1, self.depth_pred.shape[2], self.depth_pred.shape[3])) * (self.max_depth / res)
+        domain_image = domain.repeat(
+            (1, 1, self.depth_pred.shape[2], self.depth_pred.shape[3])
+        ) * (self.max_depth / res)
         return domain_image
 
     def mle(self):
-        mle_depth = self.depth_pred.argmax(dim=1, keepdim=True).float() * (self.max_depth / self.num_bins)
+        mle_depth = self.depth_pred.argmax(dim=1, keepdim=True).float() * (
+            self.max_depth / self.num_bins
+        )
         return mle_depth
 
     def expectation(self):
-        expected_depth = (self.domain() * self.depth_pred).sum(dim=1, keepdims=True) * (self.max_depth / self.num_bins)
+        expected_depth = (self.domain() * self.depth_pred).sum(dim=1, keepdims=True) * (
+            self.max_depth / self.num_bins
+        )
         return expected_depth
 
     def spread(self):
@@ -50,7 +60,9 @@ class DepthEstimate():
         pctldepth = pctlbin * (self.max_depth / self.num_bins)
         return pctldepth
 
-    def get_trustworthy_depth(self, include_mask=None, confidence=0.9, max_conf_int_width_prop=0.30):
+    def get_trustworthy_depth(
+        self, include_mask=None, confidence=0.9, max_conf_int_width_prop=0.30
+    ):
         conf_int_lower = self.percentile((1 - confidence) / 2)
         conf_int_upper = self.percentile(1 - (1 - confidence) / 2)
 

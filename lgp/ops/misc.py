@@ -1,5 +1,6 @@
-import torch
 import math
+
+import torch
 
 
 def padded_roll_2d(inp, sy, sx):
@@ -8,16 +9,16 @@ def padded_roll_2d(inp, sy, sx):
 
     # Can do with a smaller canvas
     if 0 <= math.fabs(sy) < h // 2 and 0 <= math.fabs(sx) < w // 2:
-        canvas = torch.zeros((b, c, h*2, w*2), dtype=inp.dtype, device=inp.device)
-        canvas[:, :, h//2:3*h//2, w//2:3*w//2] = inp
+        canvas = torch.zeros((b, c, h * 2, w * 2), dtype=inp.dtype, device=inp.device)
+        canvas[:, :, h // 2 : 3 * h // 2, w // 2 : 3 * w // 2] = inp
         canvas = torch.roll(canvas, shifts=(sy, sx), dims=(2, 3))
-        outp = canvas[:, :, h//2:3*h//2, w//2:3*w//2]
+        outp = canvas[:, :, h // 2 : 3 * h // 2, w // 2 : 3 * w // 2]
     # Need a bigger canvas
     else:
         canvas = torch.zeros((b, c, h * 4, w * 4), dtype=inp.dtype, device=inp.device)
-        canvas[:, :, 3*h//2:5*h//2, 3*w//2:5*w//2] = inp
+        canvas[:, :, 3 * h // 2 : 5 * h // 2, 3 * w // 2 : 5 * w // 2] = inp
         canvas = torch.roll(canvas, shifts=(sy, sx), dims=(2, 3))
-        outp = canvas[:, :, 3*h//2:5*h//2, 3*w//2:5*w//2]
+        outp = canvas[:, :, 3 * h // 2 : 5 * h // 2, 3 * w // 2 : 5 * w // 2]
 
     return outp
 
@@ -54,8 +55,9 @@ def onehot_to_index():
 
 
 def batched_index_select(input, dim, index):
-    views = [input.shape[0]] + \
-            [1 if i != dim else -1 for i in range(1, len(input.shape))]
+    views = [input.shape[0]] + [
+        1 if i != dim else -1 for i in range(1, len(input.shape))
+    ]
     expanse = list(input.shape)
     expanse[0] = -1
     expanse[dim] = -1

@@ -1,10 +1,9 @@
+import lgp.models.alfred.hlsm.alfworld.alfworld_constants as constants
 import torch
 import torchvision
-from torchvision.models.detection.rpn import AnchorGenerator, RPNHead
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
-
-import lgp.models.alfred.hlsm.alfworld.alfworld_constants as constants
+from torchvision.models.detection.rpn import AnchorGenerator, RPNHead
 
 
 def get_model_instance_segmentation(num_classes):
@@ -13,7 +12,8 @@ def get_model_instance_segmentation(num_classes):
 
     anchor_generator = AnchorGenerator(
         sizes=tuple([(4, 8, 16, 32, 64, 128, 256, 512) for _ in range(5)]),
-        aspect_ratios=tuple([(0.25, 0.5, 1.0, 2.0) for _ in range(5)]))
+        aspect_ratios=tuple([(0.25, 0.5, 1.0, 2.0) for _ in range(5)]),
+    )
     model.rpn.anchor_generator = anchor_generator
 
     # 256 because that's the number of features that FPN returns
@@ -28,14 +28,14 @@ def get_model_instance_segmentation(num_classes):
     in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
     hidden_layer = 256
     # and replace the mask predictor with a new one
-    model.roi_heads.mask_predictor = MaskRCNNPredictor(in_features_mask,
-                                                       hidden_layer,
-                                                       num_classes)
+    model.roi_heads.mask_predictor = MaskRCNNPredictor(
+        in_features_mask, hidden_layer, num_classes
+    )
     return model
 
 
 def load_pretrained_model(path):
-    mask_rcnn = get_model_instance_segmentation(len(constants.OBJECTS_DETECTOR)+1)
+    mask_rcnn = get_model_instance_segmentation(len(constants.OBJECTS_DETECTOR) + 1)
     mask_rcnn.load_state_dict(torch.load(path))
     return mask_rcnn
 

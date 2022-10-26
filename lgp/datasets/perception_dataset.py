@@ -1,15 +1,12 @@
 from abc import abstractmethod
-
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 from lgp.abcd.dataset import ExtensibleDataset
-
 from lgp.env.alfred.alfred_observation import AlfredObservation
 from lgp.rollout.rollout_data import load_rollout_from_path
 
 
 class PerceptionDataset(ExtensibleDataset):
-
     def __init__(self, chunk_paths):
         self.chunk_paths = chunk_paths
 
@@ -28,9 +25,7 @@ class PerceptionDataset(ExtensibleDataset):
 
         observation.data_augment()
 
-        example_out = {
-            "observation": observation
-        }
+        example_out = {"observation": observation}
         return example_out
 
     # Inherited from lgp.abcd.dataset.ExtensibleDataset
@@ -40,7 +35,5 @@ class PerceptionDataset(ExtensibleDataset):
         observations = [l["observation"] for l in list_of_examples]
         observations = AlfredObservation.collate(observations)
 
-        out = {
-            "observations": observations
-        }
+        out = {"observations": observations}
         return out

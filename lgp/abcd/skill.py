@@ -6,9 +6,8 @@ from lgp.abcd.repr.state_repr import StateRepr
 
 
 class Skill(ABC):
-    """
-    Skills differ from Agents in that
-    """
+    """Skills differ from Agents in that."""
+
     def __init__(self):
         super().__init__()
 

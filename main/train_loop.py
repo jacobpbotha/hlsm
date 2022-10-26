@@ -7,7 +7,9 @@ def calc_bert_lr(lr, gstep, warmup_steps, hold_steps, cooldown_steps):
         factor = gstep / warmup_steps
     elif warmup_steps <= gstep < warmup_steps + hold_steps:
         factor = 1.0
-    elif warmup_steps + hold_steps <= gstep < warmup_steps + hold_steps + cooldown_steps:
+    elif (
+        warmup_steps + hold_steps <= gstep < warmup_steps + hold_steps + cooldown_steps
+    ):
         factor = (warmup_steps + hold_steps + cooldown_steps - gstep) / cooldown_steps
     else:
         factor = 0
@@ -17,18 +19,20 @@ def calc_bert_lr(lr, gstep, warmup_steps, hold_steps, cooldown_steps):
 
 def switch_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+        param_group["lr"] = lr
 
 
-def train_eval_loop(dataloader,
-                    model,
-                    writer,
-                    val,
-                    optimargs=None,
-                    gstep=0,
-                    device="cpu",
-                    optimizers=None,
-                    optimizer_states=None):
+def train_eval_loop(
+    dataloader,
+    model,
+    writer,
+    val,
+    optimargs=None,
+    gstep=0,
+    device="cpu",
+    optimizers=None,
+    optimizer_states=None,
+):
     prefix = "val" if val else "train"
 
     if not val:
@@ -46,15 +50,21 @@ def train_eval_loop(dataloader,
         if optimizers is None:
             all_params = {k: v for k, v in model.named_parameters()}
             bert_params = {k: v for k, v in all_params.items() if "bertmodel" in k}
-            nonbert_params = {k: v for k, v in all_params.items() if "bertmodel" not in k}
+            nonbert_params = {
+                k: v for k, v in all_params.items() if "bertmodel" not in k
+            }
 
-            nonbert_optimizer = optim.Adam(nonbert_params.values(),
-                                           lr=optimargs["nonbert"].lr,
-                                           weight_decay=optimargs["nonbert"].weight_decay)
+            nonbert_optimizer = optim.Adam(
+                nonbert_params.values(),
+                lr=optimargs["nonbert"].lr,
+                weight_decay=optimargs["nonbert"].weight_decay,
+            )
             if len(bert_params) > 0:
-                bert_optimizer = optim.Adam(bert_params.values(),
-                                            lr=optimargs["bert"].lr,
-                                            weight_decay=optimargs["bert"].weight_decay)
+                bert_optimizer = optim.Adam(
+                    bert_params.values(),
+                    lr=optimargs["bert"].lr,
+                    weight_decay=optimargs["bert"].weight_decay,
+                )
             else:
                 bert_optimizer = None
 
@@ -88,7 +98,13 @@ def train_eval_loop(dataloader,
 
             if bert_optimizer is not None:
                 bert_optimizer.step()
-                bert_step_lr = calc_bert_lr(bert_lr, gstep, bert_warmup_steps, bert_hold_steps, bert_cooldown_steps)
+                bert_step_lr = calc_bert_lr(
+                    bert_lr,
+                    gstep,
+                    bert_warmup_steps,
+                    bert_hold_steps,
+                    bert_cooldown_steps,
+                )
                 switch_lr(bert_optimizer, bert_step_lr)
                 metrics["bert_step_lr"] = bert_step_lr
 

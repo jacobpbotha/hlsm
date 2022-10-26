@@ -5,25 +5,31 @@ import numpy as np
 def resize_to_width(figure, width, nearest=False):
     aspect = width / float(figure.shape[1])
     height = int(figure.shape[0] * aspect)
-    img = cv2.resize(figure,
-                     dsize=(width, height),
-                     interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR)
+    img = cv2.resize(
+        figure,
+        dsize=(width, height),
+        interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR,
+    )
     return img
 
 
 def resize_to_height(figure, height, nearest=False):
     aspect = height / float(figure.shape[0])
     width = int(figure.shape[1] * aspect)
-    img = cv2.resize(figure,
-                     dsize=(width, height),
-                     interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR)
+    img = cv2.resize(
+        figure,
+        dsize=(width, height),
+        interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR,
+    )
     return img
 
 
 def resize(figure, height, width, nearest=False):
-    img = cv2.resize(figure,
-                     dsize=(width, height),
-                     interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR)
+    img = cv2.resize(
+        figure,
+        dsize=(width, height),
+        interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR,
+    )
     return img
 
 
@@ -55,12 +61,15 @@ def b_unify_size(frames, height=None, width=None):
 def canvas_to_img(fig):
     fig.canvas.draw()
     canvas = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    canvas = canvas.reshape([int(fig.canvas.renderer.height), int(fig.canvas.renderer.width), 3])
+    canvas = canvas.reshape(
+        [int(fig.canvas.renderer.height), int(fig.canvas.renderer.width), 3]
+    )
     return canvas
 
 
 def prep_image(image, scale=(1.0, 1.0), no_norm=False):
     import cv2
+
     if type(scale) is int or type(scale) is float:
         scale = (scale, scale)
 
@@ -93,7 +102,11 @@ def prep_image(image, scale=(1.0, 1.0), no_norm=False):
     if scale != 1.0:
         width = image.shape[1]
         height = image.shape[0]
-        image = cv2.resize(image, (int(scale[0] * width), int(scale[1] * height)), interpolation=cv2.INTER_NEAREST)
+        image = cv2.resize(
+            image,
+            (int(scale[0] * width), int(scale[1] * height)),
+            interpolation=cv2.INTER_NEAREST,
+        )
 
     if image.dtype == np.float64:
         image = image.astype(np.float32)
@@ -106,6 +119,7 @@ def prep_image(image, scale=(1.0, 1.0), no_norm=False):
 
 def show_image(image, name="live", waitkey=False, scale=1.0):
     import cv2
+
     image = prep_image(image, scale)
 
     cv2.namedWindow(name, cv2.WINDOW_AUTOSIZE | cv2.WINDOW_GUI_NORMAL)

@@ -1,29 +1,31 @@
-"""
-Script that collects and saves a long list of {state, action, next_state} dicts.
-"""
-from typing import List, Dict
+"""Script that collects and saves a long list of {state, action, next_state}
+dicts."""
+import json
 import os
 import sys
-import torch
-import json
+from typing import Dict, List
 
-#from lgp.abcd.functions.action_repr_function import ActionReprFunction
-
-
-from main.data_collection_strategies.alfred_navigation_chunking_strategy import AlfredNavigationPreproc, NavToGoalChunkingStrategy
-from main.data_collection_strategies.alfred_hl_to_ll_chunking_strategy import AlfredHLPreproc, AlfredHLChunkingStrategy
-
-from lgp.models.alfred.handcoded_skills.init_skill import InitSkill
-
-from lgp.parameters import Hyperparams, load_experiment_definition
-from lgp.utils.utils import SimpleProfiler
-
-from lgp.rollout.rollout_data import rollouts_to_device
-
-from lgp.factory.alfred_factory import AlfredFactory
-
-from lgp.rollout import rollout_data
 import lgp.paths
+import torch
+from lgp.factory.alfred_factory import AlfredFactory
+from lgp.models.alfred.handcoded_skills.init_skill import InitSkill
+from lgp.parameters import Hyperparams, load_experiment_definition
+from lgp.rollout import rollout_data
+from lgp.rollout.rollout_data import rollouts_to_device
+from lgp.utils.utils import SimpleProfiler
+from main.data_collection_strategies.alfred_hl_to_ll_chunking_strategy import (
+    AlfredHLChunkingStrategy, AlfredHLPreproc)
+from main.data_collection_strategies.alfred_navigation_chunking_strategy import (
+    AlfredNavigationPreproc, NavToGoalChunkingStrategy)
+
+# from lgp.abcd.functions.action_repr_function import ActionReprFunction
+
+
+
+
+
+
+
 
 
 TOTAL_TASKS = 100000
@@ -33,13 +35,12 @@ NUM_GPUS = 3
 
 PROFILE = False
 
-#NAV_DATADIR = lgp.paths.get_data_dir()
-#HL_DATADIR = NAV_DATADIR
-#DIR_PREFIX = "rollouts_full_v3"
+# NAV_DATADIR = lgp.paths.get_data_dir()
+# HL_DATADIR = NAV_DATADIR
+# DIR_PREFIX = "rollouts_full_v3"
 
 
 def collect_universal_rollouts(exp_def, proc_id):
-
     # ----------------------------------------------------------------------------------------------------------------
     # Save navigation data to SSD since it produces a LOT of files, but less big in total
     configs = [
@@ -49,7 +50,7 @@ def collect_universal_rollouts(exp_def, proc_id):
             "dataset_dir": lgp.paths.get_default_navigation_rollout_data_dir(),
             "singles": True,
             "key": "nav",
-            "skip_error_rollouts": False
+            "skip_error_rollouts": False,
         },
         {
             "preprocessor": AlfredHLPreproc(),
@@ -57,18 +58,17 @@ def collect_universal_rollouts(exp_def, proc_id):
             "dataset_dir": lgp.paths.get_default_subgoal_rollout_data_dir(),
             "singles": False,
             "key": "hl",
-            "skip_error_rollouts": True
-        }
+            "skip_error_rollouts": True,
+        },
     ]
     progress = {
         "collected_rollouts": [],
         "current_i": START_TASK,
-        "chunk_numbers": {
-            "hl": 0,
-            "nav": 0
-        }
+        "chunk_numbers": {"hl": 0, "nav": 0},
     }
-    progress_log_file = os.path.join(lgp.paths.get_default_rollout_data_dir(), f"progress_log.json")
+    progress_log_file = os.path.join(
+        lgp.paths.get_default_rollout_data_dir(), f"progress_log.json"
+    )
 
     if os.path.exists(progress_log_file):
         print(f"Progress file exists at {progress_log_file}.")
@@ -76,7 +76,9 @@ def collect_universal_rollouts(exp_def, proc_id):
         if n.lower() == "y" or n.lower() == "yes":
             pass
         else:
-            print("Aborting data collection. If you don't want to continue where left off, delete the progress file.")
+            print(
+                "Aborting data collection. If you don't want to continue where left off, delete the progress file."
+            )
             sys.exit(-1)
         with open(progress_log_file, "r") as fp:
             progress = json.load(fp)
@@ -103,7 +105,7 @@ def collect_universal_rollouts(exp_def, proc_id):
             progress["current_i"] = i
             error_rollout = False
 
-            rollout : List[Dict] = []
+            rollout: List[Dict] = []
             state_repr = None
 
             try:
@@ -123,7 +125,7 @@ def collect_universal_rollouts(exp_def, proc_id):
             for t in range(MAX_H):
                 state_repr = obs_func(observation, state_repr, None)
                 action = agent.act(observation)
-                #action_repr = action_repr_func(action, observation)
+                # action_repr = action_repr_func(action, observation)
 
                 next_observation, reward, done, md = env.step(action)
 
@@ -135,10 +137,10 @@ def collect_universal_rollouts(exp_def, proc_id):
                     "state_repr": state_repr,
                     "observation": observation,
                     "action": action,
-                    #"action_repr": action_repr,
+                    # "action_repr": action_repr,
                     "reward": reward,
                     "done": done,
-                    "remark": str(agent)
+                    "remark": str(agent),
                 }
                 rollout.append(sample)
                 observation = next_observation
@@ -162,7 +164,10 @@ def collect_universal_rollouts(exp_def, proc_id):
                     if config["chunker"].is_sequence_terminal(sample["action"]):
                         # Consider the preceding sequence of navigation actions to be either the result of exploration or
                         # ... part of the manipulation itself
-                        chunked_samples = config["chunker"].ll_to_hl(movement_stack, start_idx=InitSkill.sequence_length() if first else 0)
+                        chunked_samples = config["chunker"].ll_to_hl(
+                            movement_stack,
+                            start_idx=InitSkill.sequence_length() if first else 0,
+                        )
                         if config["chunker"].include_chunk(sample["action"]):
                             chunked_rollout.extend(chunked_samples)
                         movement_stack.clear()
@@ -173,20 +178,28 @@ def collect_universal_rollouts(exp_def, proc_id):
                 if error_rollout and config["skip_error_rollouts"]:
                     print(f"Skipping saving of rollout: {task_number}")
                 else:
-                    print(f"Saving rollout: {task_number} of length: {len(rollout)} in {config['dataset_dir']}")
+                    print(
+                        f"Saving rollout: {task_number} of length: {len(rollout)} in {config['dataset_dir']}"
+                    )
                     if config["singles"]:
                         for sample in chunked_rollout:
-                            rollout_data.save_rollout(sample, config["dataset_dir"], progress["chunk_numbers"][config["key"]])
-                            progress["chunk_numbers"][config["key"]]+= 1
+                            rollout_data.save_rollout(
+                                sample,
+                                config["dataset_dir"],
+                                progress["chunk_numbers"][config["key"]],
+                            )
+                            progress["chunk_numbers"][config["key"]] += 1
                     else:
-                        rollout_data.save_rollout(chunked_rollout, config["dataset_dir"], task_number)
+                        rollout_data.save_rollout(
+                            chunked_rollout, config["dataset_dir"], task_number
+                        )
                         prof.loop()
                         prof.print_stats(1)
 
             # ----------------------------------------------------------------------------------------------------------------
             #### Save progress
             progress["collected_rollouts"].append(task_number)
-            progress["current_i"] = i+1
+            progress["current_i"] = i + 1
             with open(progress_log_file, "w") as fp:
                 json.dump(progress, fp)
 

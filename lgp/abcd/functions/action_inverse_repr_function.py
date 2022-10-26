@@ -7,9 +7,8 @@ from lgp.abcd.repr.action_repr import ActionRepr
 
 
 class ActionInverseReprFunction(nn.Module, ABC):
-    """
-    Function that builds a task-conditioned state representation
-    """
+    """Function that builds a task-conditioned state representation."""
+
     def __init__(self):
         super().__init__()
         ...

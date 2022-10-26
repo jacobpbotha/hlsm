@@ -1,13 +1,13 @@
-from typing import Union
 from enum import Enum
+from typing import Union
 
 from lgp.abcd.action import Action
-
 from lgp.env.blockworld.state.direction import Direction
 
 
-class ActionArgument():
+class ActionArgument:
     ...
+
 
 class ActionType(Enum):
     NAV = "NAV"
@@ -28,6 +28,7 @@ class NavigateArgument(ActionArgument):
 
     def __str__(self):
         return str(f"->{self.direction}")
+
 
 class PickupArgument(ActionArgument):
     def __init__(self, coord: (int, int)):
@@ -54,4 +55,4 @@ class BwAction(Action):
 
     def __str__(self):
         return f"{self.type} : {self.argument}"
-        #return f"Blockworld Action of type={self.type}, argument={self.argument}"
+        # return f"Blockworld Action of type={self.type}, argument={self.argument}"

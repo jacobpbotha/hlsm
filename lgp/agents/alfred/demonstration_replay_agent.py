@@ -1,18 +1,15 @@
-from typing import Dict
-import torch
-import random
 import itertools
-
-from lgp.abcd.agent import Agent
-from lgp.abcd.repr.state_repr import StateRepr
-
-from lgp.env.alfred.alfred_observation import AlfredObservation
-from lgp.env.alfred.tasks import AlfredTask
-from lgp.env.alfred.alfred_action import AlfredAction, ACTION_TYPES
-
-from lgp.models.alfred.handcoded_skills.init_skill import InitSkill
+import random
+from typing import Dict
 
 import lgp.env.blockworld.config as config
+import torch
+from lgp.abcd.agent import Agent
+from lgp.abcd.repr.state_repr import StateRepr
+from lgp.env.alfred.alfred_action import ACTION_TYPES, AlfredAction
+from lgp.env.alfred.alfred_observation import AlfredObservation
+from lgp.env.alfred.tasks import AlfredTask
+from lgp.models.alfred.handcoded_skills.init_skill import InitSkill
 
 
 class DemonstrationReplayAgent(Agent):
@@ -31,7 +28,13 @@ class DemonstrationReplayAgent(Agent):
 
     def start_new_rollout(self, task: AlfredTask, state_repr: StateRepr = None):
         api_ish_actions = task.traj_data.get_api_action_sequence()
-        self.actions = [AlfredAction(a["action"], torch.from_numpy(a["mask"]) if a["mask"] is not None else None) for a in api_ish_actions]
+        self.actions = [
+            AlfredAction(
+                a["action"],
+                torch.from_numpy(a["mask"]) if a["mask"] is not None else None,
+            )
+            for a in api_ish_actions
+        ]
         self.current_step = 0
         self.initialized = False
         self.init_skill.start_new_rollout()

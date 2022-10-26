@@ -1,14 +1,13 @@
-from abc import abstractmethod
 import random
-import torch
-from typing import List, Dict, Union
+from abc import abstractmethod
+from typing import Dict, List, Union
 
+import torch
 from lgp.abcd.dataset import ExtensibleDataset
 from lgp.rollout.rollout_data import load_rollout_from_path
 
 
 class NavigationDataset(ExtensibleDataset):
-
     def __init__(self, chunk_paths):
         self.chunk_paths = chunk_paths
 
@@ -24,10 +23,10 @@ class NavigationDataset(ExtensibleDataset):
 
     def _padded_roll(self, inp, sy, sx):
         b, c, h, w = inp.shape
-        canvas = torch.zeros((b, c, h*2, w*2), dtype=inp.dtype, device=inp.device)
-        canvas[:, :, h//2:3*h//2, w//2:3*w//2] = inp
+        canvas = torch.zeros((b, c, h * 2, w * 2), dtype=inp.dtype, device=inp.device)
+        canvas[:, :, h // 2 : 3 * h // 2, w // 2 : 3 * w // 2] = inp
         canvas = torch.roll(canvas, shifts=(sy, sx), dims=(2, 3))
-        outp = canvas[:, :, h//2:3*h//2, w//2:3*w//2]
+        outp = canvas[:, :, h // 2 : 3 * h // 2, w // 2 : 3 * w // 2]
         return outp
 
     def _process_example(self, example):
@@ -68,7 +67,7 @@ class NavigationDataset(ExtensibleDataset):
             return example_out
 
         # print("Yaw bin: ", g_yaw_bin)
-        #nav_goal_rel = torch.tensor([[rgy, rgx, 0]], device=f2d.device, dtype=torch.long)
+        # nav_goal_rel = torch.tensor([[rgy, rgx, 0]], device=f2d.device, dtype=torch.long)
         g_pitch_rad, g_yaw_rad = example["nav_goal_rot"]
 
         # Create tensor representations of the hl sem actions
@@ -88,11 +87,15 @@ class NavigationDataset(ExtensibleDataset):
         # First flip and rotate the inputs and calculate yaw with respect to these augmented inputs
         doflip = random.randint(0, 1)
         if doflip:
-            s_img, f2d_r, argmask_2d_r, g_pitch_img = map(flipfn, [s_img, f2d_r, argmask_2d_r, g_pitch_img])
+            s_img, f2d_r, argmask_2d_r, g_pitch_img = map(
+                flipfn, [s_img, f2d_r, argmask_2d_r, g_pitch_img]
+            )
             g_yaw_bin = (-g_yaw_bin) % 4
         x = random.randint(0, 3)
         if x > 0:
-            s_img, f2d_r, argmask_2d_r, g_pitch_img = map(rotfn, [s_img, f2d_r, argmask_2d_r, g_pitch_img])
+            s_img, f2d_r, argmask_2d_r, g_pitch_img = map(
+                rotfn, [s_img, f2d_r, argmask_2d_r, g_pitch_img]
+            )
             g_yaw_bin = (g_yaw_bin + x) % 4
 
         # Goal and pitch image needs special treatment of the channel axis which encodes the yaw
@@ -138,6 +141,6 @@ class NavigationDataset(ExtensibleDataset):
             "subgoals": subgoals,
             "subgoal_args": subgoal_args,
             "nav_goal_images": nav_goal_images,
-            "nav_goal_pitch_images": nav_goal_pitch_images
+            "nav_goal_pitch_images": nav_goal_pitch_images,
         }
         return out

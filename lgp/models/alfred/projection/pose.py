@@ -1,14 +1,11 @@
 import uuid
-import numpy as np
 
-from transforms3d import quaternions
-from transforms3d import euler
-from transforms3d import affines
+import numpy as np
+from transforms3d import affines, euler, quaternions
 
 
 class Pose:
-    def __init__(self, position, orientation,
-                 frame="world", name=None):
+    def __init__(self, position, orientation, frame="world", name=None):
         self.frame = frame
         self.name = name if name is not None else uuid.uuid4()
         self.position = position

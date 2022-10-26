@@ -7,9 +7,9 @@ from lgp.abcd.repr.action_repr import ActionRepr
 
 
 class ActionReprFunction(nn.Module, ABC):
-    """
-    Function that builds an action representation conditioned on the corresponding observation
-    """
+    """Function that builds an action representation conditioned on the
+    corresponding observation."""
+
     def __init__(self):
         super().__init__()
         ...

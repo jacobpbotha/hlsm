@@ -1,10 +1,9 @@
-from typing import Dict
 import math
+from typing import Dict
 
 from lgp.abcd.skill import Skill
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 from lgp.env.alfred.alfred_action import AlfredAction
-
+from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 DEBUG_DISABLE_PITCHING = False
 MIN_PITCH = -1.30899694
@@ -34,14 +33,15 @@ class TiltToPitchSkill(Skill):
         self.target_pitch = max(min(target_pitch, MAX_PITCH), MIN_PITCH)
         self.last_diff = None
 
-
     def has_failed(self) -> bool:
         return False
 
-    def act(self, state_repr : AlfredSpatialStateRepr) -> AlfredAction:
+    def act(self, state_repr: AlfredSpatialStateRepr) -> AlfredAction:
         # Debug what happens if we disable pitching
         if DEBUG_DISABLE_PITCHING:
-            return AlfredAction(action_type="Stop", argument_mask=AlfredAction.get_empty_argument_mask())
+            return AlfredAction(
+                action_type="Stop", argument_mask=AlfredAction.get_empty_argument_mask()
+            )
 
         pitch = state_repr.get_camera_pitch_deg()
         pitch = math.radians(pitch)
@@ -53,9 +53,9 @@ class TiltToPitchSkill(Skill):
         step_size = math.pi * (15 / 180)
 
         # Rotate to the correct angle
-        if ctrl_diff < -step_size/2:
+        if ctrl_diff < -step_size / 2:
             action_type = "LookDown"
-        elif ctrl_diff > step_size/2:
+        elif ctrl_diff > step_size / 2:
             action_type = "LookUp"
         else:
             action_type = "Stop"
@@ -66,4 +66,7 @@ class TiltToPitchSkill(Skill):
             action_type = "Stop"
         self.last_diff = ctrl_diff
 
-        return AlfredAction(action_type=action_type, argument_mask=AlfredAction.get_empty_argument_mask())
+        return AlfredAction(
+            action_type=action_type,
+            argument_mask=AlfredAction.get_empty_argument_mask(),
+        )

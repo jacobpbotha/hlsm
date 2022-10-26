@@ -1,25 +1,22 @@
-from typing import Dict, Union
 import copy
+from typing import Dict, Union
+
 import torch
-
+from lgp.abcd.action import Action
 from lgp.abcd.skill import Skill
-
 from lgp.env.alfred.alfred_action import AlfredAction
 from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
-from lgp.abcd.action import Action
 from lgp.models.alfred.handcoded_skills.go_for import GoForSkill
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-
 from lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
+from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 NOMINAL_PITCH = 0.5235988419208105
 
 
 class InteractSkill(Skill):
-    def __init__(self, gofor_skill : GoForSkill, explore_skill : Skill = None):
+    def __init__(self, gofor_skill: GoForSkill, explore_skill: Skill = None):
         super().__init__()
-        self.gofor_skill : GoForSkill = gofor_skill
+        self.gofor_skill: GoForSkill = gofor_skill
         self.explore_skill = explore_skill
         self.tilt_to_pitch = TiltToPitchSkill()
 
@@ -53,7 +50,7 @@ class InteractSkill(Skill):
         self.tilt_to_pitch.start_new_rollout()
 
     def get_trace(self, device="cpu") -> Dict:
-        for k,v in self.trace.items():
+        for k, v in self.trace.items():
             self.trace[k] = v.to(device) if hasattr(v, "to") else v
         tr = {
             "gofor": self.gofor_skill.get_trace(device),
@@ -71,7 +68,7 @@ class InteractSkill(Skill):
             "fpv_argument_mask": torch.zeros((1, 1, 300, 300)),
             "fpv_voxel_argument_mask": torch.zeros((1, 1, 300, 300)),
             "fpv_semantic_argument_mask": torch.zeros((1, 1, 300, 300)),
-            "llc_flow_state": " "
+            "llc_flow_state": " ",
         }
 
     def _fpv_trace(self, trace_stuff):
@@ -81,8 +78,12 @@ class InteractSkill(Skill):
             self.trace["fpv_semantic_argument_mask"] = torch.zeros((1, 1, 300, 300))
         else:
             self.trace["fpv_argument_mask"] = trace_stuff["fpv_argument_mask"]
-            self.trace["fpv_voxel_argument_mask"] = trace_stuff["fpv_voxel_argument_mask"]
-            self.trace["fpv_semantic_argument_mask"] = trace_stuff["fpv_semantic_argument_mask"]
+            self.trace["fpv_voxel_argument_mask"] = trace_stuff[
+                "fpv_voxel_argument_mask"
+            ]
+            self.trace["fpv_semantic_argument_mask"] = trace_stuff[
+                "fpv_semantic_argument_mask"
+            ]
 
     def set_goal(self, subgoal: AlfredSubgoal):
         assert isinstance(subgoal, AlfredSubgoal)
@@ -90,7 +91,7 @@ class InteractSkill(Skill):
         self._reset()
         self.subgoal = subgoal
 
-        same_goal = (self.subgoal == prev_goal)
+        same_goal = self.subgoal == prev_goal
         if self.explore_skill is not None:
             self.explore_skill.set_goal(subgoal)
         self.gofor_skill.set_goal(subgoal, remember_past_failures=same_goal)
@@ -103,13 +104,15 @@ class InteractSkill(Skill):
 
     def act(self, state_repr: AlfredSpatialStateRepr) -> Action:
         # Generate action arguments at EVERY timestep, even if not interacting to better show the agent reasoning
-        _, trace_stuff = self.subgoal.to_action(state_repr, state_repr.observation, return_intermediates=True)
+        _, trace_stuff = self.subgoal.to_action(
+            state_repr, state_repr.observation, return_intermediates=True
+        )
         self._fpv_trace(trace_stuff)
         self.trace["llc_flow_state"] = "Exploring"
 
         # Use the "Explore" skill (if we have one) to locate the object
         if not self.found and self.explore_skill is not None:
-            action : Action = self.explore_skill.act(state_repr)
+            action: Action = self.explore_skill.act(state_repr)
             if action.is_stop():
                 print(f"EXPLORE FINISHED: {self.subgoal.arg_str()}")
                 self.found = True
@@ -121,7 +124,7 @@ class InteractSkill(Skill):
 
         # First go to a position from which this interaction action can be executed
         if not self.wentfor:
-            action : Action = self.gofor_skill.act(state_repr)
+            action: Action = self.gofor_skill.act(state_repr)
             if action.is_stop():
                 self.wentfor = True
             else:
@@ -129,7 +132,9 @@ class InteractSkill(Skill):
 
         # Then execute the interaction action
         if not self.interacted:
-            action, trace_stuff = self.subgoal.to_action(state_repr, state_repr.observation, return_intermediates=True)
+            action, trace_stuff = self.subgoal.to_action(
+                state_repr, state_repr.observation, return_intermediates=True
+            )
             self._fpv_trace(trace_stuff)
             self.interacted = True
             # Try to preempt invalid interaction actions without executing them

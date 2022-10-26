@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
+from lgp.abcd.action import Action
+from lgp.abcd.observation import Observation
 from lgp.abcd.repr.state_repr import StateRepr
 from lgp.abcd.task import Task
-from lgp.abcd.observation import Observation
-from lgp.abcd.action import Action
 
 
 class Agent(ABC):
@@ -29,17 +29,19 @@ class Agent(ABC):
         ...
 
     def finalize(self, total_reward: float):
-        """A chance for the agent to wrap up after a task is done (e.g. by saving trace data or what not)"""
+        """A chance for the agent to wrap up after a task is done (e.g. by
+        saving trace data or what not)"""
         ...
 
     @abstractmethod
     def act(self, observation_or_state_repr: Union[Observation, StateRepr]) -> Action:
         ...
 
+
 from lgp.abcd.model import LearnableModel
 
-class TrainableAgent(Agent):
 
+class TrainableAgent(Agent):
     def __init__(self):
         super().__init__()
 

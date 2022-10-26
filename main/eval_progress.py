@@ -1,16 +1,14 @@
-from typing import Collection
-
+import json
 import os
 import sys
-import json
 from collections import namedtuple
+from typing import Collection
 
 import lgp.paths
 import lgp.rollout.rollout_data as rd
-
 from lgp.env.alfred.tasks import TaskRecord
 
-Progress = namedtuple('Progress', ['datasplit', 'task_id', 'repeat_idx', 'action_seq'])
+Progress = namedtuple("Progress", ["datasplit", "task_id", "repeat_idx", "action_seq"])
 
 
 class EvalProgress:
@@ -34,7 +32,9 @@ class EvalProgress:
         else:
             os.makedirs(results_dir, exist_ok=True)
 
-        self.tasks_done = [TaskRecord(p.datasplit, p.task_id, p.repeat_idx) for p in self.progress]
+        self.tasks_done = [
+            TaskRecord(p.datasplit, p.task_id, p.repeat_idx) for p in self.progress
+        ]
 
     def _load_json(self):
         progress_file = lgp.paths.get_leaderboard_progress_path(self.exp_name)
@@ -63,7 +63,9 @@ class EvalProgress:
             rollout_name = f"rollout_{str(task_record)}"
             rollout_path = os.path.join(rollouts_dir, rollout_name)
             if not os.path.exists(rollout_path):
-                rd.save_rollout_to_path(rollout, os.path.join(rollouts_dir, rollout_name))
+                rd.save_rollout_to_path(
+                    rollout, os.path.join(rollouts_dir, rollout_name)
+                )
 
     def _task_record_from_rollout(self, rollout):
         task_id = rollout[0]["task"].get_task_id()
@@ -75,7 +77,9 @@ class EvalProgress:
         task_id = rollout[0]["task"].get_task_id()
         repeat_idx = rollout[0]["task"].get_repeat_idx()
         datasplit = rollout[0]["task"].get_data_split()
-        actseq = [s["md"]["api_action"] for s in rollout if s["md"]["api_action"] is not None]
+        actseq = [
+            s["md"]["api_action"] for s in rollout if s["md"]["api_action"] is not None
+        ]
         progress_line = Progress(datasplit, task_id, repeat_idx, actseq)
         return progress_line
 

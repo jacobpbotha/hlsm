@@ -40,9 +40,11 @@ def positional_encoding_2d(x: torch.tensor):
     pos_h = torch.arange(h, device=x.device, dtype=dtype)
     sin_inp_w = torch.einsum("i,j->ij", pos_w, inv_freq)
     sin_inp_h = torch.einsum("i,j->ij", pos_h, inv_freq)
-    emb_w = torch.cat((sin_inp_w.sin(), sin_inp_w.cos()), dim=-1).unsqueeze(1).unsqueeze(1)
+    emb_w = (
+        torch.cat((sin_inp_w.sin(), sin_inp_w.cos()), dim=-1).unsqueeze(1).unsqueeze(1)
+    )
     emb_h = torch.cat((sin_inp_h.sin(), sin_inp_h.cos()), dim=-1)
-    emb = torch.zeros((1, c*2, w, h), device=x.device, dtype=dtype)
+    emb = torch.zeros((1, c * 2, w, h), device=x.device, dtype=dtype)
     emb[0, :c, :, :] = emb_w
     emb[0, c:, :, :] = emb_h
     return emb[:, :orig_c, :, :].repeat((b, 1, 1, 1))
@@ -65,8 +67,8 @@ def positional_encoding_3d(shape, device):
     emb_w = torch.cat((sin_inp_w.sin(), sin_inp_w.cos()), dim=0)[:, :, None, None]
     emb_l = torch.cat((sin_inp_l.sin(), sin_inp_l.cos()), dim=0)[:, None, :, None]
     emb_h = torch.cat((sin_inp_h.sin(), sin_inp_h.cos()), dim=0)[:, None, None, :]
-    emb = torch.zeros((1, c*3, w, l, h), device=device, dtype=dtype)
+    emb = torch.zeros((1, c * 3, w, l, h), device=device, dtype=dtype)
     emb[0, :c, :, :, :] = emb_w
-    emb[0, c:2*c, :, :, :] = emb_l
-    emb[0, 2*c:, :, :, :] = emb_h
+    emb[0, c : 2 * c, :, :, :] = emb_l
+    emb[0, 2 * c :, :, :, :] = emb_h
     return emb.repeat((b, 1, 1, 1, 1))

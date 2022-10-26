@@ -1,11 +1,11 @@
-import torch
-from typing import Iterable
 from abc import ABC, abstractmethod
+from typing import Iterable
+
+import torch
 from lgp.abcd.task import Task
 
 
 class TaskRepr(ABC):
-
     def __init__(self):
         ...
 
@@ -20,9 +20,8 @@ class TaskRepr(ABC):
     @classmethod
     @abstractmethod
     def collate(cls, task_reprs: Iterable["TaskRepr"]):
-        """
-        Creates a single TaskRepresentation that represents a batch of tasks (e.g natural language instructions)
-        """
+        """Creates a single TaskRepresentation that represents a batch of tasks
+        (e.g natural language instructions)"""
         ...
 
     @abstractmethod

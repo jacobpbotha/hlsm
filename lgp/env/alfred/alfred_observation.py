@@ -1,27 +1,26 @@
-from typing import Iterable, Union, List
-import torch
-
-from lgp.abcd.observation import Observation
-
-from lgp.env.privileged_info import PrivilegedInfo
+from typing import Iterable, List, Union
 
 import lgp.env.alfred.segmentation_definitions as segdef
-
+import torch
+from lgp.abcd.observation import Observation
+from lgp.env.privileged_info import PrivilegedInfo
 
 VISUALIZE_AUGMENTATIONS = False
 from lgp.utils.viz import show_image
 
 
 class AlfredObservation(Observation):
-    def __init__(self,
-                 rgb_image: torch.tensor,
-                 depth_image: torch.tensor,
-                 semantic_image: torch.tensor,
-                 inventory_vector: torch.tensor,
-                 pose: torch.tensor,
-                 hfov_deg: float,
-                 cam_horizon_deg: List[float],
-                 privileged_info: Union[PrivilegedInfo, List[PrivilegedInfo]]):
+    def __init__(
+        self,
+        rgb_image: torch.tensor,
+        depth_image: torch.tensor,
+        semantic_image: torch.tensor,
+        inventory_vector: torch.tensor,
+        pose: torch.tensor,
+        hfov_deg: float,
+        cam_horizon_deg: List[float],
+        privileged_info: Union[PrivilegedInfo, List[PrivilegedInfo]],
+    ):
         super().__init__()
         self.rgb_image = rgb_image
         self.depth_image = depth_image
@@ -51,7 +50,9 @@ class AlfredObservation(Observation):
             privileged_info = self.privileged_info
         else:
             privileged_info = self.privileged_info[item]
-        assert self.error_causing_action is None, "Cannot treat observations with error_causing_action as batches"
+        assert (
+            self.error_causing_action is None
+        ), "Cannot treat observations with error_causing_action as batches"
         return AlfredObservation(
             rgb_image,
             depth_image,
@@ -60,7 +61,7 @@ class AlfredObservation(Observation):
             pose,
             hfov_deg,
             cam_horizon_deg,
-            privileged_info
+            privileged_info,
         )
 
     def set_agent_pos(self, agent_pos):
@@ -69,7 +70,9 @@ class AlfredObservation(Observation):
     def get_agent_pos(self, device="cpu"):
         # TODO: This is a temporary workaround. Figure it out and standardize it:
         if self.agent_pos is None:
-            raise ValueError("Requesting agent_pos from observation, but set_agent_pos hasn't been called")
+            raise ValueError(
+                "Requesting agent_pos from observation, but set_agent_pos hasn't been called"
+            )
         return self.agent_pos.to(device)
 
     def get_depth_image(self):
@@ -80,7 +83,11 @@ class AlfredObservation(Observation):
             return self.depth_image.get_trustworthy_depth()
 
     def get_objects_image(self):
-        interactive_mask = self.semantic_image[:, segdef.TABLETOP_OBJECT_IDS, :, :].max(dim=1, keepdim=True).values
+        interactive_mask = (
+            self.semantic_image[:, segdef.TABLETOP_OBJECT_IDS, :, :]
+            .max(dim=1, keepdim=True)
+            .values
+        )
         return interactive_mask
 
     def is_compressed(self):
@@ -90,18 +97,25 @@ class AlfredObservation(Observation):
         # If semantic image is in a one-hot representation, convert to a more space-saving integer representation
         if not self.is_compressed():
             # TODO: This doesn't support anything bigger than 128!!
-            self.semantic_image = self.semantic_image.type(torch.uint8).argmax(dim=1, keepdim=True)
+            self.semantic_image = self.semantic_image.type(torch.uint8).argmax(
+                dim=1, keepdim=True
+            )
 
     def uncompress(self):
         # If semantic image is in an integer representation, convert it to a one-hot representation
         if self.is_compressed():
             n_c = segdef.get_num_objects()
-            rng = torch.arange(0, n_c, 1, device=self.semantic_image.device, dtype=torch.uint8)
-            onehotrepr = (rng[None, :, None, None] == self.semantic_image).type(torch.uint8)
+            rng = torch.arange(
+                0, n_c, 1, device=self.semantic_image.device, dtype=torch.uint8
+            )
+            onehotrepr = (rng[None, :, None, None] == self.semantic_image).type(
+                torch.uint8
+            )
             self.semantic_image = onehotrepr
 
     def data_augment(self):
         import lgp.env.alfred.alfred_observation_augmentation as aug
+
         was_compressed = self.is_compressed()
         self.uncompress()
         dtype = self.rgb_image.dtype
@@ -133,16 +147,20 @@ class AlfredObservation(Observation):
             self.pose.to(device),
             self.hfov_deg,
             self.cam_horizon_deg,
-            self.privileged_info
+            self.privileged_info,
         )
         obs_o.error_causing_action = self.error_causing_action
         obs_o.last_action_error = self.last_action_error
-        obs_o.agent_pos = self.agent_pos.to(device) if self.agent_pos is not None else None
+        obs_o.agent_pos = (
+            self.agent_pos.to(device) if self.agent_pos is not None else None
+        )
         obs_o.extra_rgb_frames = [f.to(device) for f in self.extra_rgb_frames]
         return obs_o
 
     @classmethod
-    def collate(cls, observations: Iterable["AlfredObservation"]) -> "AlfredObservation":
+    def collate(
+        cls, observations: Iterable["AlfredObservation"]
+    ) -> "AlfredObservation":
         rgb_images = torch.cat([o.rgb_image for o in observations], dim=0)
         depth_images = torch.cat([o.depth_image for o in observations], dim=0)
         semantic_images = torch.cat([o.semantic_image for o in observations], dim=0)
@@ -159,10 +177,12 @@ class AlfredObservation(Observation):
             pose=poses,
             hfov_deg=hfov_deg,
             cam_horizon_deg=cam_horizon_deg,
-            privileged_info=privileged_infos
+            privileged_info=privileged_infos,
         )
 
-    def represent_as_image(self, semantic=True, rgb=True, depth=True, horizontal=False) -> torch.tensor:
+    def represent_as_image(
+        self, semantic=True, rgb=True, depth=True, horizontal=False
+    ) -> torch.tensor:
         imglist = []
         if rgb:
             imglist.append(self.rgb_image)

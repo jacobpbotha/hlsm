@@ -1,20 +1,18 @@
-"""
-Quick experiment for training spatial dynamics model in the blockworld environment in a behavior cloning setting,
-following Oracle trajectories
-"""
-from typing import Dict
+"""Quick experiment for training spatial dynamics model in the blockworld
+environment in a behavior cloning setting, following Oracle trajectories."""
 import os
 import sys
+from typing import Dict
+
 import torch
 import torch.multiprocessing as mp
-
-from main.data_loading import make_disk_dataloaders, make_navigation_dataloaders, make_perception_dataloaders
-
-from main.train_loop import train_eval_loop
-from lgp.utils.better_summary_writer import BetterSummaryWriter
+from lgp import model_registry, paths
 from lgp.parameters import Hyperparams, load_experiment_definition
-from lgp import model_registry
-from lgp import paths
+from lgp.utils.better_summary_writer import BetterSummaryWriter
+from main.data_loading import (make_disk_dataloaders,
+                               make_navigation_dataloaders,
+                               make_perception_dataloaders)
+from main.train_loop import train_eval_loop
 
 
 def resolve_model_path(filename):
@@ -41,9 +39,11 @@ def save_checkpoint(model, optimizers, model_file, checkpoint_file, epoch, iter)
 
     checkpoint = {
         "nonbert_optimizer": optimizers[0].state_dict(),
-        "bert_optimizer": optimizers[1].state_dict() if optimizers[1] is not None else None,
+        "bert_optimizer": optimizers[1].state_dict()
+        if optimizers[1] is not None
+        else None,
         "epoch": epoch,
-        "iter": iter
+        "iter": iter,
     }
     # Saving two files guarantees that if we run out of space, at least one of them will be a valid checkpoint.
     # and allows recovering training
@@ -84,11 +84,23 @@ def train_main(exp_def: Dict):
     hyperparams = Hyperparams(exp_def.get("Hyperparams"))
     print(f"Loading dataset")
     if dataset_type == "subgoals":
-        train_loader, val_loader = make_disk_dataloaders("tapm", env_setup, max_rollouts, env_type, hyperparams, batch_size, num_workers)
+        train_loader, val_loader = make_disk_dataloaders(
+            "tapm",
+            env_setup,
+            max_rollouts,
+            env_type,
+            hyperparams,
+            batch_size,
+            num_workers,
+        )
     elif dataset_type == "navigation":
-        train_loader, val_loader = make_navigation_dataloaders(env_setup, max_rollouts, batch_size, num_workers)
+        train_loader, val_loader = make_navigation_dataloaders(
+            env_setup, max_rollouts, batch_size, num_workers
+        )
     elif dataset_type == "perception":
-        train_loader, val_loader = make_perception_dataloaders(env_setup, max_rollouts, batch_size, num_workers)
+        train_loader, val_loader = make_perception_dataloaders(
+            env_setup, max_rollouts, batch_size, num_workers
+        )
     else:
         raise ValueError(f"Unknown dataloder type: {dataset_type}")
 
@@ -102,9 +114,13 @@ def train_main(exp_def: Dict):
 
     # Continue from a checkpoint
     if load_checkpoint_file is not None:
-        print(f"LOADING CHECKPOINT FROM: {load_checkpoint_file} WITH MODEL FROM {load_model_file}")
+        print(
+            f"LOADING CHECKPOINT FROM: {load_checkpoint_file} WITH MODEL FROM {load_model_file}"
+        )
         optimizers = None
-        optimizer_states, model_state, start_epoch, start_iter = load_checkpoint(load_checkpoint_file, load_model_file)
+        optimizer_states, model_state, start_epoch, start_iter = load_checkpoint(
+            load_checkpoint_file, load_model_file
+        )
         model.load_state_dict(model_state)
     else:
         optimizers = None
@@ -120,23 +136,30 @@ def train_main(exp_def: Dict):
 
     gstep = start_iter  # Number of iterations of training
     for i in range(start_epoch, num_epochs, 1):
-        gstep, optimizers = train_eval_loop(train_loader,
-                                            model, writer,
-                                            val=False,
-                                            optimargs=hyperparams.get("optimizer_args").d,
-                                            gstep=gstep,
-                                            device=device,
-                                            optimizers=optimizers,
-                                            optimizer_states=optimizer_states)
+        gstep, optimizers = train_eval_loop(
+            train_loader,
+            model,
+            writer,
+            val=False,
+            optimargs=hyperparams.get("optimizer_args").d,
+            gstep=gstep,
+            device=device,
+            optimizers=optimizers,
+            optimizer_states=optimizer_states,
+        )
 
-        train_eval_loop(val_loader,
-                        model,
-                        writer,
-                        val=True,
-                        optimargs=hyperparams.get("optimizer_args").d,
-                        device=device)
+        train_eval_loop(
+            val_loader,
+            model,
+            writer,
+            val=True,
+            optimargs=hyperparams.get("optimizer_args").d,
+            device=device,
+        )
 
-        save_checkpoint(model, optimizers, save_model_file, save_checkpoint_file, i, gstep)
+        save_checkpoint(
+            model, optimizers, save_model_file, save_checkpoint_file, i, gstep
+        )
 
 
 if __name__ == "__main__":

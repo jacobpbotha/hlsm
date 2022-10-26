@@ -2,7 +2,6 @@ from tensorboardX import SummaryWriter
 
 
 class BetterSummaryWriter(SummaryWriter):
-
     def __init__(self, *args, start_iter=0, **kwargs):
         super().__init__(*args, **kwargs)
         self.iter = start_iter

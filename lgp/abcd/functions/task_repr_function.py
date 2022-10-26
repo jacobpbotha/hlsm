@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
 
 import torch.nn as nn
-from lgp.abcd.task import Task
 from lgp.abcd.repr.task_repr import TaskRepr
+from lgp.abcd.task import Task
 
 
 class TaskReprFunction(nn.Module, ABC):
-    """
-    Function that builds a task-conditioned state representation
-    """
+    """Function that builds a task-conditioned state representation."""
+
     def __init__(self):
         super().__init__()
         ...

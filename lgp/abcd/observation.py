@@ -1,6 +1,7 @@
-import torch
-from typing import Iterable
 from abc import ABC, abstractmethod
+from typing import Iterable
+
+import torch
 
 
 class Observation(ABC):
@@ -10,9 +11,8 @@ class Observation(ABC):
     @classmethod
     @abstractmethod
     def collate(cls, observations: Iterable["Observation"]) -> "Observation":
-        """
-        Creates a single "observation" that represents a batch of observations
-        """
+        """Creates a single "observation" that represents a batch of
+        observations."""
         ...
 
     @abstractmethod
@@ -21,5 +21,5 @@ class Observation(ABC):
 
     @abstractmethod
     def to(self, device) -> "Observation":
-        """Moves self to the given Torch device, and returns self"""
+        """Moves self to the given Torch device, and returns self."""
         ...
