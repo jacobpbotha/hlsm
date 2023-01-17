@@ -3,7 +3,7 @@ from typing import Union
 import torch
 import torch.nn as nn
 
-from hlsm.lgp.models.alfred.hslm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 #from hlsm.lgp.models.alfred.hlsm.transformer_modules.transformer_layer import TransformerSideLayer
 
 
