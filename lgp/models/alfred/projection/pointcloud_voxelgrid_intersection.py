@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
-from lgp.models.alfred.projection.constants import ROUNDING_OFFSET
+from hlsm.lgp.models.alfred.projection.constants import ROUNDING_OFFSET
 
 
 class PointcloudVoxelgridIntersection(nn.Module):

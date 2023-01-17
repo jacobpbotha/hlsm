@@ -4,13 +4,13 @@ import inspect
 
 AUTHORIZED_CALLERS = [
     # Allow oracles and privileged agent access
-    "lgp.agents.blockworld.oracle_pickup_agent",
-    "lgp.agents.blockworld.oracle_move_agent",
-    "lgp.agents.blockworld.oracle_agent",
-    "lgp.models.blockworld.privileged_model",
+    "hlsm.lgp.agents.blockworld.oracle_pickup_agent",
+    "hlsm.lgp.agents.blockworld.oracle_move_agent",
+    "hlsm.lgp.agents.blockworld.oracle_agent",
+    "hlsm.lgp.models.blockworld.privileged_model",
 
     # Allow observation class to expose certain properties of this explicitly
-    "lgp.env.alfred.alfred_observation"]
+    "hlsm.lgp.env.alfred.alfred_observation"]
 
 class UnauthorizedAccessException(Exception):
     ...
@@ -28,7 +28,7 @@ class PrivilegedInfo:
         caller_frame = sys._getframe(1)
         caller_name = inspect.getmodule(caller_frame).__name__
         # Only check calls from our own codebase. Otherwise we stop e.g. serialization, monitoring etc.
-        if caller_name.startswith("lgp.") and caller_name not in AUTHORIZED_CALLERS:
+        if caller_name.startswith("hlsm.lgp.") and caller_name not in AUTHORIZED_CALLERS:
             raise UnauthorizedAccessException(f"Caller {caller_name} not authorized to access PrivilegedInfo")
         if item == "world_state":
             return self._world_state

@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List, Union, Dict
 
-from lgp.abcd.repr.state_repr import StateRepr
-from lgp.abcd.task import Task
-from lgp.abcd.observation import Observation
-from lgp.abcd.action import Action
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.abcd.observation import Observation
+from hlsm.lgp.abcd.action import Action
 
 
 class Agent(ABC):
@@ -36,7 +36,7 @@ class Agent(ABC):
     def act(self, observation_or_state_repr: Union[Observation, StateRepr]) -> Action:
         ...
 
-from lgp.abcd.model import LearnableModel
+from hlsm.lgp.abcd.model import LearnableModel
 
 class TrainableAgent(Agent):
 

@@ -2,8 +2,8 @@ from typing import Iterable, List
 import torch
 import numpy
 
-from lgp.models.alfred.projection.constants import ROUNDING_OFFSET
-from lgp.flags import TALL_GRID
+from hlsm.lgp.models.alfred.projection.constants import ROUNDING_OFFSET
+from hlsm.lgp.flags import TALL_GRID
 
 if TALL_GRID:
     class DefaultGridParameters:

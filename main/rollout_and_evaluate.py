@@ -6,15 +6,15 @@ import os
 import torch
 
 
-from lgp.agents.agents import get_agent
-from lgp.rollout.rollout_actor import RolloutActorLocal
-from lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
+from hlsm.lgp.agents.agents import get_agent
+from hlsm.lgp.rollout.rollout_actor import RolloutActorLocal
+from hlsm.lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
 from main.visualize_rollout import visualize_rollout
-from lgp.parameters import Hyperparams, load_experiment_definition
+from hlsm.lgp.parameters import Hyperparams, load_experiment_definition
 
 from main.eval_progress import EvalProgress
 
-from lgp.env.alfred.alfred_env import AlfredEnv
+from hlsm.lgp.env.alfred.alfred_env import AlfredEnv
 
 
 def evaluate_rollouts(exp_def, rollouts):

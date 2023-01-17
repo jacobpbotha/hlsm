@@ -4,8 +4,8 @@ import numpy as np
 import functools
 from imageio import imwrite
 import moviepy.editor as mpy
-from lgp import paths
-from lgp.parameters import Hyperparams
+from hlsm.lgp import paths
+from hlsm.lgp.parameters import Hyperparams
 
 
 def save_png(frame, fname):

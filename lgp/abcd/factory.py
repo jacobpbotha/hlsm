@@ -1,11 +1,11 @@
 from typing import Dict
 from abc import abstractmethod
 
-from lgp.abcd.agent import Agent
-from lgp.abcd.model_factory import ModelFactory
-from lgp.abcd.env import Env
+from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.model_factory import ModelFactory
+from hlsm.lgp.abcd.env import Env
 
-from lgp.parameters import Hyperparams
+from hlsm.lgp.parameters import Hyperparams
 
 
 class Factory:

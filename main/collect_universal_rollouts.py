@@ -7,23 +7,23 @@ import sys
 import torch
 import json
 
-#from lgp.abcd.functions.action_repr_function import ActionReprFunction
+#from hlsm.lgp.abcd.functions.action_repr_function import ActionReprFunction
 
 
 from main.data_collection_strategies.alfred_navigation_chunking_strategy import AlfredNavigationPreproc, NavToGoalChunkingStrategy
 from main.data_collection_strategies.alfred_hl_to_ll_chunking_strategy import AlfredHLPreproc, AlfredHLChunkingStrategy
 
-from lgp.models.alfred.handcoded_skills.init_skill import InitSkill
+from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
 
-from lgp.parameters import Hyperparams, load_experiment_definition
-from lgp.utils.utils import SimpleProfiler
+from hlsm.lgp.parameters import Hyperparams, load_experiment_definition
+from hlsm.lgp.utils.utils import SimpleProfiler
 
-from lgp.rollout.rollout_data import rollouts_to_device
+from hlsm.lgp.rollout.rollout_data import rollouts_to_device
 
-from lgp.factory.alfred_factory import AlfredFactory
+from hlsm.lgp.factory.alfred_factory import AlfredFactory
 
-from lgp.rollout import rollout_data
-import lgp.paths
+from hlsm.lgp.rollout import rollout_data
+import hlsm.lgp.paths
 
 
 TOTAL_TASKS = 100000
@@ -33,7 +33,7 @@ NUM_GPUS = 3
 
 PROFILE = False
 
-#NAV_DATADIR = lgp.paths.get_data_dir()
+#NAV_DATADIR = hlsm.lgp.paths.get_data_dir()
 #HL_DATADIR = NAV_DATADIR
 #DIR_PREFIX = "rollouts_full_v3"
 
@@ -46,7 +46,7 @@ def collect_universal_rollouts(exp_def, proc_id):
         {
             "preprocessor": AlfredNavigationPreproc(),
             "chunker": NavToGoalChunkingStrategy(),
-            "dataset_dir": lgp.paths.get_default_navigation_rollout_data_dir(),
+            "dataset_dir": hlsm.lgp.paths.get_default_navigation_rollout_data_dir(),
             "singles": True,
             "key": "nav",
             "skip_error_rollouts": False
@@ -54,7 +54,7 @@ def collect_universal_rollouts(exp_def, proc_id):
         {
             "preprocessor": AlfredHLPreproc(),
             "chunker": AlfredHLChunkingStrategy(),
-            "dataset_dir": lgp.paths.get_default_subgoal_rollout_data_dir(),
+            "dataset_dir": hlsm.lgp.paths.get_default_subgoal_rollout_data_dir(),
             "singles": False,
             "key": "hl",
             "skip_error_rollouts": True
@@ -68,7 +68,7 @@ def collect_universal_rollouts(exp_def, proc_id):
             "nav": 0
         }
     }
-    progress_log_file = os.path.join(lgp.paths.get_default_rollout_data_dir(), f"progress_log.json")
+    progress_log_file = os.path.join(hlsm.lgp.paths.get_default_rollout_data_dir(), f"progress_log.json")
 
     if os.path.exists(progress_log_file):
         print(f"Progress file exists at {progress_log_file}.")

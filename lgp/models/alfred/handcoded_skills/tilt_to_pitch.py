@@ -1,9 +1,9 @@
 from typing import Dict
 import math
 
-from lgp.abcd.skill import Skill
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-from lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.abcd.skill import Skill
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 
 
 DEBUG_DISABLE_PITCHING = False

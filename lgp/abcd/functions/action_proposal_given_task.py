@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import torch.nn as nn
 
-from lgp.abcd.repr.task_repr import TaskRepr
-from lgp.abcd.repr.action_distribution import ActionDistribution
+from hlsm.lgp.abcd.repr.task_repr import TaskRepr
+from hlsm.lgp.abcd.repr.action_distribution import ActionDistribution
 
 
 class ActionProposalGivenTask(nn.Module, ABC):

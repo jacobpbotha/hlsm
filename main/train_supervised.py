@@ -11,10 +11,10 @@ import torch.multiprocessing as mp
 from main.data_loading import make_disk_dataloaders, make_navigation_dataloaders, make_perception_dataloaders
 
 from main.train_loop import train_eval_loop
-from lgp.utils.better_summary_writer import BetterSummaryWriter
-from lgp.parameters import Hyperparams, load_experiment_definition
-from lgp import model_registry
-from lgp import paths
+from hlsm.lgp.utils.better_summary_writer import BetterSummaryWriter
+from hlsm.lgp.parameters import Hyperparams, load_experiment_definition
+from hlsm.lgp import model_registry
+from hlsm.lgp import paths
 
 
 def resolve_model_path(filename):

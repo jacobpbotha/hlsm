@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch
 
-from lgp.models.alfred.projection.image_to_pointcloud import ImageToPointcloud
-from lgp.models.alfred.projection.pointcloud_to_voxelgrid import PointcloudToVoxels
+from hlsm.lgp.models.alfred.projection.image_to_pointcloud import ImageToPointcloud
+from hlsm.lgp.models.alfred.projection.pointcloud_to_voxelgrid import PointcloudToVoxels
 
 
 class ImageToVoxels(nn.Module):

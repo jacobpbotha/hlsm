@@ -1,8 +1,8 @@
 from typing import Dict
 
-from lgp.abcd.functions.observation_function import ObservationFunction
-from lgp.abcd.functions.task_repr_function import TaskReprFunction
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.functions.observation_function import ObservationFunction
+from hlsm.lgp.abcd.functions.task_repr_function import TaskReprFunction
+from hlsm.lgp.abcd.skill import Skill
 
 
 class ModelFactory:

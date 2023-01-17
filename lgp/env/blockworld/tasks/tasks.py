@@ -1,8 +1,8 @@
 import random
-from lgp.abcd.task import Task
-from lgp.env.blockworld.state.world import World
-from lgp.env.blockworld.state.room import Room
-import lgp.env.blockworld.config as config
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.env.blockworld.state.world import World
+from hlsm.lgp.env.blockworld.state.room import Room
+import hlsm.lgp.env.blockworld.config as config
 
 
 def get_vocabulary_old():

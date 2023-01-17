@@ -4,16 +4,16 @@ import numpy as np
 import torch
 import math
 from transforms3d import euler, affines
-from lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
 
-from lgp.ops.misc import padded_roll_2d
+from hlsm.lgp.ops.misc import padded_roll_2d
 
-from lgp.env.alfred.segmentation_definitions import intid_tensor_to_rgb, object_string_to_intid
-import lgp.env.alfred.segmentation_definitions as segdef
-from lgp.models.alfred.voxel_grid import VoxelGrid
-from lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.segmentation_definitions import intid_tensor_to_rgb, object_string_to_intid
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
 
-from lgp.flags import TALL_GRID
+from hlsm.lgp.flags import TALL_GRID
 
 # TODO: Compute these from voxelgrid origin and size
 if TALL_GRID:
@@ -272,7 +272,7 @@ class AlfredSpatialStateRepr(StateRepr):
         return cls(datas, obs_masks, vectors, observation)
 
     def view_voxel_map(self):
-        import lgp.utils.render3d as r3d
+        import hlsm.lgp.utils.render3d as r3d
         rgb_voxelgrid = self.make_rgb_voxelgrid(False)
         r3d.view_voxel_grid(rgb_voxelgrid)
 
@@ -317,7 +317,7 @@ class AlfredSpatialStateRepr(StateRepr):
                 image[:, :, image.shape[2]-1, image.shape[3]-1] = vec_rgb
             return image
         else:
-            import lgp.utils.render3d as r3d
+            import hlsm.lgp.utils.render3d as r3d
             rgb_voxelgrid = self.make_rgb_voxelgrid(observability)
             image_or_images = r3d.render_voxel_grid(rgb_voxelgrid, animate=animate)
 

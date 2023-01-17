@@ -5,9 +5,9 @@ from typing import Tuple, List, Union
 import numpy as np
 import torch
 
-from lgp.env.blockworld import config as config
-from lgp.env.blockworld.state.direction import Direction
-from lgp.env.blockworld.state.item import Item
+from hlsm.lgp.env.blockworld import config as config
+from hlsm.lgp.env.blockworld.state.direction import Direction
+from hlsm.lgp.env.blockworld.state.item import Item
 
 
 class Door:

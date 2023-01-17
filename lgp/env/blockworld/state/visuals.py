@@ -1,5 +1,5 @@
 import torch
-import lgp.env.blockworld.config as config
+import hlsm.lgp.env.blockworld.config as config
 
 
 def _draw_over(tensor_a, tensor_b, mask=None):

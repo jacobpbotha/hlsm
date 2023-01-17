@@ -3,14 +3,14 @@ import random
 import itertools
 import torch
 
-from lgp.abcd.agent import Agent
-from lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
 
-from lgp.env.alfred.alfred_observation import AlfredObservation
-from lgp.env.alfred.tasks import AlfredTask
-from lgp.env.alfred.alfred_action import AlfredAction, ACTION_TYPES, NAV_ACTION_TYPES, INTERACT_ACTION_TYPES
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction, ACTION_TYPES, NAV_ACTION_TYPES, INTERACT_ACTION_TYPES
 
-import lgp.env.alfred.segmentation_definitions as segdef
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 
 
 class RandomValidAgent(Agent):

@@ -2,10 +2,10 @@ from abc import abstractmethod
 
 from typing import List, Dict, Union
 
-from lgp.abcd.dataset import ExtensibleDataset
+from hlsm.lgp.abcd.dataset import ExtensibleDataset
 
-from lgp.env.alfred.alfred_observation import AlfredObservation
-from lgp.rollout.rollout_data import load_rollout_from_path
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.rollout.rollout_data import load_rollout_from_path
 
 
 class PerceptionDataset(ExtensibleDataset):
@@ -33,7 +33,7 @@ class PerceptionDataset(ExtensibleDataset):
         }
         return example_out
 
-    # Inherited from lgp.abcd.dataset.ExtensibleDataset
+    # Inherited from hlsm.lgp.abcd.dataset.ExtensibleDataset
     def collate_fn(self, list_of_examples: Union[List[Dict], List[List[Dict]]]) -> Dict:
         list_of_examples = [l for l in list_of_examples if l is not None]
 

@@ -2,9 +2,9 @@ from typing import Union
 from abc import ABC, abstractmethod
 import torch.nn as nn
 
-from lgp.abcd.observation import Observation
-from lgp.abcd.repr.state_repr import StateRepr
-from lgp.abcd.subgoal import Subgoal
+from hlsm.lgp.abcd.observation import Observation
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.subgoal import Subgoal
 
 
 class ObservationFunction(nn.Module, ABC):

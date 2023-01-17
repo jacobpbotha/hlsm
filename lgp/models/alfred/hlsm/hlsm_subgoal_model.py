@@ -3,31 +3,31 @@ from typing import Dict, List, Union
 import torch
 import torch.nn as nn
 
-from lgp.abcd.functions.action_proposal import ActionProposal
-from lgp.abcd.model import LearnableModel
+from hlsm.lgp.abcd.functions.action_proposal import ActionProposal
+from hlsm.lgp.abcd.model import LearnableModel
 
-import lgp.env.alfred.segmentation_definitions as segdef
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 
-from lgp.ops.spatial_distr import multidim_logsoftmax
+from hlsm.lgp.ops.spatial_distr import multidim_logsoftmax
 
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-from lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
 
-from lgp.models.alfred.hlsm.transformer_modules.subgoal_history_encoder import SubgoalHistoryEncoder
-from lgp.models.alfred.hlsm.transformer_modules.state_repr_encoder_pooled import StateReprEncoderPooled
-from lgp.models.alfred.hlsm.transformer_modules.language_encoder import BERTLanguageEncoder
-from lgp.models.alfred.hlsm.transformer_modules.action_predictor import ActionPredictor
+from hlsm.lgp.models.alfred.hlsm.transformer_modules.subgoal_history_encoder import SubgoalHistoryEncoder
+from hlsm.lgp.models.alfred.hlsm.transformer_modules.state_repr_encoder_pooled import StateReprEncoderPooled
+from hlsm.lgp.models.alfred.hlsm.transformer_modules.language_encoder import BERTLanguageEncoder
+from hlsm.lgp.models.alfred.hlsm.transformer_modules.action_predictor import ActionPredictor
 
-from lgp.models.alfred.hlsm.unets.lingunet_3 import Lingunet3
-from lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.models.alfred.hlsm.unets.lingunet_3 import Lingunet3
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
-from lgp.ops.misc import batched_index_select
+from hlsm.lgp.ops.misc import batched_index_select
 
-from lgp.utils.viz import show_image
-from lgp.flags import GLOBAL_VIZ
+from hlsm.lgp.utils.viz import show_image
+from hlsm.lgp.flags import GLOBAL_VIZ
 
-from lgp.parameters import Hyperparams
+from hlsm.lgp.parameters import Hyperparams
 
 
 class HlsmSubgoalModel(ActionProposal, LearnableModel):
@@ -459,5 +459,5 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         return loss, metrics
 
 
-import lgp.model_registry
-lgp.model_registry.register_model("alfred_subgoal_model", HlsmSubgoalModel)
+import hlsm.lgp.model_registry
+hlsm.lgp.model_registry.register_model("alfred_subgoal_model", HlsmSubgoalModel)

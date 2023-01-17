@@ -3,12 +3,12 @@ from typing import List, Dict
 import copy
 import math
 
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-#from lgp.models.alfred.hlsm.hlsm_action_repr import HlsmActionRepr
-from lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+#from hlsm.lgp.models.alfred.hlsm.hlsm_action_repr import HlsmActionRepr
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
 # TODO: HL->Subgoal check
 

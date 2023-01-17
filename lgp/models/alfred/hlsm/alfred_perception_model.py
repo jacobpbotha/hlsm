@@ -3,15 +3,15 @@ from typing import Dict
 import torch
 import torch.nn as nn
 
-from lgp.abcd.model import LearnableModel
-from lgp.utils.viz import show_image
-from lgp.flags import GLOBAL_VIZ
+from hlsm.lgp.abcd.model import LearnableModel
+from hlsm.lgp.utils.viz import show_image
+from hlsm.lgp.flags import GLOBAL_VIZ
 
-import lgp.env.alfred.segmentation_definitions as segdef
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 
-from lgp.models.alfred.hlsm.unets.unet_5 import UNet5
+from hlsm.lgp.models.alfred.hlsm.unets.unet_5 import UNet5
 
-from lgp.ops.depth_estimate import DepthEstimate
+from hlsm.lgp.ops.depth_estimate import DepthEstimate
 
 
 class AlfredSegmentationAndDepthModel(LearnableModel):
@@ -190,5 +190,5 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
                     show_image(depth_gt_viz, "depth_gt", scale=1, waitkey=1)
 
 
-import lgp.model_registry
-lgp.model_registry.register_model("alfred_perception_model", AlfredSegmentationAndDepthModel)
+import hlsm.lgp.model_registry
+hlsm.lgp.model_registry.register_model("alfred_perception_model", AlfredSegmentationAndDepthModel)

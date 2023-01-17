@@ -1,25 +1,25 @@
 import os
 import torch
-from lgp.parameters import Hyperparams
-import lgp.paths
+from hlsm.lgp.parameters import Hyperparams
+import hlsm.lgp.paths
 
 
 def build_alfred_hierarchical_agent(agent_setup, hparams, device):
     # Import agents (hierarchichal, high-level, and low-level)
-    from lgp.agents.hierarchical_agent import HierarchicalAgent
-    from lgp.agents.action_proposal_agent import ActionProposalAgent
+    from hlsm.lgp.agents.hierarchical_agent import HierarchicalAgent
+    from hlsm.lgp.agents.action_proposal_agent import ActionProposalAgent
     # Import model factory
-    from lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
+    from hlsm.lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
     # Import classes
-    from lgp.env.alfred.alfred_action import AlfredAction
-    from lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
+    from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+    from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
 
     model_factory = HlsmModelFactory(hparams)
     skillset = model_factory.get_skillset()
     obsfunc = model_factory.get_observation_function()
     actprop = model_factory.get_subgoal_model()
 
-    subgoal_model_path = lgp.paths.get_subgoal_model_path()
+    subgoal_model_path = hlsm.lgp.paths.get_subgoal_model_path()
     if subgoal_model_path:
         sd = torch.load(subgoal_model_path)
         actprop.load_state_dict(sd, strict=False)
@@ -36,9 +36,9 @@ def build_alfred_hierarchical_agent(agent_setup, hparams, device):
 
 def build_alfred_deviant_agent(agent_setup, hparams, device):
     deviance_p = hparams.get("agent_setup").get("deviance")
-    from lgp.agents.deviant_agent import DeviantAgent
-    from lgp.agents.alfred.demonstration_replay_agent import DemonstrationReplayAgent
-    from lgp.agents.alfred.random_valid_agent import RandomValidAgent
+    from hlsm.lgp.agents.deviant_agent import DeviantAgent
+    from hlsm.lgp.agents.alfred.demonstration_replay_agent import DemonstrationReplayAgent
+    from hlsm.lgp.agents.alfred.random_valid_agent import RandomValidAgent
     agent = DeviantAgent(oracle_agent=DemonstrationReplayAgent(),
                          random_agent=RandomValidAgent(),
                          deviance_prob=deviance_p)
@@ -46,13 +46,13 @@ def build_alfred_deviant_agent(agent_setup, hparams, device):
 
 
 def build_demo_replay_agent(agent_setup, hparams, device):
-    from lgp.agents.alfred.demonstration_replay_agent import DemonstrationReplayAgent
+    from hlsm.lgp.agents.alfred.demonstration_replay_agent import DemonstrationReplayAgent
     agent = DemonstrationReplayAgent()
     return agent
 
 
 def build_alfred_random_agent(*args, **kwargs):
-    from lgp.agents.alfred.random_valid_agent import RandomValidAgent
+    from hlsm.lgp.agents.alfred.random_valid_agent import RandomValidAgent
     return RandomValidAgent()
 
 

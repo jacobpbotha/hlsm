@@ -10,8 +10,8 @@
 #   - Eval code works on pre-collected rollouts from a rollout actor (that can be spawned in parallel)
 
 from typing import List, Dict
-from lgp.env.alfred.wrapping.annotations import TrajData
-from lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.env.alfred.wrapping.annotations import TrajData
+from hlsm.lgp.env.alfred.tasks import AlfredTask
 
 
 class AlfredResults:

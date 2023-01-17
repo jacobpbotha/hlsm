@@ -4,7 +4,7 @@ from torchvision.models.detection.rpn import AnchorGenerator, RPNHead
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 
-import lgp.models.alfred.hlsm.alfworld.alfworld_constants as constants
+import hlsm.lgp.models.alfred.hlsm.alfworld.alfworld_constants as constants
 
 
 def get_model_instance_segmentation(num_classes):
@@ -41,5 +41,5 @@ def load_pretrained_model(path):
 
 
 if __name__ == "__main__":
-    lgp.paths.get
+    hlsm.lgp.paths.get
     self.detector = load_pretrained_model(pretrained_model_path)

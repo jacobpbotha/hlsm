@@ -2,7 +2,7 @@ from typing import Iterable, List
 from abc import ABC, abstractmethod
 
 import torch
-from lgp.abcd.action import Action
+from hlsm.lgp.abcd.action import Action
 
 
 class ActionDistribution(ABC):

@@ -2,7 +2,7 @@ import torch
 from torch import nn as nn
 import torch.nn.functional as F
 
-from lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv, DoubleConv, objectview
+from hlsm.lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv, DoubleConv, objectview
 
 
 PROFILE = False
@@ -13,7 +13,7 @@ class objectview(object):
         self.__dict__ = d
 
 # TODO: This shouldn't live inside what should be a completely reusable module.
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 
 class Lingunet5(torch.nn.Module):

@@ -1,5 +1,5 @@
 import torch
-from lgp.ops.misc import batch_id_to_range
+from hlsm.lgp.ops.misc import batch_id_to_range
 
 
 def positional_encoding_1d_flat(x: torch.tensor, batch_id: torch.tensor):

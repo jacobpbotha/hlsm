@@ -6,15 +6,15 @@ import math
 import torch
 import torch.nn as nn
 
-from lgp.abcd.model import LearnableModel
-from lgp.ops.spatial_distr import multidim_logsoftmax
+from hlsm.lgp.abcd.model import LearnableModel
+from hlsm.lgp.ops.spatial_distr import multidim_logsoftmax
 
-from lgp.utils.viz import show_image
+from hlsm.lgp.utils.viz import show_image
 
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-from lgp.models.alfred.hlsm.unets.lingunet_3 import Lingunet3
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.hlsm.unets.lingunet_3 import Lingunet3
 
 
 MODEL_ROTATION = True
@@ -208,5 +208,5 @@ class HlsmNavigationModel(LearnableModel):
         return loss, metrics
 
 
-import lgp.model_registry
-lgp.model_registry.register_model("alfred_spatial_navigation_model", HlsmNavigationModel)
+import hlsm.lgp.model_registry
+hlsm.lgp.model_registry.register_model("alfred_spatial_navigation_model", HlsmNavigationModel)

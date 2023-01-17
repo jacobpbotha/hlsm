@@ -1,15 +1,15 @@
 from typing import Iterable, Union, List
 import torch
 
-from lgp.abcd.observation import Observation
+from hlsm.lgp.abcd.observation import Observation
 
-from lgp.env.privileged_info import PrivilegedInfo
+from hlsm.lgp.env.privileged_info import PrivilegedInfo
 
-import lgp.env.alfred.segmentation_definitions as segdef
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 
 
 VISUALIZE_AUGMENTATIONS = False
-from lgp.utils.viz import show_image
+from hlsm.lgp.utils.viz import show_image
 
 
 class AlfredObservation(Observation):
@@ -101,7 +101,7 @@ class AlfredObservation(Observation):
             self.semantic_image = onehotrepr
 
     def data_augment(self):
-        import lgp.env.alfred.alfred_observation_augmentation as aug
+        import hlsm.lgp.env.alfred.alfred_observation_augmentation as aug
         was_compressed = self.is_compressed()
         self.uncompress()
         dtype = self.rgb_image.dtype

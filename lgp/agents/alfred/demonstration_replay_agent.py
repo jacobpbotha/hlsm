@@ -3,16 +3,16 @@ import torch
 import random
 import itertools
 
-from lgp.abcd.agent import Agent
-from lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
 
-from lgp.env.alfred.alfred_observation import AlfredObservation
-from lgp.env.alfred.tasks import AlfredTask
-from lgp.env.alfred.alfred_action import AlfredAction, ACTION_TYPES
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction, ACTION_TYPES
 
-from lgp.models.alfred.handcoded_skills.init_skill import InitSkill
+from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
 
-import lgp.env.blockworld.config as config
+import hlsm.lgp.env.blockworld.config as config
 
 
 class DemonstrationReplayAgent(Agent):

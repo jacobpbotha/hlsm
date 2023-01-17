@@ -1,23 +1,23 @@
 # TODO: This entire file is almost a duplicate of env.alfred.alfred_action.py. Represent the common stuff accordingly!
 from typing import Union, List
-from lgp.abcd.subgoal import Subgoal
-from lgp.abcd.task import Task
-from lgp.ops.spatial_ops import unravel_spatial_arg
+from hlsm.lgp.abcd.subgoal import Subgoal
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg
 
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
 
-import lgp.env.alfred.segmentation_definitions as segdef
-from lgp.env.alfred.segmentation_definitions import OBJECT_INT_TO_STR
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+from hlsm.lgp.env.alfred.segmentation_definitions import OBJECT_INT_TO_STR
 
-from lgp.models.alfred.projection.voxel_mask_to_image_mask import VoxelMaskToImageMask
-from lgp.models.alfred.projection.image_to_voxels import ImageToVoxels
-from lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.models.alfred.projection.voxel_mask_to_image_mask import VoxelMaskToImageMask
+from hlsm.lgp.models.alfred.projection.image_to_voxels import ImageToVoxels
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
-from lgp.ops.misc import index_to_onehot
+from hlsm.lgp.ops.misc import index_to_onehot
 
-from lgp.utils.viz import show_image
-from lgp.flags import GLOBAL_VIZ
+from hlsm.lgp.utils.viz import show_image
+from hlsm.lgp.flags import GLOBAL_VIZ
 
 import torch
 

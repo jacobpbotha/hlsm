@@ -1,12 +1,12 @@
 from typing import Dict
 
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.skill import Skill
 
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
-from lgp.flags import LONG_INIT
+from hlsm.lgp.flags import LONG_INIT
 
 if LONG_INIT:
     INIT_SEQUENCE = ["LookDown"] + ["RotateLeft"] * 4 + ["LookUp"] * 3 + ["RotateLeft"] * 4 + ["LookDown"] * 2 + ["Stop"]

@@ -1,5 +1,5 @@
 from typing import Union
-from lgp.abcd.action import Action
+from hlsm.lgp.abcd.action import Action
 
 import numpy as np
 import torch

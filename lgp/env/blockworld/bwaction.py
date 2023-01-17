@@ -1,9 +1,9 @@
 from typing import Union
 from enum import Enum
 
-from lgp.abcd.action import Action
+from hlsm.lgp.abcd.action import Action
 
-from lgp.env.blockworld.state.direction import Direction
+from hlsm.lgp.env.blockworld.state.direction import Direction
 
 
 class ActionArgument():

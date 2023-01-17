@@ -1,8 +1,8 @@
 from collections import namedtuple
 from typing import Callable, Union, Iterator, Tuple
 
-from lgp.abcd.task import Task
-from lgp.env.alfred.wrapping.annotations import AlfredAnnotations, TrajData
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.env.alfred.wrapping.annotations import AlfredAnnotations, TrajData
 
 QUICK_DEBUG = False
 QUICK_DEBUG_CUTOFF = 50
@@ -115,7 +115,7 @@ def task_traj_lengths():
     for task_type in TASK_TYPES:
         filtered_tasks = [m[1] for m in filter(lambda m: m[0] == task_type, tasks_by_type)]
 
-        from lgp.env.alfred.alfred_action import INTERACT_ACTION_TYPES
+        from hlsm.lgp.env.alfred.alfred_action import INTERACT_ACTION_TYPES
 
 
         def compute_hl_demo_length(task):

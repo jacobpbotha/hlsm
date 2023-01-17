@@ -2,20 +2,20 @@ from typing import Dict
 
 import torch
 import math
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.skill import Skill
 
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-from lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
-from lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
-from lgp.models.alfred.handcoded_skills.go_to import GoToSkill
-from lgp.models.alfred.hlsm.hlsm_navigation_model import HlsmNavigationModel
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
+from hlsm.lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
+from hlsm.lgp.models.alfred.handcoded_skills.go_to import GoToSkill
+from hlsm.lgp.models.alfred.hlsm.hlsm_navigation_model import HlsmNavigationModel
 
-from lgp.ops.spatial_ops import unravel_spatial_arg
-import lgp.paths
+from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg
+import hlsm.lgp.paths
 
-from lgp.flags import GLOBAL_VIZ
+from hlsm.lgp.flags import GLOBAL_VIZ
 
 PREDICT_EVERY_N = 50
 
@@ -50,7 +50,7 @@ class GoForSkill(Skill):
         self.tilt_to_pitch = TiltToPitchSkill()
 
         self.navigation_model = HlsmNavigationModel()
-        navsd = torch.load(lgp.paths.get_navigation_model_path())
+        navsd = torch.load(hlsm.lgp.paths.get_navigation_model_path())
         self.navigation_model.load_state_dict(navsd)
 
         # make sure all of these are in _reset
@@ -166,7 +166,7 @@ class GoForSkill(Skill):
 
         viz = GLOBAL_VIZ
         if viz:
-            from lgp.utils.viz import show_image
+            from hlsm.lgp.utils.viz import show_image
 
             device = features_2d_centered.device
             s2d = state_repr.represent_as_image(topdown2d=True)

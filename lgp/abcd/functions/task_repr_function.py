@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 import torch.nn as nn
-from lgp.abcd.task import Task
-from lgp.abcd.repr.task_repr import TaskRepr
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.abcd.repr.task_repr import TaskRepr
 
 
 class TaskReprFunction(nn.Module, ABC):

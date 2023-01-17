@@ -3,12 +3,12 @@ import os
 import torch
 from torch.utils.data import DataLoader
 
-from lgp import paths
-from lgp.datasets.tapm_dataset import TapmDataset
-from lgp.datasets.navigation_dataset import NavigationDataset
-from lgp.datasets.perception_dataset import PerceptionDataset
+from hlsm.lgp import paths
+from hlsm.lgp.datasets.tapm_dataset import TapmDataset
+from hlsm.lgp.datasets.navigation_dataset import NavigationDataset
+from hlsm.lgp.datasets.perception_dataset import PerceptionDataset
 
-from lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
+from hlsm.lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
 
 
 def get_model_factory(env_type, hparams):
@@ -45,7 +45,7 @@ def make_dataloader(data_or_paths, dataset_mode, cls, env_type, hparams, batch_s
 
 
 def get_incl_task_indices(env_setup):
-    from lgp.env.alfred.tasks import AlfredTask
+    from hlsm.lgp.env.alfred.tasks import AlfredTask
     data_splits = env_setup['data_splits']
     allowed_types = env_setup['filter_task_types']
     include_rollout_indices = []

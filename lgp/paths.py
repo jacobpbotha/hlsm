@@ -17,7 +17,7 @@ else:
     raise ValueError("Source init.sh or set the LGP_DATA_DIR environment variable to your dataset directory")
 
 
-import lgp.parameters
+import hlsm.lgp.parameters
 
 
 def get_root_dir():
@@ -88,28 +88,28 @@ def get_eval_rollout_dir(exp_name):
 
 
 def get_depth_model_path():
-    exp_def = lgp.parameters.get_experiment_definition()
+    exp_def = hlsm.lgp.parameters.get_experiment_definition()
     depth_file = exp_def.Setup.agent_setup.depth_model_file
     pth = os.path.join(MODEL_PATH, depth_file)
     return pth
 
 
 def get_segmentation_model_path():
-    exp_def = lgp.parameters.get_experiment_definition()
+    exp_def = hlsm.lgp.parameters.get_experiment_definition()
     seg_file = exp_def.Setup.agent_setup.seg_model_file
     pth = os.path.join(MODEL_PATH, seg_file)
     return pth
 
 
 def get_navigation_model_path():
-    exp_def = lgp.parameters.get_experiment_definition()
+    exp_def = hlsm.lgp.parameters.get_experiment_definition()
     nav_file = exp_def.Setup.agent_setup.navigation_model_file
     pth = os.path.join(MODEL_PATH, nav_file)
     return pth
 
 
 def get_subgoal_model_path():
-    exp_def = lgp.parameters.get_experiment_definition()
+    exp_def = hlsm.lgp.parameters.get_experiment_definition()
     nav_file = exp_def.Setup.agent_setup.subgoal_model_file
     pth = os.path.join(MODEL_PATH, nav_file)
     return pth

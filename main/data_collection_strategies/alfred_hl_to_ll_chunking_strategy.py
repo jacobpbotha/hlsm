@@ -2,8 +2,8 @@ from typing import List, Dict
 
 import copy
 
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 
 
 class AlfredHLPreproc:

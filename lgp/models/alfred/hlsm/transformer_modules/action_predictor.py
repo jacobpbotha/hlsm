@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import lgp.env.alfred.segmentation_definitions as segdef
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 
 
 class ActionPredictor(nn.Module):

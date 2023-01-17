@@ -1,21 +1,21 @@
 from typing import Union
 import torch
 
-from lgp.abcd.functions.observation_function import ObservationFunction
-from lgp.env.alfred.alfred_observation import AlfredObservation
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.abcd.functions.observation_function import ObservationFunction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
-from lgp.models.alfred.projection.image_to_voxels import ImageToVoxels
-from lgp.models.alfred.projection.voxel_3d_observability import Voxel3DObservability
-from lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.models.alfred.projection.image_to_voxels import ImageToVoxels
+from hlsm.lgp.models.alfred.projection.voxel_3d_observability import Voxel3DObservability
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
-from lgp.ops.depth_estimate import DepthEstimate
+from hlsm.lgp.ops.depth_estimate import DepthEstimate
 
-from lgp.utils.viz import show_image
-from lgp.flags import GLOBAL_VIZ, BIG_TRACE
+from hlsm.lgp.utils.viz import show_image
+from hlsm.lgp.flags import GLOBAL_VIZ, BIG_TRACE
 
-from lgp.parameters import Hyperparams
+from hlsm.lgp.parameters import Hyperparams
 
 VIZ_OBSERVATION = GLOBAL_VIZ
 

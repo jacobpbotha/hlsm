@@ -3,11 +3,11 @@ from typing import Iterable
 import torch.nn as nn
 import torch
 
-from lgp.abcd.action import Action
-from lgp.abcd.repr.state_repr import StateRepr
-from lgp.abcd.repr.task_repr import TaskRepr
-from lgp.abcd.repr.action_repr import ActionRepr
-from lgp.abcd.repr.action_distribution import ActionDistribution
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.repr.task_repr import TaskRepr
+from hlsm.lgp.abcd.repr.action_repr import ActionRepr
+from hlsm.lgp.abcd.repr.action_distribution import ActionDistribution
 
 
 class ActionProposal(nn.Module, ABC):

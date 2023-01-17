@@ -4,16 +4,16 @@ import math
 import torch
 import torch.nn.functional as F
 
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.skill import Skill
 
-from lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 
-from lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 
-from lgp.utils.viz import show_image
-from lgp.flags import GLOBAL_VIZ
+from hlsm.lgp.utils.viz import show_image
+from hlsm.lgp.flags import GLOBAL_VIZ
 
 GRID_SIZE = 61
 

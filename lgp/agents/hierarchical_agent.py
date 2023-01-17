@@ -1,15 +1,15 @@
 from typing import Dict, List, Type, Union
 
-from lgp.abcd.task import Task
-from lgp.abcd.agent import Agent
-from lgp.abcd.subgoal import Subgoal
-from lgp.abcd.action import Action
-from lgp.abcd.observation import Observation
-from lgp.abcd.functions.observation_function import ObservationFunction
-from lgp.abcd.repr.state_repr import StateRepr
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.subgoal import Subgoal
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.observation import Observation
+from hlsm.lgp.abcd.functions.observation_function import ObservationFunction
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.skill import Skill
 
-from lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 
 
 class HierarchicalAgent(Agent):

@@ -3,13 +3,13 @@ import itertools
 import copy
 import torch
 
-from lgp.abcd.model_factory import ModelFactory
-from lgp.abcd.dataset import ExtensibleDataset
-from lgp.rollout.rollout_data import load_rollout_from_path
+from hlsm.lgp.abcd.model_factory import ModelFactory
+from hlsm.lgp.abcd.dataset import ExtensibleDataset
+from hlsm.lgp.rollout.rollout_data import load_rollout_from_path
 
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 MAX_LEN = 20
 DROP_EXPLORE = True
@@ -141,7 +141,7 @@ class TapmDataset(ExtensibleDataset):
 
     def _compress_rollout(self, rollout):
         rollout_out = []
-        from lgp.models.alfred.hlsm.transformer_modules.state_repr_encoder_pooled import StateReprEncoderPooled
+        from hlsm.lgp.models.alfred.hlsm.transformer_modules.state_repr_encoder_pooled import StateReprEncoderPooled
         for sample in rollout:
             sample_out = {
                 "task": sample["task"],
@@ -228,7 +228,7 @@ class TapmDataset(ExtensibleDataset):
         }
         return batch
 
-    # Inherited from lgp.abcd.dataset.ExtensibleDataset
+    # Inherited from hlsm.lgp.abcd.dataset.ExtensibleDataset
     def collate_fn(self, list_of_examples: Union[List[Dict], List[List[Dict]]]) -> Dict:
         collate_one_fn = self._collate_one
         if self.listbatch:

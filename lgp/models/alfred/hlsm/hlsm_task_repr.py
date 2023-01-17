@@ -3,10 +3,10 @@ from typing import Iterable, Dict, List
 import torch
 from transformers import AutoTokenizer, AutoModel, PreTrainedTokenizer
 
-from lgp.abcd.repr.task_repr import TaskRepr
-from lgp.abcd.functions.task_repr_function import TaskReprFunction
+from hlsm.lgp.abcd.repr.task_repr import TaskRepr
+from hlsm.lgp.abcd.functions.task_repr_function import TaskReprFunction
 
-from lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.env.alfred.tasks import AlfredTask
 
 
 MAX_STRLEN = 50

@@ -4,7 +4,7 @@ import torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
 
 
-from lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
+from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
 
 
 class BERTLanguageEncoder(nn.Module):

@@ -1,21 +1,21 @@
 from typing import Dict, Union
-from lgp.abcd.model_factory import ModelFactory
-from lgp.abcd.agent import Agent
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.model_factory import ModelFactory
+from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.skill import Skill
 
 # High-level reasoning models
-from lgp.models.alfred.hlsm.hlsm_observation_function import HlsmObservationFunction
-from lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskReprFunction
-from lgp.models.alfred.hlsm.hlsm_subgoal_model import HlsmSubgoalModel
+from hlsm.lgp.models.alfred.hlsm.hlsm_observation_function import HlsmObservationFunction
+from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskReprFunction
+from hlsm.lgp.models.alfred.hlsm.hlsm_subgoal_model import HlsmSubgoalModel
 
 # Low-level skills
-from lgp.models.alfred.handcoded_skills.go_for import GoForSkill
-from lgp.models.alfred.handcoded_skills.go_for_manual import GoForManualSkill
-from lgp.models.alfred.handcoded_skills.explore_skill import ExploreSkill
-from lgp.models.alfred.handcoded_skills.interact_skill import InteractSkill
-from lgp.models.alfred.handcoded_skills.init_skill import InitSkill
+from hlsm.lgp.models.alfred.handcoded_skills.go_for import GoForSkill
+from hlsm.lgp.models.alfred.handcoded_skills.go_for_manual import GoForManualSkill
+from hlsm.lgp.models.alfred.handcoded_skills.explore_skill import ExploreSkill
+from hlsm.lgp.models.alfred.handcoded_skills.interact_skill import InteractSkill
+from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
 
-from lgp.parameters import Hyperparams
+from hlsm.lgp.parameters import Hyperparams
 
 
 class HlsmModelFactory(ModelFactory):

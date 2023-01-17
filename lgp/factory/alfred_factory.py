@@ -1,11 +1,11 @@
 from typing import Dict
-from lgp.abcd.factory import Factory
+from hlsm.lgp.abcd.factory import Factory
 
-from lgp.env.alfred.alfred_env import AlfredEnv
-from lgp.agents.agents import get_agent
-from lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
+from hlsm.lgp.env.alfred.alfred_env import AlfredEnv
+from hlsm.lgp.agents.agents import get_agent
+from hlsm.lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
 
-from lgp.parameters import Hyperparams
+from hlsm.lgp.parameters import Hyperparams
 
 
 class AlfredFactory(Factory):

@@ -4,11 +4,11 @@ import torch
 import os
 
 
-from lgp.utils.utils import standardize_image, save_frames
+from hlsm.lgp.utils.utils import standardize_image, save_frames
 
-from lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
-from lgp.utils import viz
+from hlsm.lgp.utils import viz
 
 ANIMATE = False
 
@@ -159,7 +159,7 @@ def dynamic_voxel_viz(rollout, live=False):
         ox, oy, oz = state_repr.get_origin_xyz_vx()
         combined_rgb_voxelgrid.occupancy[:, :, ox, oy, oz] = 0.0
 
-        import lgp.utils.render3d as r3d
+        import hlsm.lgp.utils.render3d as r3d
         if live:
             r3d.view_voxel_grid(combined_rgb_voxelgrid)
         else:

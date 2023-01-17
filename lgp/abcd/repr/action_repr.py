@@ -1,7 +1,7 @@
 import torch
 from typing import Iterable
 from abc import ABC, abstractmethod
-from lgp.abcd.action import Action
+from hlsm.lgp.abcd.action import Action
 
 
 class ActionRepr(ABC):

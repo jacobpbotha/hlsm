@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
 import torch.nn as nn
-from lgp.abcd.action import Action
-from lgp.abcd.observation import Observation
-from lgp.abcd.repr.action_repr import ActionRepr
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.observation import Observation
+from hlsm.lgp.abcd.repr.action_repr import ActionRepr
 
 
 class ActionReprFunction(nn.Module, ABC):

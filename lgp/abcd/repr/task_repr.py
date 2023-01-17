@@ -1,7 +1,7 @@
 import torch
 from typing import Iterable
 from abc import ABC, abstractmethod
-from lgp.abcd.task import Task
+from hlsm.lgp.abcd.task import Task
 
 
 class TaskRepr(ABC):

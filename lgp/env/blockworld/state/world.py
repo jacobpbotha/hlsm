@@ -6,12 +6,12 @@ from typing import List
 
 import torch
 
-from lgp.env.blockworld import config as config
-from lgp.env.blockworld.bwobservation import BwObservation
-from lgp.env.privileged_info import PrivilegedInfo
-from lgp.env.blockworld.state.item import Item
-from lgp.env.blockworld.state.room import Room
-from lgp.env.blockworld.state.visuals import one_hot_to_image
+from hlsm.lgp.env.blockworld import config as config
+from hlsm.lgp.env.blockworld.bwobservation import BwObservation
+from hlsm.lgp.env.privileged_info import PrivilegedInfo
+from hlsm.lgp.env.blockworld.state.item import Item
+from hlsm.lgp.env.blockworld.state.room import Room
+from hlsm.lgp.env.blockworld.state.visuals import one_hot_to_image
 
 
 class World:
@@ -150,7 +150,7 @@ class World:
 
 
 # Quick main function to test state generation
-from lgp.utils.utils import tensorshow
+from hlsm.lgp.utils.utils import tensorshow
 if __name__ == "__main__":
     # Test generating random world
     print("Creating a random world state!")

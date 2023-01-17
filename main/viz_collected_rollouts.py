@@ -1,10 +1,10 @@
 import os
 import sys
 
-import lgp.rollout.rollout_data as rd
+import hlsm.lgp.rollout.rollout_data as rd
 
 from main.visualize_rollout import dynamic_voxel_viz
-from lgp.parameters import Hyperparams, load_experiment_definition
+from hlsm.lgp.parameters import Hyperparams, load_experiment_definition
 
 
 def voxel_viz(rollout):

@@ -1,7 +1,7 @@
 import ray
 import torch
-from lgp.abcd.agent import TrainableAgent
-from lgp import paths
+from hlsm.lgp.abcd.agent import TrainableAgent
+from hlsm.lgp import paths
 
 
 class RolloutActorLocal:
@@ -21,7 +21,7 @@ class RolloutActorLocal:
         self.param_server_proc = param_server_proc
         self.actor_index = index
         if self.actor_index == 0:
-            from lgp.utils.better_summary_writer import BetterSummaryWriter
+            from hlsm.lgp.utils.better_summary_writer import BetterSummaryWriter
             self.writer = BetterSummaryWriter(f"{paths.get_experiment_runs_dir(experiment_name)}-rollout", start_iter=0)
         else:
             self.writer = None

@@ -5,16 +5,16 @@ import torch.nn.functional as F
 
 from typing import Dict
 
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.skill import Skill
 
-import lgp.env.alfred.segmentation_definitions as segdef
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-from lgp.models.alfred.handcoded_skills.go_to import GoToSkill
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.models.alfred.handcoded_skills.go_to import GoToSkill
 
-import lgp.paths
+import hlsm.lgp.paths
 
 MAX_NAV_COUNT = 40
 SIMPLE_EXPLORE_BASELINE = False

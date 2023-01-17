@@ -4,10 +4,10 @@ import math
 import random
 import imageio
 
-import lgp.env.alfred.segmentation_definitions as segdef
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 
-import lgp.paths
-DEFAULT_PATH = os.path.join(lgp.paths.ROOT_PATH, "data", "textures", "img")
+import hlsm.lgp.paths
+DEFAULT_PATH = os.path.join(hlsm.lgp.paths.ROOT_PATH, "data", "textures", "img")
 
 
 class TextureBank():

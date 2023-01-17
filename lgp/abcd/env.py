@@ -1,9 +1,9 @@
 from typing import Tuple, Dict
 from abc import ABC, abstractmethod
 
-from lgp.abcd.action import Action
-from lgp.abcd.observation import Observation
-from lgp.abcd.task import Task
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.observation import Observation
+from hlsm.lgp.abcd.task import Task
 
 
 class Env(ABC):

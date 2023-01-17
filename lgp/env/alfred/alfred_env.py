@@ -3,19 +3,19 @@ import copy
 
 from typing import Tuple, Dict, Iterator, Union, Collection
 
-from lgp.abcd.env import Env
+from hlsm.lgp.abcd.env import Env
 
 from alfred.env.thor_env import ThorEnv
 
-from lgp.env.alfred.state_tracker import StateTracker
-from lgp.env.alfred.wrapping.args import get_faux_args
+from hlsm.lgp.env.alfred.state_tracker import StateTracker
+from hlsm.lgp.env.alfred.wrapping.args import get_faux_args
 
-from lgp.env.alfred.tasks import AlfredTask, TaskRecord
-from lgp.env.alfred.alfred_observation import AlfredObservation
-from lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.tasks import AlfredTask, TaskRecord
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 
-from lgp.env.alfred import config
-from lgp.utils.utils import SimpleProfiler
+from hlsm.lgp.env.alfred import config
+from hlsm.lgp.utils.utils import SimpleProfiler
 
 PROFILE = False
 

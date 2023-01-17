@@ -1,8 +1,8 @@
 # TODO: This entire file is almost a duplicate of env.alfred.alfred_action.py. Represent the common stuff accordingly!
 from typing import Union
-from lgp.abcd.subgoal import Subgoal
-from lgp.abcd.task import Task
-from lgp.ops.spatial_ops import unravel_spatial_arg
+from hlsm.lgp.abcd.subgoal import Subgoal
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg
 
 import numpy as np
 import torch

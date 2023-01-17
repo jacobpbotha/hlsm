@@ -2,16 +2,16 @@ from typing import Dict, Union
 import copy
 import torch
 
-from lgp.abcd.skill import Skill
+from hlsm.lgp.abcd.skill import Skill
 
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 
-from lgp.abcd.action import Action
-from lgp.models.alfred.handcoded_skills.go_for import GoForSkill
-from lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.models.alfred.handcoded_skills.go_for import GoForSkill
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
-from lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
+from hlsm.lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
 
 NOMINAL_PITCH = 0.5235988419208105
 

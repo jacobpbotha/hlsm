@@ -2,10 +2,10 @@ import torch
 from torch import nn as nn
 import torch.nn.functional as F
 
-from lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv, DoubleConv, objectview
-from lgp.ops.spatial_distr import multidim_logsoftmax
+from hlsm.lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv, DoubleConv, objectview
+from hlsm.lgp.ops.spatial_distr import multidim_logsoftmax
 
-import lgp.env.alfred.segmentation_definitions as segdef
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 
 
 class UNet5(torch.nn.Module):

@@ -1,5 +1,5 @@
 import torch
-from lgp.models.alfred.projection.utils import make_pinhole_camera_matrix
+from hlsm.lgp.models.alfred.projection.utils import make_pinhole_camera_matrix
 
 
 def project_3d_points(mat4f, points):

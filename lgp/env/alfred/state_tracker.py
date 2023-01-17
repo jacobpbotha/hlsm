@@ -4,14 +4,14 @@ import numpy as np
 import math
 from transforms3d import euler
 
-import lgp.env.alfred.segmentation_definitions as segdef
-from lgp.env.alfred.alfred_action import AlfredAction
-from lgp.env.alfred.alfred_observation import AlfredObservation
-from lgp.env.privileged_info import PrivilegedInfo
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.privileged_info import PrivilegedInfo
 
-from lgp.models.alfred.hlsm.alfred_perception_model import AlfredSegmentationAndDepthModel
+from hlsm.lgp.models.alfred.hlsm.alfred_perception_model import AlfredSegmentationAndDepthModel
 
-import lgp.paths
+import hlsm.lgp.paths
 
 # TODO: Move to config
 PERCEPTION_DEVICE = "cuda"
@@ -222,13 +222,13 @@ class StateTracker():
             self.seg_model = None
         else:
             self.seg_model = AlfredSegmentationAndDepthModel(hparams).to(PERCEPTION_DEVICE)
-            self.seg_model.load_state_dict(torch.load(lgp.paths.get_segmentation_model_path()))
+            self.seg_model.load_state_dict(torch.load(hlsm.lgp.paths.get_segmentation_model_path()))
             self.seg_model.eval()
         if self.reference_depth:
             self.depth_model = None
         else:
             self.depth_model = AlfredSegmentationAndDepthModel(hparams).to(PERCEPTION_DEVICE)
-            self.depth_model.load_state_dict(torch.load(lgp.paths.get_depth_model_path()))
+            self.depth_model.load_state_dict(torch.load(hlsm.lgp.paths.get_depth_model_path()))
             self.depth_model.eval()
 
     def reset(self, event):

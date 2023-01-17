@@ -1,4 +1,4 @@
-from lgp.env.alfred.wrapping.paths import get_alfred_root_path
+from hlsm.lgp.env.alfred.wrapping.paths import get_alfred_root_path
 
 
 def get_faux_args():

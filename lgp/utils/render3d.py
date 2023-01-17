@@ -2,7 +2,7 @@ import time
 import numpy as np
 import open3d as o3d
 
-from lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
 
 def render_aligned_point_cloud(points, scene_image, animate=False):

@@ -10,7 +10,7 @@ import copy
 # imports from ALFRED
 from alfred.gen.utils.image_util import decompress_mask
 
-from lgp.env.alfred.wrapping.paths import get_task_traj_data_path, get_splits_path, get_task_dir_path, get_traj_data_paths
+from hlsm.lgp.env.alfred.wrapping.paths import get_task_traj_data_path, get_splits_path, get_task_dir_path, get_traj_data_paths
 
 
 class TrajData:

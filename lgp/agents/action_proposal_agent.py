@@ -1,19 +1,19 @@
 import random
 from typing import Type, Union, List
 
-from lgp.abcd.agent import Agent
-from lgp.abcd.action import Action
-from lgp.abcd.observation import Observation
-from lgp.abcd.task import Task
+from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.observation import Observation
+from hlsm.lgp.abcd.task import Task
 
-from lgp.abcd.repr.state_repr import StateRepr
-from lgp.abcd.repr.task_repr import TaskRepr
-from lgp.abcd.repr.action_repr import ActionRepr
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.repr.task_repr import TaskRepr
+from hlsm.lgp.abcd.repr.action_repr import ActionRepr
 
-from lgp.abcd.functions.action_proposal import ActionProposal
-from lgp.abcd.functions.observation_function import ObservationFunction
+from hlsm.lgp.abcd.functions.action_proposal import ActionProposal
+from hlsm.lgp.abcd.functions.observation_function import ObservationFunction
 
-from lgp.agents.agent_state import AgentState
+from hlsm.lgp.agents.agent_state import AgentState
 
 
 class ActionProposalAgent(Agent):

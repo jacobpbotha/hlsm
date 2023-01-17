@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from lgp.abcd.action import Action
-from lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
 
 
 class Skill(ABC):
