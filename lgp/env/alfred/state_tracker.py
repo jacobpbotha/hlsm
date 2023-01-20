@@ -309,7 +309,8 @@ class StateTracker():
             oinv = copy.deepcopy(self.inventory_info)
             self.inventory_info.simulate_successful_action(self.latest_action, self.latest_observation)
             if len(oinv.inventory_object_ids) != len(self.inventory_info.inventory_object_ids):
-                print(self.inventory_info.summarize())
+                pass
+                # print(self.inventory_info.summarize())
 
         # Pose
         if self.reference_pose:
