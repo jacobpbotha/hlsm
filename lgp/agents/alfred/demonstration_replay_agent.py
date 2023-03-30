@@ -1,18 +1,17 @@
-from typing import Dict
-import torch
-import random
 import itertools
+import random
+from typing import Dict
 
-from hlsm.lgp.abcd.agent import Agent
-from hlsm.lgp.abcd.repr.state_repr import StateRepr
-
-from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
-from hlsm.lgp.env.alfred.tasks import AlfredTask
-from hlsm.lgp.env.alfred.alfred_action import AlfredAction, ACTION_TYPES
-
-from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
+import torch
 
 import hlsm.lgp.env.blockworld.config as config
+from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.env.alfred.alfred_action import ACTION_TYPES
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
 
 
 class DemonstrationReplayAgent(Agent):

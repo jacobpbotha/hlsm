@@ -1,33 +1,27 @@
-from typing import Dict, List, Union
+from typing import Dict
+from typing import List
+from typing import Union
 
 import torch
 import torch.nn as nn
 
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 from hlsm.lgp.abcd.functions.action_proposal import ActionProposal
 from hlsm.lgp.abcd.model import LearnableModel
-
-import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
-from hlsm.lgp.ops.spatial_distr import multidim_logsoftmax
-
+from hlsm.lgp.flags import GLOBAL_VIZ
 from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
-
-from hlsm.lgp.models.alfred.hlsm.transformer_modules.subgoal_history_encoder import SubgoalHistoryEncoder
-from hlsm.lgp.models.alfred.hlsm.transformer_modules.state_repr_encoder_pooled import StateReprEncoderPooled
-from hlsm.lgp.models.alfred.hlsm.transformer_modules.language_encoder import BERTLanguageEncoder
 from hlsm.lgp.models.alfred.hlsm.transformer_modules.action_predictor import ActionPredictor
-
+from hlsm.lgp.models.alfred.hlsm.transformer_modules.language_encoder import BERTLanguageEncoder
+from hlsm.lgp.models.alfred.hlsm.transformer_modules.state_repr_encoder_pooled import StateReprEncoderPooled
+from hlsm.lgp.models.alfred.hlsm.transformer_modules.subgoal_history_encoder import SubgoalHistoryEncoder
 from hlsm.lgp.models.alfred.hlsm.unets.lingunet_3 import Lingunet3
 from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
-
 from hlsm.lgp.ops.misc import batched_index_select
-
-from hlsm.lgp.utils.viz import show_image
-from hlsm.lgp.flags import GLOBAL_VIZ
-
+from hlsm.lgp.ops.spatial_distr import multidim_logsoftmax
 from hlsm.lgp.parameters import Hyperparams
+from hlsm.lgp.utils.viz import show_image
 
 
 class HlsmSubgoalModel(ActionProposal, LearnableModel):

@@ -1,4 +1,5 @@
-from typing import Union, List
+from typing import List
+from typing import Union
 
 from hlsm.lgp.abcd.action import Action
 from hlsm.lgp.abcd.repr.action_repr import ActionRepr

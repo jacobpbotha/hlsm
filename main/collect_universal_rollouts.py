@@ -1,29 +1,27 @@
 """
 Script that collects and saves a long list of {state, action, next_state} dicts.
 """
-from typing import List, Dict
+import json
 import os
 import sys
+from typing import Dict
+from typing import List
+
 import torch
-import json
+from main.data_collection_strategies.alfred_hl_to_ll_chunking_strategy import AlfredHLChunkingStrategy
+from main.data_collection_strategies.alfred_hl_to_ll_chunking_strategy import AlfredHLPreproc
+from main.data_collection_strategies.alfred_navigation_chunking_strategy import AlfredNavigationPreproc
+from main.data_collection_strategies.alfred_navigation_chunking_strategy import NavToGoalChunkingStrategy
 
-#from hlsm.lgp.abcd.functions.action_repr_function import ActionReprFunction
-
-
-from main.data_collection_strategies.alfred_navigation_chunking_strategy import AlfredNavigationPreproc, NavToGoalChunkingStrategy
-from main.data_collection_strategies.alfred_hl_to_ll_chunking_strategy import AlfredHLPreproc, AlfredHLChunkingStrategy
-
-from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
-
-from hlsm.lgp.parameters import Hyperparams, load_experiment_definition
-from hlsm.lgp.utils.utils import SimpleProfiler
-
-from hlsm.lgp.rollout.rollout_data import rollouts_to_device
-
-from hlsm.lgp.factory.alfred_factory import AlfredFactory
-
-from hlsm.lgp.rollout import rollout_data
 import hlsm.lgp.paths
+from hlsm.lgp.factory.alfred_factory import AlfredFactory
+from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
+from hlsm.lgp.parameters import Hyperparams
+from hlsm.lgp.parameters import load_experiment_definition
+from hlsm.lgp.rollout import rollout_data
+from hlsm.lgp.rollout.rollout_data import rollouts_to_device
+from hlsm.lgp.utils.utils import SimpleProfiler
+#from hlsm.lgp.abcd.functions.action_repr_function import ActionReprFunction
 
 
 TOTAL_TASKS = 100000

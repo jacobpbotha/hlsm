@@ -1,11 +1,12 @@
-from typing import Iterable, Union, List
+from typing import Iterable
+from typing import List
+from typing import Union
+
 import torch
 
-from hlsm.lgp.abcd.observation import Observation
-
-from hlsm.lgp.env.privileged_info import PrivilegedInfo
-
 import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+from hlsm.lgp.abcd.observation import Observation
+from hlsm.lgp.env.privileged_info import PrivilegedInfo
 
 
 VISUALIZE_AUGMENTATIONS = False

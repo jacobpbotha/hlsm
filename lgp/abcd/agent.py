@@ -1,10 +1,13 @@
-from abc import ABC, abstractmethod
-from typing import List, Union, Dict
+from abc import ABC
+from abc import abstractmethod
+from typing import Dict
+from typing import List
+from typing import Union
 
+from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.observation import Observation
 from hlsm.lgp.abcd.repr.state_repr import StateRepr
 from hlsm.lgp.abcd.task import Task
-from hlsm.lgp.abcd.observation import Observation
-from hlsm.lgp.abcd.action import Action
 
 
 class Agent(ABC):

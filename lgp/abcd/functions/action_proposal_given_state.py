@@ -1,8 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
+
 import torch.nn as nn
 
-from hlsm.lgp.abcd.repr.state_repr import StateRepr
 from hlsm.lgp.abcd.repr.action_distribution import ActionDistribution
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
 
 
 class ActionProposalGivenState(nn.Module, ABC):

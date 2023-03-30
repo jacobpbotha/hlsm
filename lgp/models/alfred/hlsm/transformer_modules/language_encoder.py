@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
-
-from transformers import AutoTokenizer, AutoModel
-
+from transformers import AutoModel
+from transformers import AutoTokenizer
 
 from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskRepr
 

@@ -1,7 +1,9 @@
 import os
+
 import torch
-from hlsm.lgp.parameters import Hyperparams
+
 import hlsm.lgp.paths
+from hlsm.lgp.parameters import Hyperparams
 
 
 def build_alfred_hierarchical_agent(agent_setup, hparams, device):

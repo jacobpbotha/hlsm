@@ -1,20 +1,20 @@
-import os
 import copy
-
-from typing import Tuple, Dict, Iterator, Union, Collection
-
-from hlsm.lgp.abcd.env import Env
+import os
+from typing import Collection
+from typing import Dict
+from typing import Iterator
+from typing import Tuple
+from typing import Union
 
 from alfred.env.thor_env import ThorEnv
-
-from hlsm.lgp.env.alfred.state_tracker import StateTracker
-from hlsm.lgp.env.alfred.wrapping.args import get_faux_args
-
-from hlsm.lgp.env.alfred.tasks import AlfredTask, TaskRecord
-from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
-from hlsm.lgp.env.alfred.alfred_action import AlfredAction
-
+from hlsm.lgp.abcd.env import Env
 from hlsm.lgp.env.alfred import config
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.state_tracker import StateTracker
+from hlsm.lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.env.alfred.tasks import TaskRecord
+from hlsm.lgp.env.alfred.wrapping.args import get_faux_args
 from hlsm.lgp.utils.utils import SimpleProfiler
 
 PROFILE = False

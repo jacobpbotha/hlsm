@@ -1,5 +1,7 @@
-from typing import Tuple, Dict
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
+from typing import Dict
+from typing import Tuple
 
 from hlsm.lgp.abcd.action import Action
 from hlsm.lgp.abcd.observation import Observation

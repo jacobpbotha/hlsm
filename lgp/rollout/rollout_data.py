@@ -1,9 +1,11 @@
-import os
-import torch
-import inspect
-from typing import Dict, List
 import functools
+import inspect
+import os
+from typing import Dict
+from typing import List
+
 import compress_pickle as pickle
+import torch
 
 
 EXT = "gz"
@@ -153,4 +155,3 @@ if __name__ == "__main__":
 
     with mp.Pool(6) as p:
         p.map(convert_path, old_dataset_paths)
-

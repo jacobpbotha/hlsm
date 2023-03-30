@@ -1,6 +1,8 @@
 import math
 import random
-from typing import Tuple, List, Union
+from typing import List
+from typing import Tuple
+from typing import Union
 
 import numpy as np
 import torch

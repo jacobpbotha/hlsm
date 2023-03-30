@@ -8,8 +8,8 @@ the PyTorch built in ops require frequently reshaping the data to flatten/unflat
 Below are common operators on probability distributions that take a dims argument to specifying which tensor axes
 contain the domain of the distribution, and will re-shape the data before performing the PyTorch operation.
 """
-
 from typing import Tuple
+
 import torch
 import torch.nn.functional as F
 

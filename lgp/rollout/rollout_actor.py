@@ -1,7 +1,8 @@
 import ray
 import torch
-from hlsm.lgp.abcd.agent import TrainableAgent
+
 from hlsm.lgp import paths
+from hlsm.lgp.abcd.agent import TrainableAgent
 
 
 class RolloutActorLocal:

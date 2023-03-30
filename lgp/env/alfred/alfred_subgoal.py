@@ -1,25 +1,22 @@
 # TODO: This entire file is almost a duplicate of env.alfred.alfred_action.py. Represent the common stuff accordingly!
-from typing import Union, List
-from hlsm.lgp.abcd.subgoal import Subgoal
-from hlsm.lgp.abcd.task import Task
-from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg
-
-from hlsm.lgp.env.alfred.alfred_action import AlfredAction
-from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
-
-import hlsm.lgp.env.alfred.segmentation_definitions as segdef
-from hlsm.lgp.env.alfred.segmentation_definitions import OBJECT_INT_TO_STR
-
-from hlsm.lgp.models.alfred.projection.voxel_mask_to_image_mask import VoxelMaskToImageMask
-from hlsm.lgp.models.alfred.projection.image_to_voxels import ImageToVoxels
-from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
-
-from hlsm.lgp.ops.misc import index_to_onehot
-
-from hlsm.lgp.utils.viz import show_image
-from hlsm.lgp.flags import GLOBAL_VIZ
+from typing import List
+from typing import Union
 
 import torch
+
+import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+from hlsm.lgp.abcd.subgoal import Subgoal
+from hlsm.lgp.abcd.task import Task
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.segmentation_definitions import OBJECT_INT_TO_STR
+from hlsm.lgp.flags import GLOBAL_VIZ
+from hlsm.lgp.models.alfred.projection.image_to_voxels import ImageToVoxels
+from hlsm.lgp.models.alfred.projection.voxel_mask_to_image_mask import VoxelMaskToImageMask
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.ops.misc import index_to_onehot
+from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg
+from hlsm.lgp.utils.viz import show_image
 
 
 IDX_TO_ACTION_TYPE = {

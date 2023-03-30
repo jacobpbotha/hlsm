@@ -1,7 +1,10 @@
-from typing import Iterable, List
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
+from typing import Iterable
+from typing import List
 
 import torch
+
 from hlsm.lgp.abcd.action import Action
 
 

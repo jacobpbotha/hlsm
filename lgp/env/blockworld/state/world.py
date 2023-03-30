@@ -1,5 +1,5 @@
-import itertools
 import copy
+import itertools
 import math
 import random
 from typing import List
@@ -8,10 +8,10 @@ import torch
 
 from hlsm.lgp.env.blockworld import config as config
 from hlsm.lgp.env.blockworld.bwobservation import BwObservation
-from hlsm.lgp.env.privileged_info import PrivilegedInfo
 from hlsm.lgp.env.blockworld.state.item import Item
 from hlsm.lgp.env.blockworld.state.room import Room
 from hlsm.lgp.env.blockworld.state.visuals import one_hot_to_image
+from hlsm.lgp.env.privileged_info import PrivilegedInfo
 
 
 class World:

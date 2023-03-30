@@ -1,20 +1,19 @@
 """
 Script that rolls out an agent and does not much else for now
 """
-import sys
 import os
-import torch
+import sys
 
+import torch
+from main.eval_progress import EvalProgress
+from main.visualize_rollout import visualize_rollout
 
 from hlsm.lgp.agents.agents import get_agent
-from hlsm.lgp.rollout.rollout_actor import RolloutActorLocal
-from hlsm.lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
-from main.visualize_rollout import visualize_rollout
-from hlsm.lgp.parameters import Hyperparams, load_experiment_definition
-
-from main.eval_progress import EvalProgress
-
 from hlsm.lgp.env.alfred.alfred_env import AlfredEnv
+from hlsm.lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
+from hlsm.lgp.parameters import Hyperparams
+from hlsm.lgp.parameters import load_experiment_definition
+from hlsm.lgp.rollout.rollout_actor import RolloutActorLocal
 
 
 def evaluate_rollouts(exp_def, rollouts):

@@ -1,13 +1,11 @@
-from typing import Collection
-
+import json
 import os
 import sys
-import json
 from collections import namedtuple
+from typing import Collection
 
 import hlsm.lgp.paths
 import hlsm.lgp.rollout.rollout_data as rd
-
 from hlsm.lgp.env.alfred.tasks import TaskRecord
 
 Progress = namedtuple('Progress', ['datasplit', 'task_id', 'repeat_idx', 'action_seq'])

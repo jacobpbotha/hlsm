@@ -1,10 +1,9 @@
 from typing import Dict
+
 from hlsm.lgp.abcd.factory import Factory
-
-from hlsm.lgp.env.alfred.alfred_env import AlfredEnv
 from hlsm.lgp.agents.agents import get_agent
+from hlsm.lgp.env.alfred.alfred_env import AlfredEnv
 from hlsm.lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
-
 from hlsm.lgp.parameters import Hyperparams
 
 
@@ -25,4 +24,3 @@ class AlfredFactory(Factory):
 
     def get_agent(self, setup : Hyperparams, hparams : Hyperparams):
         return get_agent(setup, hparams)
-

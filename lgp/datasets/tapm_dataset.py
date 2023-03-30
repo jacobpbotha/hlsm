@@ -1,15 +1,16 @@
-from typing import List, Dict, Union
-import itertools
 import copy
+import itertools
+from typing import Dict
+from typing import List
+from typing import Union
+
 import torch
 
-from hlsm.lgp.abcd.model_factory import ModelFactory
 from hlsm.lgp.abcd.dataset import ExtensibleDataset
-from hlsm.lgp.rollout.rollout_data import load_rollout_from_path
-
+from hlsm.lgp.abcd.model_factory import ModelFactory
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
 from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.rollout.rollout_data import load_rollout_from_path
 
 MAX_LEN = 20
 DROP_EXPLORE = True
@@ -239,4 +240,3 @@ class TapmDataset(ExtensibleDataset):
             if isinstance(list_of_examples[0], List):
                 list_of_examples = list(itertools.chain(*list_of_examples))
             return collate_one_fn(list_of_examples)
-

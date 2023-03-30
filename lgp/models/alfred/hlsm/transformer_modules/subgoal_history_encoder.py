@@ -1,13 +1,10 @@
 import torch
 import torch.nn as nn
 
+from hlsm.lgp.env.alfred import segmentation_definitions as segdef
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
 from hlsm.lgp.models.alfred.hlsm.transformer_modules.positional_encodings import positional_encoding_1d_flat
 from hlsm.lgp.models.alfred.hlsm.transformer_modules.transformer_layer import TransformerEncoderLayer
-
-from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
-from hlsm.lgp.env.alfred import segmentation_definitions as segdef
-
 from hlsm.lgp.ops.misc import index_to_onehot
 
 

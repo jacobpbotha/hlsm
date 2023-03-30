@@ -1,8 +1,9 @@
 import torch
 import torchvision
-from torchvision.models.detection.rpn import AnchorGenerator, RPNHead
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
+from torchvision.models.detection.rpn import AnchorGenerator
+from torchvision.models.detection.rpn import RPNHead
 
 import hlsm.lgp.models.alfred.hlsm.alfworld.alfworld_constants as constants
 

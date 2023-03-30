@@ -1,8 +1,9 @@
 from typing import Union
-from hlsm.lgp.abcd.action import Action
 
 import numpy as np
 import torch
+
+from hlsm.lgp.abcd.action import Action
 
 IDX_TO_ACTION_TYPE = {
     0: "RotateLeft",

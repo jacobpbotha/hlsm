@@ -1,4 +1,5 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from typing import Dict
 
 import torch
@@ -18,4 +19,3 @@ class LearnableModel(nn.Module, ABC):
     def get_name(self) -> str:
         """Name to identify this model as opposed to other models used within the same agent"""
         ...
-

@@ -1,11 +1,14 @@
-from typing import Iterable, Dict, List
+from typing import Dict
+from typing import Iterable
+from typing import List
 
 import torch
-from transformers import AutoTokenizer, AutoModel, PreTrainedTokenizer
+from transformers import AutoModel
+from transformers import AutoTokenizer
+from transformers import PreTrainedTokenizer
 
-from hlsm.lgp.abcd.repr.task_repr import TaskRepr
 from hlsm.lgp.abcd.functions.task_repr_function import TaskReprFunction
-
+from hlsm.lgp.abcd.repr.task_repr import TaskRepr
 from hlsm.lgp.env.alfred.tasks import AlfredTask
 
 

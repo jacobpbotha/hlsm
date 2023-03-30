@@ -1,10 +1,11 @@
-from typing import Tuple
-import torch
 from abc import abstractmethod
+from typing import Tuple
+
+import torch
 import torch.nn as nn
 
-from hlsm.lgp.abcd.repr.state_repr import StateRepr
 from hlsm.lgp.abcd.repr.action_repr import ActionRepr
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
 from hlsm.lgp.abcd.repr.task_repr import TaskRepr
 
 

@@ -1,10 +1,10 @@
 from typing import Iterable
+
 import torch
 
 from hlsm.lgp.abcd.observation import Observation
-
-from hlsm.lgp.env.privileged_info import PrivilegedInfo
 from hlsm.lgp.env.blockworld.state import visuals
+from hlsm.lgp.env.privileged_info import PrivilegedInfo
 
 
 class BwObservation(Observation):

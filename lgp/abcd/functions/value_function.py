@@ -1,5 +1,7 @@
+from abc import ABC
+from abc import abstractmethod
+
 import torch
-from abc import ABC, abstractmethod
 import torch.nn as nn
 
 from hlsm.lgp.abcd.repr.state_repr import StateRepr

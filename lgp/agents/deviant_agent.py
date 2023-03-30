@@ -1,11 +1,11 @@
 import random
 from typing import Dict
 
-from hlsm.lgp.abcd.agent import Agent
 from hlsm.lgp.abcd.action import Action
+from hlsm.lgp.abcd.agent import Agent
 from hlsm.lgp.abcd.observation import Observation
-from hlsm.lgp.abcd.task import Task
 from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from hlsm.lgp.abcd.task import Task
 
 
 class DeviantAgent(Agent):

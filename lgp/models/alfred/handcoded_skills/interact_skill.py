@@ -1,17 +1,16 @@
-from typing import Dict, Union
 import copy
+from typing import Dict
+from typing import Union
+
 import torch
 
+from hlsm.lgp.abcd.action import Action
 from hlsm.lgp.abcd.skill import Skill
-
 from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
-from hlsm.lgp.abcd.action import Action
 from hlsm.lgp.models.alfred.handcoded_skills.go_for import GoForSkill
-from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-
 from hlsm.lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 NOMINAL_PITCH = 0.5235988419208105
 

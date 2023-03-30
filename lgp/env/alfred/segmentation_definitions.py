@@ -1,9 +1,9 @@
+import hashlib
+import random
+import sys
 from typing import Tuple
 
-import sys
 import torch
-import random
-import hashlib
 
 _INTERACTIVE_OBJECTS = [
     'AlarmClock',

@@ -5,13 +5,13 @@
 #   - ResNet features are used
 #   - Training data is stored offline and pre-processed by the model
 #   - Multithreading is used for parallel evaluation
-
 # Instead, the following structure is NEW:
 #   - Eval code works on pre-collected rollouts from a rollout actor (that can be spawned in parallel)
+from typing import Dict
+from typing import List
 
-from typing import List, Dict
-from hlsm.lgp.env.alfred.wrapping.annotations import TrajData
 from hlsm.lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.env.alfred.wrapping.annotations import TrajData
 
 
 class AlfredResults:

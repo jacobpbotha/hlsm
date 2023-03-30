@@ -1,9 +1,11 @@
-import cv2
-import os
-import numpy as np
 import functools
-from imageio import imwrite
+import os
+
+import cv2
 import moviepy.editor as mpy
+import numpy as np
+from imageio import imwrite
+
 from hlsm.lgp import paths
 from hlsm.lgp.parameters import Hyperparams
 

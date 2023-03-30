@@ -3,15 +3,12 @@ from typing import Dict
 import torch
 import torch.nn as nn
 
-from hlsm.lgp.abcd.model import LearnableModel
-from hlsm.lgp.utils.viz import show_image
-from hlsm.lgp.flags import GLOBAL_VIZ
-
 import hlsm.lgp.env.alfred.segmentation_definitions as segdef
-
+from hlsm.lgp.abcd.model import LearnableModel
+from hlsm.lgp.flags import GLOBAL_VIZ
 from hlsm.lgp.models.alfred.hlsm.unets.unet_5 import UNet5
-
 from hlsm.lgp.ops.depth_estimate import DepthEstimate
+from hlsm.lgp.utils.viz import show_image
 
 
 class AlfredSegmentationAndDepthModel(LearnableModel):

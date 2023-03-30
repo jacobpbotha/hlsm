@@ -1,8 +1,7 @@
-from typing import Union
 from enum import Enum
+from typing import Union
 
 from hlsm.lgp.abcd.action import Action
-
 from hlsm.lgp.env.blockworld.state.direction import Direction
 
 

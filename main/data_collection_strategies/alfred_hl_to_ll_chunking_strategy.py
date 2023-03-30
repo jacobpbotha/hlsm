@@ -1,6 +1,6 @@
-from typing import List, Dict
-
 import copy
+from typing import Dict
+from typing import List
 
 from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal

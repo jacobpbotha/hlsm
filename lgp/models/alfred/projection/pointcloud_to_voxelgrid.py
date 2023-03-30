@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
-from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
-from hlsm.lgp.models.alfred.projection.projection_ops import scatter_add_and_pool
+
 from hlsm.lgp.models.alfred.projection.constants import ROUNDING_OFFSET
+from hlsm.lgp.models.alfred.projection.projection_ops import scatter_add_and_pool
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
 
 # This many points need to land within a voxel for that voxel to be considered "occupied".
 # Too low, and noisy depth readings can generate obstacles.

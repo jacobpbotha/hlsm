@@ -1,18 +1,17 @@
 import os
+
+import imageio
 import numpy as np
 import torch
 import torch.nn as nn
-import imageio
-
 from kornia.geometry.camera import PinholeCamera
 from kornia.geometry.depth import depth_to_3d
+
 from hlsm.lgp.models.alfred.projection.utils import make_pinhole_camera_matrix
-
-from hlsm.lgp.utils.utils import standardize_image
 from hlsm.lgp.paths import get_artifact_output_path
-
-#import hlsm.lgp.utils.render3d as r3d
 from hlsm.lgp.utils.utils import save_gif
+from hlsm.lgp.utils.utils import standardize_image
+#import hlsm.lgp.utils.render3d as r3d
 
 
 

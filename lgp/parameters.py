@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 import hlsm.lgp.paths
 
 EXPERIMENT_DEFINITION = None

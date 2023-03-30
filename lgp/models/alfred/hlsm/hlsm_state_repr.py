@@ -1,19 +1,23 @@
-from typing import Iterable, Dict, List, Union, Tuple
+import math
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Tuple
+from typing import Union
 
 import numpy as np
 import torch
-import math
-from transforms3d import euler, affines
-from hlsm.lgp.abcd.repr.state_repr import StateRepr
+from transforms3d import affines
+from transforms3d import euler
 
-from hlsm.lgp.ops.misc import padded_roll_2d
-
-from hlsm.lgp.env.alfred.segmentation_definitions import intid_tensor_to_rgb, object_string_to_intid
 import hlsm.lgp.env.alfred.segmentation_definitions as segdef
-from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.abcd.repr.state_repr import StateRepr
 from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
-
+from hlsm.lgp.env.alfred.segmentation_definitions import intid_tensor_to_rgb
+from hlsm.lgp.env.alfred.segmentation_definitions import object_string_to_intid
 from hlsm.lgp.flags import TALL_GRID
+from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
+from hlsm.lgp.ops.misc import padded_roll_2d
 
 # TODO: Compute these from voxelgrid origin and size
 if TALL_GRID:

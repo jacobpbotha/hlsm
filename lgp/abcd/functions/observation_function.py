@@ -1,5 +1,7 @@
+from abc import ABC
+from abc import abstractmethod
 from typing import Union
-from abc import ABC, abstractmethod
+
 import torch.nn as nn
 
 from hlsm.lgp.abcd.observation import Observation

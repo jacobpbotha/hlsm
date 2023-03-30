@@ -1,9 +1,9 @@
 import uuid
-import numpy as np
 
-from transforms3d import quaternions
-from transforms3d import euler
+import numpy as np
 from transforms3d import affines
+from transforms3d import euler
+from transforms3d import quaternions
 
 
 class Pose:

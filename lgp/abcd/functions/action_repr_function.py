@@ -1,6 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
 import torch.nn as nn
+
 from hlsm.lgp.abcd.action import Action
 from hlsm.lgp.abcd.observation import Observation
 from hlsm.lgp.abcd.repr.action_repr import ActionRepr

@@ -1,8 +1,10 @@
 import torch
-from torch import nn as nn
 import torch.nn.functional as F
+from torch import nn as nn
 
-from hlsm.lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv, DoubleConv, objectview
+from hlsm.lgp.models.alfred.hlsm.unets.unet_blocks import DoubleConv
+from hlsm.lgp.models.alfred.hlsm.unets.unet_blocks import objectview
+from hlsm.lgp.models.alfred.hlsm.unets.unet_blocks import UpscaleDoubleConv
 
 PROFILE = False
 

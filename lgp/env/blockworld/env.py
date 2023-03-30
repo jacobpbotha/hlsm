@@ -1,16 +1,19 @@
 import copy
-from typing import Tuple, Dict
+from typing import Dict
+from typing import Tuple
 
 from hlsm.lgp.abcd.env import Env
-
-from hlsm.lgp.env.blockworld import config as config
-from hlsm.lgp.env.blockworld.bwobservation import BwObservation
-from hlsm.lgp.env.blockworld.state.world import World
-from hlsm.lgp.env.blockworld.bwaction import Action, ActionType, PickupArgument, NavigateArgument
-from hlsm.lgp.env.blockworld.state.direction import Direction
-from hlsm.lgp.env.blockworld.tasks.tasks import BwTask, generate_random_task
-
 from hlsm.lgp.agents.blockworld.oracle_agent import OracleAgent
+from hlsm.lgp.env.blockworld import config as config
+from hlsm.lgp.env.blockworld.bwaction import Action
+from hlsm.lgp.env.blockworld.bwaction import ActionType
+from hlsm.lgp.env.blockworld.bwaction import NavigateArgument
+from hlsm.lgp.env.blockworld.bwaction import PickupArgument
+from hlsm.lgp.env.blockworld.bwobservation import BwObservation
+from hlsm.lgp.env.blockworld.state.direction import Direction
+from hlsm.lgp.env.blockworld.state.world import World
+from hlsm.lgp.env.blockworld.tasks.tasks import BwTask
+from hlsm.lgp.env.blockworld.tasks.tasks import generate_random_task
 
 
 

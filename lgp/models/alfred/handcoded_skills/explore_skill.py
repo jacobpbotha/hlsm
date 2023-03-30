@@ -3,18 +3,13 @@ from typing import Dict
 import torch
 import torch.nn.functional as F
 
-from typing import Dict
-
-from hlsm.lgp.abcd.skill import Skill
-
 import hlsm.lgp.env.alfred.segmentation_definitions as segdef
-
+import hlsm.lgp.paths
+from hlsm.lgp.abcd.skill import Skill
 from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 from hlsm.lgp.models.alfred.handcoded_skills.go_to import GoToSkill
-
-import hlsm.lgp.paths
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 
 MAX_NAV_COUNT = 40
 SIMPLE_EXPLORE_BASELINE = False

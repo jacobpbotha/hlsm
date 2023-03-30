@@ -1,9 +1,9 @@
 from abc import abstractmethod
-
-from typing import List, Dict, Union
+from typing import Dict
+from typing import List
+from typing import Union
 
 from hlsm.lgp.abcd.dataset import ExtensibleDataset
-
 from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
 from hlsm.lgp.rollout.rollout_data import load_rollout_from_path
 

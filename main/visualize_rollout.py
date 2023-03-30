@@ -1,14 +1,13 @@
+import os
+
 import cv2
 import numpy as np
 import torch
-import os
-
-
-from hlsm.lgp.utils.utils import standardize_image, save_frames
 
 from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
-
 from hlsm.lgp.utils import viz
+from hlsm.lgp.utils.utils import save_frames
+from hlsm.lgp.utils.utils import standardize_image
 
 ANIMATE = False
 

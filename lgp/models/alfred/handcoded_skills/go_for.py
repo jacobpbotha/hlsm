@@ -1,21 +1,19 @@
+import math
 from typing import Dict
 
 import torch
-import math
-from hlsm.lgp.abcd.skill import Skill
 
+import hlsm.lgp.paths
+from hlsm.lgp.abcd.skill import Skill
 from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.flags import GLOBAL_VIZ
+from hlsm.lgp.models.alfred.handcoded_skills.go_to import GoToSkill
 from hlsm.lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
 from hlsm.lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
-from hlsm.lgp.models.alfred.handcoded_skills.go_to import GoToSkill
 from hlsm.lgp.models.alfred.hlsm.hlsm_navigation_model import HlsmNavigationModel
-
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg
-import hlsm.lgp.paths
-
-from hlsm.lgp.flags import GLOBAL_VIZ
 
 PREDICT_EVERY_N = 50
 

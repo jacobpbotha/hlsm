@@ -1,14 +1,13 @@
-from typing import List, Dict
-
 import copy
 import math
+from typing import Dict
+from typing import List
 
 from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
 from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-#from hlsm.lgp.models.alfred.hlsm.hlsm_action_repr import HlsmActionRepr
 from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
+#from hlsm.lgp.models.alfred.hlsm.hlsm_action_repr import HlsmActionRepr
 
 # TODO: HL->Subgoal check
 

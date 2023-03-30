@@ -1,10 +1,9 @@
-from typing import Dict
 from abc import abstractmethod
+from typing import Dict
 
 from hlsm.lgp.abcd.agent import Agent
-from hlsm.lgp.abcd.model_factory import ModelFactory
 from hlsm.lgp.abcd.env import Env
-
+from hlsm.lgp.abcd.model_factory import ModelFactory
 from hlsm.lgp.parameters import Hyperparams
 
 

@@ -1,20 +1,16 @@
+import math
 from typing import Dict
 
 import numpy as np
-import math
-
 import torch
 import torch.nn as nn
 
 from hlsm.lgp.abcd.model import LearnableModel
-from hlsm.lgp.ops.spatial_distr import multidim_logsoftmax
-
-from hlsm.lgp.utils.viz import show_image
-
 from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-
 from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
 from hlsm.lgp.models.alfred.hlsm.unets.lingunet_3 import Lingunet3
+from hlsm.lgp.ops.spatial_distr import multidim_logsoftmax
+from hlsm.lgp.utils.viz import show_image
 
 
 MODEL_ROTATION = True

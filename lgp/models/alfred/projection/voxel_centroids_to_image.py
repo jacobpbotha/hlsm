@@ -3,8 +3,10 @@ from typing import Iterable
 import torch
 import torch.nn as nn
 
+from hlsm.lgp.models.alfred.projection.projection_ops import project_3d_camera_points_to_2d_pixels
+from hlsm.lgp.models.alfred.projection.projection_ops import project_3d_points
+from hlsm.lgp.models.alfred.projection.projection_ops import scatter_add_and_pool
 from hlsm.lgp.models.alfred.voxel_grid import VoxelGrid
-from hlsm.lgp.models.alfred.projection.projection_ops import project_3d_camera_points_to_2d_pixels, project_3d_points, scatter_add_and_pool
 
 
 class VoxelsToImage(nn.Module):

@@ -1,5 +1,5 @@
-import torch.nn as nn
 import torch
+import torch.nn as nn
 
 from hlsm.lgp.models.alfred.projection.image_to_pointcloud import ImageToPointcloud
 from hlsm.lgp.models.alfred.projection.pointcloud_to_voxelgrid import PointcloudToVoxels

@@ -4,10 +4,9 @@ import torch
 from torch.utils.data import DataLoader
 
 from hlsm.lgp import paths
-from hlsm.lgp.datasets.tapm_dataset import TapmDataset
 from hlsm.lgp.datasets.navigation_dataset import NavigationDataset
 from hlsm.lgp.datasets.perception_dataset import PerceptionDataset
-
+from hlsm.lgp.datasets.tapm_dataset import TapmDataset
 from hlsm.lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
 
 

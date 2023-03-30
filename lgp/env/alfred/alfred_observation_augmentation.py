@@ -1,11 +1,11 @@
-import torch
-import os
 import math
+import os
 import random
+
 import imageio
+import torch
 
 import hlsm.lgp.env.alfred.segmentation_definitions as segdef
-
 import hlsm.lgp.paths
 DEFAULT_PATH = os.path.join(hlsm.lgp.paths.ROOT_PATH, "data", "textures", "img")
 

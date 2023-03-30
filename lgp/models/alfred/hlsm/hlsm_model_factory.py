@@ -1,21 +1,20 @@
-from typing import Dict, Union
-from hlsm.lgp.abcd.model_factory import ModelFactory
+from typing import Dict
+from typing import Union
+
 from hlsm.lgp.abcd.agent import Agent
+from hlsm.lgp.abcd.model_factory import ModelFactory
 from hlsm.lgp.abcd.skill import Skill
-
-# High-level reasoning models
-from hlsm.lgp.models.alfred.hlsm.hlsm_observation_function import HlsmObservationFunction
-from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskReprFunction
-from hlsm.lgp.models.alfred.hlsm.hlsm_subgoal_model import HlsmSubgoalModel
-
-# Low-level skills
+from hlsm.lgp.models.alfred.handcoded_skills.explore_skill import ExploreSkill
 from hlsm.lgp.models.alfred.handcoded_skills.go_for import GoForSkill
 from hlsm.lgp.models.alfred.handcoded_skills.go_for_manual import GoForManualSkill
-from hlsm.lgp.models.alfred.handcoded_skills.explore_skill import ExploreSkill
-from hlsm.lgp.models.alfred.handcoded_skills.interact_skill import InteractSkill
 from hlsm.lgp.models.alfred.handcoded_skills.init_skill import InitSkill
-
+from hlsm.lgp.models.alfred.handcoded_skills.interact_skill import InteractSkill
+from hlsm.lgp.models.alfred.hlsm.hlsm_observation_function import HlsmObservationFunction
+from hlsm.lgp.models.alfred.hlsm.hlsm_subgoal_model import HlsmSubgoalModel
+from hlsm.lgp.models.alfred.hlsm.hlsm_task_repr import HlsmTaskReprFunction
 from hlsm.lgp.parameters import Hyperparams
+# High-level reasoning models
+# Low-level skills
 
 
 class HlsmModelFactory(ModelFactory):

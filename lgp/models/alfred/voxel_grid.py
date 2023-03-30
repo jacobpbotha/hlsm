@@ -1,9 +1,11 @@
-from typing import Iterable, List
-import torch
-import numpy
+from typing import Iterable
+from typing import List
 
-from hlsm.lgp.models.alfred.projection.constants import ROUNDING_OFFSET
+import numpy
+import torch
+
 from hlsm.lgp.flags import TALL_GRID
+from hlsm.lgp.models.alfred.projection.constants import ROUNDING_OFFSET
 
 if TALL_GRID:
     class DefaultGridParameters:

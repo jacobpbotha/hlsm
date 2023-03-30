@@ -1,16 +1,19 @@
 """
 This file includes code to index, load, and manage the traj_data json files from ALFRED.
 """
-from typing import List, Dict, Union
-import os
-import json
 import copy
+import json
+import os
+from typing import Dict
+from typing import List
+from typing import Union
 
-
-# imports from ALFRED
 from alfred.gen.utils.image_util import decompress_mask
-
-from hlsm.lgp.env.alfred.wrapping.paths import get_task_traj_data_path, get_splits_path, get_task_dir_path, get_traj_data_paths
+from hlsm.lgp.env.alfred.wrapping.paths import get_splits_path
+from hlsm.lgp.env.alfred.wrapping.paths import get_task_dir_path
+from hlsm.lgp.env.alfred.wrapping.paths import get_task_traj_data_path
+from hlsm.lgp.env.alfred.wrapping.paths import get_traj_data_paths
+# imports from ALFRED
 
 
 class TrajData:

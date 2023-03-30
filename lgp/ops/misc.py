@@ -1,5 +1,6 @@
-import torch
 import math
+
+import torch
 
 
 def padded_roll_2d(inp, sy, sx):

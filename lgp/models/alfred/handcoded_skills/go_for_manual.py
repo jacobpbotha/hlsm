@@ -1,22 +1,23 @@
-from typing import Dict, Union
-
 import copy
-import torch
 import math
-from hlsm.lgp.abcd.skill import Skill
+from typing import Dict
+from typing import Union
 
-from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
-from hlsm.lgp.env.alfred.tasks import AlfredTask
-from hlsm.lgp.env.alfred.alfred_action import AlfredAction, ACTION_TYPES
-from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
-from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
-from hlsm.lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
-from hlsm.lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
-from hlsm.lgp.models.alfred.handcoded_skills.go_to import GoToSkill
-
-from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg, ravel_spatial_arg
+import torch
 
 import hlsm.lgp.env.blockworld.config as config
+from hlsm.lgp.abcd.skill import Skill
+from hlsm.lgp.env.alfred.alfred_action import ACTION_TYPES
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
+from hlsm.lgp.env.alfred.alfred_subgoal import AlfredSubgoal
+from hlsm.lgp.env.alfred.tasks import AlfredTask
+from hlsm.lgp.models.alfred.handcoded_skills.go_to import GoToSkill
+from hlsm.lgp.models.alfred.handcoded_skills.rotate_to_yaw import RotateToYawSkill
+from hlsm.lgp.models.alfred.handcoded_skills.tilt_to_pitch import TiltToPitchSkill
+from hlsm.lgp.models.alfred.hlsm.hlsm_state_repr import AlfredSpatialStateRepr
+from hlsm.lgp.ops.spatial_ops import ravel_spatial_arg
+from hlsm.lgp.ops.spatial_ops import unravel_spatial_arg
 
 
 PREDICT_EVERY_N = 50

@@ -1,17 +1,16 @@
 import copy
-import torch
-import numpy as np
 import math
+
+import numpy as np
+import torch
 from transforms3d import euler
 
 import hlsm.lgp.env.alfred.segmentation_definitions as segdef
+import hlsm.lgp.paths
 from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
 from hlsm.lgp.env.privileged_info import PrivilegedInfo
-
 from hlsm.lgp.models.alfred.hlsm.alfred_perception_model import AlfredSegmentationAndDepthModel
-
-import hlsm.lgp.paths
 
 # TODO: Move to config
 PERCEPTION_DEVICE = "cuda"

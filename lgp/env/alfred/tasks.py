@@ -1,8 +1,12 @@
 from collections import namedtuple
-from typing import Callable, Union, Iterator, Tuple
+from typing import Callable
+from typing import Iterator
+from typing import Tuple
+from typing import Union
 
 from hlsm.lgp.abcd.task import Task
-from hlsm.lgp.env.alfred.wrapping.annotations import AlfredAnnotations, TrajData
+from hlsm.lgp.env.alfred.wrapping.annotations import AlfredAnnotations
+from hlsm.lgp.env.alfred.wrapping.annotations import TrajData
 
 QUICK_DEBUG = False
 QUICK_DEBUG_CUTOFF = 50
