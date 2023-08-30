@@ -1,6 +1,3 @@
-from typing import Dict
-from typing import List
-from typing import Type
 from typing import Union
 
 from hlsm.lgp.abcd.action import Action
@@ -11,15 +8,16 @@ from hlsm.lgp.abcd.repr.state_repr import StateRepr
 from hlsm.lgp.abcd.skill import Skill
 from hlsm.lgp.abcd.subgoal import Subgoal
 from hlsm.lgp.abcd.task import Task
-from hlsm.lgp.env.alfred.alfred_action import AlfredAction
 
 
 class HierarchicalAgent(Agent):
-    def __init__(self,
-                 highlevel_agent : Agent,
-                 skillset : Dict[str, Skill],
-                 observation_function: ObservationFunction,
-                 action_class : Type[Action]):
+    def __init__(
+        self,
+        highlevel_agent: Agent,
+        skillset: dict[str, Skill],
+        observation_function: ObservationFunction,
+        action_class: type[Action],
+    ) -> None:
         super().__init__()
         self.ActionCls = action_class
         self.skillset = skillset
@@ -27,15 +25,15 @@ class HierarchicalAgent(Agent):
         self.observation_function = observation_function
 
         # State:
-        self.current_skill : Union[Skill, None] = None
-        self.current_goal : Union[Subgoal, None] = None
+        self.current_skill: Union[Skill, None] = None
+        self.current_goal: Union[Subgoal, None] = None
         self.state_repr = None
         self.initialized = False
         self.count = 0
 
     def start_new_rollout(self, task: Task, state_repr: StateRepr = None):
         self.hl_agent.start_new_rollout(task, state_repr)
-        for skill_name, skill in self.skillset.items():
+        for _skill_name, skill in self.skillset.items():
             skill.start_new_rollout()
         self.state_repr = state_repr
         self.initialized = False
@@ -53,7 +51,7 @@ class HierarchicalAgent(Agent):
         trace = {
             "hl_agent": self.hl_agent.get_trace(device),
             "obs_func": self.observation_function.get_trace(device),
-            "skills": skill_traces
+            "skills": skill_traces,
         }
         return trace
 
@@ -77,7 +75,7 @@ class HierarchicalAgent(Agent):
         while True:
             if self.current_skill is None:
                 hl_action: Subgoal = self.hl_agent.act(self.state_repr)
-                print(f"HierarchicalAgent: {str(hl_action)}")
+                print(f"\n\nHierarchicalAgent: {str(hl_action)}")
                 # If the high-level policy signals a stop, we emit a stop action
                 if hl_action.is_stop():
                     return self.ActionCls.stop_action()
@@ -85,6 +83,9 @@ class HierarchicalAgent(Agent):
                 self.current_skill.set_goal(hl_action)
                 self.current_goal = hl_action
             ll_action: Action = self.current_skill.act(self.state_repr)
+            import pdb
+
+            pdb.set_trace()
             if self.current_skill.has_failed():
                 self.hl_agent.action_execution_failed()
 
@@ -95,3 +96,4 @@ class HierarchicalAgent(Agent):
             else:
                 break
         return ll_action
+

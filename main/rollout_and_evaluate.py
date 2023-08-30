@@ -1,12 +1,8 @@
-"""
-Script that rolls out an agent and does not much else for now
-"""
+"""Script that rolls out an agent and does not much else for now."""
 import os
 import sys
 
 import torch
-from main.eval_progress import EvalProgress
-from main.visualize_rollout import visualize_rollout
 
 from hlsm.lgp.agents.agents import get_agent
 from hlsm.lgp.env.alfred.alfred_env import AlfredEnv
@@ -14,6 +10,8 @@ from hlsm.lgp.metrics.alfred_eval import get_multiple_rollout_metrics_alfred
 from hlsm.lgp.parameters import Hyperparams
 from hlsm.lgp.parameters import load_experiment_definition
 from hlsm.lgp.rollout.rollout_actor import RolloutActorLocal
+from hlsm.main.eval_progress import EvalProgress
+from hlsm.main.visualize_rollout import visualize_rollout
 
 
 def evaluate_rollouts(exp_def, rollouts):
@@ -32,22 +30,22 @@ def collect_rollouts(exp_def):
     visualize_rollouts = exp_def.Setup.visualize_rollouts
     save_animation_dir = exp_def.Setup.get("save_rollout_animations_dir", False)
 
-    env = AlfredEnv(device=device,
-                    setup=exp_def.Setup.env_setup.d,
-                    hparams=exp_def.Hyperparams.d)
+    env = AlfredEnv(device=device, setup=exp_def.Setup.env_setup.d, hparams=exp_def.Hyperparams.d)
 
     agent = get_agent(exp_def.Setup, exp_def.Hyperparams, device)
 
-    rollout_actor = RolloutActorLocal(experiment_name=exp_name,
-                                      agent=agent,
-                                      env=env,
-                                      dataset_proc=None,
-                                      param_server_proc=None,
-                                      max_horizon=horizon,
-                                      dataset_device=dataset_device,
-                                      index=1,
-                                      collect_trace=visualize_rollouts,
-                                      lightweight_mode=not visualize_rollouts)
+    rollout_actor = RolloutActorLocal(
+        experiment_name=exp_name,
+        agent=agent,
+        env=env,
+        dataset_proc=None,
+        param_server_proc=None,
+        max_horizon=horizon,
+        dataset_device=dataset_device,
+        index=1,
+        collect_trace=visualize_rollouts,
+        lightweight_mode=not visualize_rollouts,
+    )
 
     # Track progress
     eval_progress = EvalProgress(exp_name)
@@ -69,7 +67,7 @@ def collect_rollouts(exp_def):
                     visualize_rollout(rollout, save_animation_dir, f"rollout_{i}", start_t=0)
 
                 eval_progress.save()
-        except StopIteration as e:
+        except StopIteration:
             break
 
     # Export the leaderboard file
@@ -83,3 +81,4 @@ if __name__ == "__main__":
     def_name = sys.argv[1]
     exp_def = Hyperparams(load_experiment_definition(def_name))
     collect_rollouts(exp_def)
+
