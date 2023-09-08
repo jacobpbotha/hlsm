@@ -1,9 +1,7 @@
 import copy
 import os
-from typing import Collection
-from typing import Dict
-from typing import Iterator
-from typing import Tuple
+from collections.abc import Collection
+from collections.abc import Iterator
 from typing import Union
 
 from alfred.env.thor_env import ThorEnv
@@ -24,17 +22,16 @@ DEFAULT_SETUP = {
     "filter_task_types": [],
     "no_segmentation": False,
     "no_depth": False,
-    "max_fails": 10
+    "max_fails": 10,
 }
 
 
 class AlfredEnv(Env):
-
-    def __init__(self, device=None, setup=None, hparams=None):
+    def __init__(self, device=None, setup=None, hparams=None) -> None:
         super().__init__()
-        alfred_display = (os.environ.get("ALFRED_DISPLAY")
-                          if "ALFRED_DISPLAY" in os.environ
-                          else os.environ.get("DISPLAY"))
+        alfred_display = (
+            os.environ.get("ALFRED_DISPLAY") if "ALFRED_DISPLAY" in os.environ else os.environ.get("DISPLAY")
+        )
         if alfred_display.startswith(":"):
             alfred_display = alfred_display[1:]
 
@@ -42,8 +39,8 @@ class AlfredEnv(Env):
         self.task = None
         self.steps = 0
         self.device = device
-        self.horizon : int = config.DEFAULT_HORIZON
-        self.fail_count : int = 0
+        self.horizon: int = config.DEFAULT_HORIZON
+        self.fail_count: int = 0
 
         if not setup:
             self.setup = DEFAULT_SETUP
@@ -60,16 +57,20 @@ class AlfredEnv(Env):
         reference_depth = self.setup.get("reference_depth", False)
         reference_inventory = self.setup.get("reference_inventory", False)
         reference_pose = self.setup.get("reference_pose", False)
-        print(f"USING {'REFERENCE DEPTH' if reference_depth else 'PREDICTED DEPTH'} "
-              f"and {'REFERENCE SEGMENTATION' if reference_seg else 'PREDICTED SEGMENTATION'}")
+        print(
+            f"USING {'REFERENCE DEPTH' if reference_depth else 'PREDICTED DEPTH'} "
+            f"and {'REFERENCE SEGMENTATION' if reference_seg else 'PREDICTED SEGMENTATION'}",
+        )
 
         self.max_fails = setup.get("max_fails", 10)
         print(f"Max failures: {self.max_fails}")
-        self.state_tracker = StateTracker(reference_seg=reference_seg,
-                                          reference_depth=reference_depth,
-                                          reference_inventory=reference_inventory,
-                                          reference_pose=reference_pose,
-                                          hparams=hparams)
+        self.state_tracker = StateTracker(
+            reference_seg=reference_seg,
+            reference_depth=reference_depth,
+            reference_inventory=reference_inventory,
+            reference_pose=reference_pose,
+            hparams=hparams,
+        )
 
         if allowed_tasks is not None:
             print(f"FILTERING TASKS: {allowed_tasks}")
@@ -86,12 +87,12 @@ class AlfredEnv(Env):
 
         self.prof = SimpleProfiler(print=PROFILE)
 
-    def get_env_state(self) -> Dict:
+    def get_env_state(self) -> dict:
         world = copy.deepcopy(self.world)
         task = copy.deepcopy(self.task)
         return {"world": world, "task": task, "steps": self.steps}
 
-    def set_env_state(self, state: Dict):
+    def set_env_state(self, state: dict):
         self.world = copy.deepcopy(state["world"])
         self.task = copy.deepcopy(state["task"])
         self.steps = state["steps"]
@@ -114,10 +115,14 @@ class AlfredEnv(Env):
                 task, i = next(self.task_iterator)
                 if self.task_num_range is None or i in self.task_num_range:
                     return task, i
-        except StopIteration as e:
+        except StopIteration:
             raise StopIteration
 
-    def reset(self, randomize=False, skip_tasks: Union[Collection[TaskRecord], None] = None) -> (AlfredObservation, AlfredTask):
+    def reset(
+        self,
+        randomize=False,
+        skip_tasks: Union[Collection[TaskRecord], None] = None,
+    ) -> (AlfredObservation, AlfredTask):
         self.task, task_number = self._choose_task()
 
         # Skip tasks that are already completed
@@ -144,11 +149,13 @@ class AlfredEnv(Env):
         self.prof.tick("proc")
         # Resetting alfred.env.thor_env.ThorEnv
         # see alfred/models/eval/eval.py:setup_scene (line 100) for reference
-        self.thor_env.reset(self.task.traj_data.get_scene_number(),
-                                  render_image=False,
-                                  render_depth_image=True,
-                                  render_class_image=False,
-                                  render_object_image=True)
+        self.thor_env.reset(
+            self.task.traj_data.get_scene_number(),
+            render_image=False,
+            render_depth_image=True,
+            render_class_image=False,
+            render_object_image=True,
+        )
         self.thor_env.restore_scene(object_poses, object_toggles, dirty_and_empty)
         _ = self.thor_env.step(self.task.traj_data.get_init_action(), smooth_nav=self.smooth_nav)
 
@@ -175,7 +182,7 @@ class AlfredEnv(Env):
         else:
             return False
 
-    def step(self, action: AlfredAction) -> Tuple[AlfredObservation, float, bool, Dict]:
+    def step(self, action: AlfredAction) -> tuple[AlfredObservation, float, bool, dict]:
         self.prof.tick("out")
 
         # The ALFRED API does not accept the Stop action, do nothing
@@ -185,16 +192,14 @@ class AlfredEnv(Env):
             transition_reward = 0
             api_action = None
             events = []
+            exec_success = True
 
         # Execute all other actions in the ALFRED API
         else:
             alfred_action, interact_mask = action.to_alfred_api()
             self.prof.tick("proc")
 
-            ret = self.thor_env.va_interact(
-                alfred_action,
-                interact_mask,
-                smooth_nav=self.smooth_nav)
+            ret = self.thor_env.va_interact(alfred_action, interact_mask, smooth_nav=self.smooth_nav)
 
             # Default version of ALFRED
             if len(ret) == 5:
@@ -232,7 +237,7 @@ class AlfredEnv(Env):
         self.state_tracker.log_extra_events(events)
 
         observation = self.state_tracker.get_observation()
-        observation.privileged_info.attach_task(self.task) # TODO: See if we can get rid of this?
+        observation.privileged_info.attach_task(self.task)  # TODO: See if we can get rid of this?
         if self.device:
             observation = observation.to(self.device)
 
@@ -254,6 +259,7 @@ class AlfredEnv(Env):
 
         # This is used to generate leaderboard replay traces:
         md["api_action"] = api_action
+        md["action_success"] = exec_success
 
         self.steps += 1
 
@@ -261,3 +267,4 @@ class AlfredEnv(Env):
         self.prof.loop()
         self.prof.print_stats(20)
         return observation, reward, done, md
+

@@ -12,6 +12,7 @@ from hlsm.lgp.parameters import load_experiment_definition
 from hlsm.lgp.rollout.rollout_actor import RolloutActorLocal
 from hlsm.main.eval_progress import EvalProgress
 from hlsm.main.visualize_rollout import visualize_rollout
+from sga.envs.scene_graph_thor import SceneGraphThorEnv
 
 
 def evaluate_rollouts(exp_def, rollouts):
@@ -31,6 +32,7 @@ def collect_rollouts(exp_def):
     save_animation_dir = exp_def.Setup.get("save_rollout_animations_dir", False)
 
     env = AlfredEnv(device=device, setup=exp_def.Setup.env_setup.d, hparams=exp_def.Hyperparams.d)
+    env2 = SceneGraphThorEnv()
 
     agent = get_agent(exp_def.Setup, exp_def.Hyperparams, device)
 
@@ -38,6 +40,7 @@ def collect_rollouts(exp_def):
         experiment_name=exp_name,
         agent=agent,
         env=env,
+        env2=env2,
         dataset_proc=None,
         param_server_proc=None,
         max_horizon=horizon,

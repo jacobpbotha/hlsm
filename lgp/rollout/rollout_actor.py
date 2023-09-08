@@ -11,6 +11,7 @@ class RolloutActorLocal:
         experiment_name: str,
         agent: TrainableAgent,
         env,
+        env2,
         dataset_proc,
         param_server_proc,
         max_horizon,
@@ -31,6 +32,7 @@ class RolloutActorLocal:
 
         self.agent = agent
         self.env = env
+        self.env2 = env2
         self.horizon = max_horizon
         self.env.set_horizon(max_horizon)
         self.counter = 0
@@ -140,14 +142,39 @@ class RolloutActorLocal:
             # Skipped:
             if task is None:
                 return None
+            sg_obs = self.env2.reset(self.env.task.get_task_id()[6:])
 
             print("Task: ", str(task))
             self.agent.start_new_rollout(task)
+            translate = {
+                "PickupObject": "Pickup",
+                "CloseObject": "Close",
+                "OpenObject": "Open",
+                "PutObject": "Put",
+                "ToggleObjectOn": "ToggleOn",
+                "ToggleObjectOff": "ToggleOff",
+                "SliceObject": "Slice",
+                "Stop": "Done",
+            }
 
             action = self.agent.act(observation)
             total_reward = 0
             for _t in range(self.horizon):
                 next_observation, reward, done, md = self.env.step(action)
+                print(self.agent.current_goal)
+                print(md)
+                if action.action_type in action.get_interact_action_list() and md["action_success"]:
+                    if translate[action.action_type] == "Put":
+                        if md["api_action"]["objectId"] not in self.env2.scene_graph.graph["Nearby"]:
+                            action2 = f"Go__{md['api_action']['receptacleObjectId']}"
+                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
+                        action2 = f"{translate[action.action_type]}__{md['api_action']['receptacleObjectId']}"
+                    else:
+                        if md["api_action"]["objectId"] not in self.env2.scene_graph.graph["Nearby"]:
+                            action2 = f"Go__{md['api_action']['objectId']}"
+                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
+                        action2 = f"{translate[action.action_type]}__{md['api_action']['objectId']}"
+                    sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
                 total_reward += reward
 
                 rollout.append(

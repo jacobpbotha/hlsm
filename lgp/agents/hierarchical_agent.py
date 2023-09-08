@@ -75,7 +75,6 @@ class HierarchicalAgent(Agent):
         while True:
             if self.current_skill is None:
                 hl_action: Subgoal = self.hl_agent.act(self.state_repr)
-                print(f"\n\nHierarchicalAgent: {str(hl_action)}")
                 # If the high-level policy signals a stop, we emit a stop action
                 if hl_action.is_stop():
                     return self.ActionCls.stop_action()
@@ -83,9 +82,6 @@ class HierarchicalAgent(Agent):
                 self.current_skill.set_goal(hl_action)
                 self.current_goal = hl_action
             ll_action: Action = self.current_skill.act(self.state_repr)
-            import pdb
-
-            pdb.set_trace()
             if self.current_skill.has_failed():
                 self.hl_agent.action_execution_failed()
 
