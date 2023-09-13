@@ -26,7 +26,7 @@ class HlsmObservationFunction(ObservationFunction):
         self.trace = {}
 
         self.use_mle_depth = params.get("use_mle_depth", False)
-        print(f"USING MLE DEPTH: {self.use_mle_depth}")
+       #print(f"USING MLE DEPTH: {self.use_mle_depth}")
 
     def get_trace(self, device):
         for k, v in self.trace.items():

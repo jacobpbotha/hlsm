@@ -16,7 +16,7 @@ class InitSkill(Skill):
     def __init__(self):
         super().__init__()
         self._reset()
-        print(f"Init skill with sequence of length: {INIT_SEQUENCE}")
+       #print(f"Init skill with sequence of length: {INIT_SEQUENCE}")
 
     @classmethod
     def sequence_length(cls):

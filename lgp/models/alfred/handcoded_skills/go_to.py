@@ -260,7 +260,7 @@ class GoToSkill(Skill):
                 self.tried_and_failed_actions.append(vingridaction)
                 next_x, next_y = self._next_pos(pos_x, pos_y, vingridaction)
                 self.bumper_obstacle_map[:, :, next_x, next_y] = 1.0
-                print(f"Tried and failed: {self.tried_and_failed_actions}")
+               #print(f"Tried and failed: {self.tried_and_failed_actions}")
             else:
                 # if the agent moved, the action is NOT a failing action
                 self.tried_and_failed_actions = []

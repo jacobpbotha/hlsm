@@ -22,7 +22,7 @@ class TrajData:
             with open(traj_data_path, "r") as fp:
                 data = json.load(fp)
         except json.decoder.JSONDecodeError as e:
-            print(f"Couldn't load json: {traj_data_path}")
+           #print(f"Couldn't load json: {traj_data_path}")
             raise e
         self.data = data
 

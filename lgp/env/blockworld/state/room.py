@@ -26,7 +26,7 @@ class Door:
             return (self.direction == other.direction) and (self.source.coord == other.source.coord) and (self.target.coord == other.target.coord)
 
     def __str__(self):
-        print(f"Door with direction: {self.direction} from {self.source.coord} to {self.target.coord}")
+       #print(f"Door with direction: {self.direction} from {self.source.coord} to {self.target.coord}")
 
     def __hash__(self):
         return hash(str(self))

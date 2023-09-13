@@ -62,7 +62,7 @@ class TiltToPitchSkill(Skill):
 
         # Sometimes tilting gets stuck due to collisions. This is to abort tilting and avoid getting stuck in an infinte loop.
         if action_type in ["LookDown", "LookUp"] and self.last_diff == ctrl_diff:
-            print("TiltToPitch: Seems to be stuck. Stopping!")
+           #print("TiltToPitch: Seems to be stuck. Stopping!")
             action_type = "Stop"
         self.last_diff = ctrl_diff
 

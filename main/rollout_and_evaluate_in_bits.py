@@ -20,7 +20,7 @@ from hlsm.lgp.rollout.rollout_actor import RolloutActorLocal
 
 def evaluate_rollouts(exp_def, rollouts):
     metrics = get_multiple_rollout_metrics_alfred(rollouts)
-    print("Results: ")
+   #print("Results: ")
     metrics.printout()
 
 
@@ -30,14 +30,14 @@ class LeaderboardProgress:
         if os.path.exists(self.progress_file):
             with open(self.progress_file, "r") as fp:
                 self.progress = json.load(fp)
-                print(f"Continue where left off? {len(self.progress)} rollouts completed!")
+               #print(f"Continue where left off? {len(self.progress)} rollouts completed!")
                 inp = input("y/n >")
                 if inp != "y":
-                    print("Stopping")
+                   #print("Stopping")
                     sys.exit(0)
                 # Convert old format with only the first repeat to new format indexed by repeats:
                 if len(self.progress[0]) == 3:
-                    print("Converting progress representation to new format with repeat_idx")
+                   #print("Converting progress representation to new format with repeat_idx")
                     self.progress = [[x[0], 0, x[1], x[2]] for x in self.progress]
         else:
             self.progress = []
@@ -61,7 +61,7 @@ class LeaderboardProgress:
             json.dump(self.progress, fp, indent=4, sort_keys=True)
         with open(self.progress_file, "w") as fp:
             json.dump(self.progress, fp, indent=4, sort_keys=True)
-        print(f"Saved progress in {self.progress_file}")
+       #print(f"Saved progress in {self.progress_file}")
 
     def export_leaderboard_json(self):
         leaderboard_json = {
@@ -74,7 +74,7 @@ class LeaderboardProgress:
         leaderboard_file = os.path.join(leaderboard_dir, 'tests_actseqs_dump_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f") + '.json')
         with open(leaderboard_file, "w") as fp:
             json.dump(leaderboard_json, fp, indent=4, sort_keys=True)
-            print(f"Dumped action sequences to: {leaderboard_file}")
+           #print(f"Dumped action sequences to: {leaderboard_file}")
 
 
 def collect_rollouts(exp_def):
@@ -109,14 +109,14 @@ def collect_rollouts(exp_def):
     if exp_def.Setup.leaderboard_progress_file:
         leaderboard_progress = LeaderboardProgress(exp_def)
     else:
-        print("NOT COLLECTING LEADERBOARD TRACES!")
+       #print("NOT COLLECTING LEADERBOARD TRACES!")
         leaderboard_progress = None
 
     # Load previously saved rollouts # TODO: Delete this code
     if load_rollouts_dir:
         rollouts = rd.load_rollouts(load_rollouts_dir)
         tasks_done = [(r[0]["task"].get_task_id(), r[0]["task"].get_repeat_idx()) for r in rollouts]
-        print(f"Loaded {len(rollouts)} rollouts from: {load_rollouts_dir}")
+       #print(f"Loaded {len(rollouts)} rollouts from: {load_rollouts_dir}")
     else:
         rollouts = []
 
@@ -126,7 +126,7 @@ def collect_rollouts(exp_def):
 
     # Collect the rollouts
     for i in range(num_rollouts):
-        print(f"Rollout {i}/{num_rollouts}")
+       #print(f"Rollout {i}/{num_rollouts}")
         try:
             ret = None
             done = False
@@ -144,7 +144,7 @@ def collect_rollouts(exp_def):
 
                 if save_rollouts_dir:
                     rd.dump(rollout, os.path.join(save_rollouts_dir, f"rollout_{i}.gz"))
-                    print(f"Saved rollout to: {save_rollouts_dir}")
+                   #print(f"Saved rollout to: {save_rollouts_dir}")
         except StopIteration as e:
             break
 

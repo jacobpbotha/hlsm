@@ -39,7 +39,7 @@ class AlfredSegmentationAndDepthModel(LearnableModel):
         self.max_depth_m = self.params.get("max_depth", 5.0)
 
         assert self.train_for in [self.TRAINFOR_SEG, self.TRAINFOR_DEPTH, self.TRAINFOR_BOTH, None]
-        print(f"Training perception model for: {self.train_for}")
+       #print(f"Training perception model for: {self.train_for}")
 
         self.net = UNet5(self.distr_depth, self.depth_bins)
 

@@ -69,12 +69,12 @@ def collect_universal_rollouts(exp_def, proc_id):
     progress_log_file = os.path.join(hlsm.lgp.paths.get_default_rollout_data_dir(), f"progress_log.json")
 
     if os.path.exists(progress_log_file):
-        print(f"Progress file exists at {progress_log_file}.")
+       #print(f"Progress file exists at {progress_log_file}.")
         n = input(f"Continue data collection where left off? (y/n)")
         if n.lower() == "y" or n.lower() == "yes":
             pass
         else:
-            print("Aborting data collection. If you don't want to continue where left off, delete the progress file.")
+           #print("Aborting data collection. If you don't want to continue where left off, delete the progress file.")
             sys.exit(-1)
         with open(progress_log_file, "r") as fp:
             progress = json.load(fp)
@@ -111,10 +111,10 @@ def collect_universal_rollouts(exp_def, proc_id):
 
             # Skip already collected rollouts
             if task_number in progress["collected_rollouts"]:
-                print(f"Skipping rollout: {task_number} - it exists")
+               #print(f"Skipping rollout: {task_number} - it exists")
                 continue
             else:
-                print(f"Collecting rollout: {task_number}")
+               #print(f"Collecting rollout: {task_number}")
 
             agent.start_new_rollout(task)
 
@@ -169,9 +169,9 @@ def collect_universal_rollouts(exp_def, proc_id):
                 chunked_rollout = config["preprocessor"].process(chunked_rollout)
 
                 if error_rollout and config["skip_error_rollouts"]:
-                    print(f"Skipping saving of rollout: {task_number}")
+                   #print(f"Skipping saving of rollout: {task_number}")
                 else:
-                    print(f"Saving rollout: {task_number} of length: {len(rollout)} in {config['dataset_dir']}")
+                   #print(f"Saving rollout: {task_number} of length: {len(rollout)} in {config['dataset_dir']}")
                     if config["singles"]:
                         for sample in chunked_rollout:
                             rollout_data.save_rollout(sample, config["dataset_dir"], progress["chunk_numbers"][config["key"]])

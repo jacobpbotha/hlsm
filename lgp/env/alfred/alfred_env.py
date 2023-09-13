@@ -57,13 +57,13 @@ class AlfredEnv(Env):
         reference_depth = self.setup.get("reference_depth", False)
         reference_inventory = self.setup.get("reference_inventory", False)
         reference_pose = self.setup.get("reference_pose", False)
-        print(
-            f"USING {'REFERENCE DEPTH' if reference_depth else 'PREDICTED DEPTH'} "
-            f"and {'REFERENCE SEGMENTATION' if reference_seg else 'PREDICTED SEGMENTATION'}",
-        )
+        # print(
+        #     f"USING {'REFERENCE DEPTH' if reference_depth else 'PREDICTED DEPTH'} "
+        #     f"and {'REFERENCE SEGMENTATION' if reference_seg else 'PREDICTED SEGMENTATION'}",
+        # )
 
         self.max_fails = setup.get("max_fails", 10)
-        print(f"Max failures: {self.max_fails}")
+        # print(f"Max failures: {self.max_fails}")
         self.state_tracker = StateTracker(
             reference_seg=reference_seg,
             reference_depth=reference_depth,
@@ -73,10 +73,10 @@ class AlfredEnv(Env):
         )
 
         if allowed_tasks is not None:
-            print(f"FILTERING TASKS: {allowed_tasks}")
+            # print(f"FILTERING TASKS: {allowed_tasks}")
             task_filter = AlfredTask.make_task_type_filter(allowed_tasks)
         elif allowed_ids is not None:
-            print(f"FILTERING TASKS: {allowed_ids}")
+            # print(f"FILTERING TASKS: {allowed_ids}")
             task_filter = AlfredTask.make_task_id_filter(allowed_ids)
         else:
             raise ValueError("")
@@ -126,14 +126,15 @@ class AlfredEnv(Env):
         self.task, task_number = self._choose_task()
 
         # Skip tasks that are already completed
-        task_id = self.task.get_task_id()
-        repeat_idx = self.task.get_repeat_idx()
+        self.task.get_task_id()
+        self.task.get_repeat_idx()
         if skip_tasks is not None:
             if self.task.get_record() in skip_tasks:
-                print(f"Skipping task: {task_id} : {repeat_idx}")
+                # print(f"Skipping task: {task_id} : {repeat_idx}")
                 return None, None, None
             else:
-                print(f"Including task: {task_id} : {repeat_idx}")
+                pass
+            # print(f"Including task: {task_id} : {repeat_idx}")
 
         self.fail_count = 0
         self.steps = 0
@@ -164,7 +165,7 @@ class AlfredEnv(Env):
             # The only argument in args that ThorEnv uses is args.reward_config, which is kept to its default
             self.thor_env.set_task(self.task.traj_data.data, get_faux_args(), reward_type=self.reward_type)
         self.prof.tick("thor_env_reset")
-        print(f"Task: {str(self.task)}")
+        # print(f"Task: {str(self.task)}")
         event = self.thor_env.last_event
         self.state_tracker.reset(event)
         observation = self.state_tracker.get_observation()
@@ -177,7 +178,7 @@ class AlfredEnv(Env):
     def _error_is_fatal(self, err):
         self.fail_count += 1
         if self.fail_count >= self.max_fails:
-            print(f"EXCEEDED MAXIMUM NUMBER OF FAILURES ({self.max_fails})")
+            # print(f"EXCEEDED MAXIMUM NUMBER OF FAILURES ({self.max_fails})")
             return True
         else:
             return False
@@ -222,7 +223,7 @@ class AlfredEnv(Env):
 
             if not exec_success:
                 fatal = self._error_is_fatal(err)
-                print(f"ThorEnv {'fatal' if fatal else 'non-fatal'} Exec Error: {err}")
+                # print(f"ThorEnv {'fatal' if fatal else 'non-fatal'} Exec Error: {err}")
                 if fatal:
                     done = True
                     api_action = None

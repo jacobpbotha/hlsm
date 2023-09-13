@@ -1,9 +1,7 @@
-from typing import Dict
-from typing import List
 from typing import Union
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 import hlsm.lgp.env.alfred.segmentation_definitions as segdef
 from hlsm.lgp.abcd.functions.action_proposal import ActionProposal
@@ -26,7 +24,7 @@ from hlsm.lgp.utils.viz import show_image
 
 class HlsmSubgoalModel(ActionProposal, LearnableModel):
     class ModelState(ActionProposal.ModelState):
-        def __init__(self):
+        def __init__(self) -> None:
             self.action_history = []
             self.logged_failure = False
             self.step = 0
@@ -34,7 +32,7 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         def action_execution_failed(self):
             # Remove the last action from the action history and allow a re-try.
             if not self.logged_failure:
-                print("                                            LOGGING SKILL FAILURE")
+                # print("                                            LOGGING SKILL FAILURE")
                 self.action_history = self.action_history[:-1]
                 self.logged_failure = True
 
@@ -43,13 +41,14 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
             # it can be removed from the action history
             self.logged_failure = False
             self.action_history.append(action)
-            print("                                             LOGGING NEW ACTION")
+
+        # print("                                             LOGGING NEW ACTION")
 
         @classmethod
         def blank(cls):
             return None
 
-    def __init__(self, hparams: Hyperparams):
+    def __init__(self, hparams: Hyperparams) -> None:
         super().__init__()
 
         self.action_type_dim = AlfredSubgoal.get_action_type_space_dim()
@@ -61,11 +60,11 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         self.no_vision_baseline = hparams.get("no_vision_baseline", False)
         self.no_language_baseline = hparams.get("no_language_baseline", False)
 
-        print("SpatialTransformerModel2 baseline config:"
-              f"No vision: {self.no_vision_baseline}"
-              f"No language: {self.no_language_baseline}"
-              f"No posemb: {self.no_posemb_baseline}"
-              f"No acthist: {self.no_acthist_baseline}")
+        # print("SpatialTransformerModel2 baseline config:"
+        # f"No vision: {self.no_vision_baseline}"
+        # f"No language: {self.no_language_baseline}"
+        # f"No posemb: {self.no_posemb_baseline}"
+        # f"No acthist: {self.no_acthist_baseline}")
 
         # Networks / Models
         if not self.no_language_baseline:
@@ -74,12 +73,13 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         if not self.no_vision_baseline:
             self.state_repr_encoder = StateReprEncoderPooled(self.hidden_dim)
 
-        self.action_history_encoder = SubgoalHistoryEncoder(self.hidden_dim,
-                                                            ablate_no_acthist=self.no_acthist_baseline,
-                                                            ablate_no_posemb=self.no_posemb_baseline)
+        self.action_history_encoder = SubgoalHistoryEncoder(
+            self.hidden_dim, ablate_no_acthist=self.no_acthist_baseline, ablate_no_posemb=self.no_posemb_baseline
+        )
 
-        self.mask_model = Lingunet3(2 * self.action_type_dim + AlfredSpatialStateRepr.get_2d_feature_dim(),
-                                    self.hidden_dim, 1)
+        self.mask_model = Lingunet3(
+            2 * self.action_type_dim + AlfredSpatialStateRepr.get_2d_feature_dim(), self.hidden_dim, 1
+        )
 
         self.action_predictor = ActionPredictor(self.hidden_dim, joint_prob=True)
 
@@ -90,7 +90,7 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         self.model_state = None
         self.log_internal_activations = True
         self.trace = {
-            "subgoal": None
+            "subgoal": None,
         }
         self.metrics = {}
 
@@ -104,12 +104,12 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         # TODO: Make sure to not increment model_state.step in two different places (here and forward)
         return self.model_state
 
-    def get_trace(self, device="cpu") -> Dict:
+    def get_trace(self, device="cpu") -> dict:
         return {k: v.to(device) if v is not None else v for k, v in self.trace.items()}
 
     def clear_trace(self):
         ...
-        #self.trace = {}
+        # self.trace = {}
 
     def action_execution_failed(self):
         self.model_state.action_execution_failed()
@@ -126,7 +126,7 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
     def reset_state(self):
         self.model_state = HlsmSubgoalModel.ModelState()
         self.trace = {
-            "subgoal": None
+            "subgoal": None,
         }
 
     def _argmax_action(self, type_distr, arg_vectors):
@@ -137,12 +137,15 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         arg_vector = arg_vectors[:, act_type_id, :]
 
         # Computed for debugging purposes only
-        top5_objects = [(segdef.object_intid_to_string(x.item() - 1), arg_vector[0, x.item()].item()) for x in reversed(arg_vector[0].argsort()[-5:])]
-        # print(f"Top5 objects: {top5_objects}")
+        [
+            (segdef.object_intid_to_string(x.item() - 1), arg_vector[0, x.item()].item())
+            for x in reversed(arg_vector[0].argsort()[-5:])
+        ]
+        ##print(f"Top5 objects: {top5_objects}")
 
         pass_objects = arg_vector > 0.04
         arg_vector = arg_vector * pass_objects
-        arg_vector /= (arg_vector.sum() + 1e-10)
+        arg_vector /= arg_vector.sum() + 1e-10
         return AlfredSubgoal.from_type_str_and_arg_vector(act_type_str, arg_vector)
 
     def _sample_subgoal(self, type_distr, arg_vectors):
@@ -150,28 +153,31 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         act_type_str = AlfredSubgoal.action_type_intid_to_str(act_type_id)
         arg_vector = arg_vectors[:, act_type_id, :]
 
-        top5_types = [(AlfredSubgoal.action_type_intid_to_str(a.item()), type_distr[0, a.item()].item()) for a in reversed(type_distr[0].argsort()[-5:])]
-        print(f"Top5 types: {top5_types}")
+        [
+            (AlfredSubgoal.action_type_intid_to_str(a.item()), type_distr[0, a.item()].item())
+            for a in reversed(type_distr[0].argsort()[-5:])
+        ]
+        # print(f"Top5 types: {top5_types}")
 
         # Computed for debugging purposes only
-        top5_objects = [(segdef.object_intid_to_string(x.item() - 1), arg_vector[0, x.item()].item()) for x in reversed(arg_vector[0].argsort()[-5:])]
-        print(f"Top5 objects: {top5_objects}")
-        print(f"Action history: {[str(a) for a in self.model_state.action_history]}")
+        [
+            (segdef.object_intid_to_string(x.item() - 1), arg_vector[0, x.item()].item())
+            for x in reversed(arg_vector[0].argsort()[-5:])
+        ]
+        # print(f"Top5 objects: {top5_objects}")
+        # print(f"Action history: {[str(a) for a in self.model_state.action_history]}")
 
         # Zero out the long tail - otherwise that contains most of the prob mass which doesn't make sense.
         pass_objects = arg_vector > 0.04
         arg_vector = arg_vector * pass_objects
-        arg_vector /= (arg_vector.sum() + 1e-10)
+        arg_vector /= arg_vector.sum() + 1e-10
 
         act_arg_id = torch.distributions.Categorical(arg_vector).sample().item()
         arg_vector_out = torch.zeros_like(arg_vector)
         arg_vector_out[0, act_arg_id] = 1.0
         return AlfredSubgoal.from_type_str_and_arg_vector(act_type_str, arg_vector_out)
 
-    def mle(self,
-            state: AlfredSpatialStateRepr,
-            task: HlsmTaskRepr,
-            model_state: "HlsmSubgoalModel.ModelState"):
+    def mle(self, state: AlfredSpatialStateRepr, task: HlsmTaskRepr, model_state: "HlsmSubgoalModel.ModelState"):
         return self.forward_inference(state, task, model_state)
 
     # ---------------------------------------------------------------------------------
@@ -183,23 +189,25 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
                 state_kernel = act_arg_distr_argmax_type[:, 1:].clone()
                 state_data = states.data.data  # B x C x W x L x H
 
-                state_response = torch.einsum("bcwlh,bc->bwlh", state_data.float(), state_kernel.float())  # B x W x L x H
+                state_response = torch.einsum(
+                    "bcwlh,bc->bwlh", state_data.float(), state_kernel.float()
+                )  # B x W x L x H
                 action_arg_distribution_log = multidim_logsoftmax(state_response, dims=(1, 2, 3))
                 # Replicate - use the same argument distribution for "all action types"
                 action_arg_distribution_log = action_arg_distribution_log[:, None, :, :, :].repeat(
-                    (1, self.action_type_dim, 1, 1, 1))
+                    (1, self.action_type_dim, 1, 1, 1)
+                )
 
-                #self.trace["state_repr"] = states
-                #self.trace["filters"] = state_kernel
-                #self.trace["action_type_distribution"] = torch.exp(act_type_distr)
-                #self.trace["action_arg_distribution"] = torch.exp(action_arg_distribution_log)
+                # self.trace["state_repr"] = states
+                # self.trace["filters"] = state_kernel
+                # self.trace["action_type_distribution"] = torch.exp(act_type_distr)
+                # self.trace["action_arg_distribution"] = torch.exp(action_arg_distribution_log)
                 self.trace["subgoal"] = action
         return
 
-    def forward_inference(self,
-                          states: AlfredSpatialStateRepr,
-                          tasks: HlsmTaskRepr,
-                          model_state: "HlsmSubgoalModel.ModelState"):
+    def forward_inference(
+        self, states: AlfredSpatialStateRepr, tasks: HlsmTaskRepr, model_state: "HlsmSubgoalModel.ModelState"
+    ):
         device = states.data.data.device
 
         action_history = model_state.action_history
@@ -210,7 +218,9 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         current_action_label[0, 0] = 2
         current_action_label[0, 1] = 33
 
-        action_labels = torch.cat([a.to_tensor(device=device, dtype=torch.int64) for a in action_history] + [current_action_label], dim=0)
+        action_labels = torch.cat(
+            [a.to_tensor(device=device, dtype=torch.int64) for a in action_history] + [current_action_label], dim=0
+        )
         batch_id = [0 for _ in range(len(action_labels))]
 
         act_type_logprobs, act_arg_logprobs, task_emb = self._forward_model(states, tasks, action_labels, batch_id)
@@ -225,7 +235,9 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         arg_distr = arg_distr / arg_distr.sum(dim=2, keepdim=True)  # Re-normalize
         subgoal = self._sample_subgoal(type_distr, arg_distr)
 
-        arg_mask_3d = self.forward_mask(states, task_emb, subgoal, self.model_state.action_history, batch_training=False)
+        arg_mask_3d = self.forward_mask(
+            states, task_emb, subgoal, self.model_state.action_history, batch_training=False
+        )
 
         arg_mask_voxelgrid = VoxelGrid(arg_mask_3d, arg_mask_3d, states.data.voxel_size, states.data.origin)
         subgoal.argument_mask = arg_mask_voxelgrid
@@ -235,11 +247,13 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
 
         return subgoal
 
-    def _forward_model(self,
-                       states: Union[AlfredSpatialStateRepr, torch.tensor],
-                       tasks: HlsmTaskRepr,
-                       sem_actions: torch.tensor,
-                       batch_id: List[int]):
+    def _forward_model(
+        self,
+        states: Union[AlfredSpatialStateRepr, torch.tensor],
+        tasks: HlsmTaskRepr,
+        sem_actions: torch.tensor,
+        batch_id: list[int],
+    ):
         # sem_actions: B x 2
         bs = states.data.data.shape[0]
         device = states.data.data.device
@@ -268,17 +282,19 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         action_hist_embeddings = action_hist_embeddings[-ns:]
 
         act_type_logprob, act_arg_logprob = self.action_predictor(
-            state_embeddings, task_embeddings, action_hist_embeddings)
+            state_embeddings, task_embeddings, action_hist_embeddings
+        )
 
         return act_type_logprob, act_arg_logprob, task_embeddings
 
-    def forward_mask(self,
-                     state_repr,
-                     task_emb : torch.tensor,
-                     action: AlfredSubgoal,
-                     action_history: List[AlfredSubgoal],
-                     batch_training=False):
-
+    def forward_mask(
+        self,
+        state_repr,
+        task_emb: torch.tensor,
+        action: AlfredSubgoal,
+        action_history: list[AlfredSubgoal],
+        batch_training=False,
+    ):
         # STATE REPRESENTATION
         state_features = state_repr.get_nav_features_2d()
 
@@ -339,8 +355,8 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
     def success(self, pred_logits, class_indices):
         amax_idx = pred_logits.argmax(1)
         target_idx = class_indices
-        #print(amax_idx[0], target_idx[0])# == target_idx.sum())
-        succ = (amax_idx == target_idx)
+        # print(amax_idx[0], target_idx[0])# == target_idx.sum())
+        succ = amax_idx == target_idx
         return succ
 
     def collect_metrics(self, act_type_logprob, act_type_gt, act_arg_logprob, act_arg_gt, sem_actions, batch_id):
@@ -359,7 +375,7 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         num_b = max(batch_id) + 1
 
         for b in range(num_b):
-            isb = (tensor_batchid == b)
+            isb = tensor_batchid == b
             b_type_succ_cnt = (type_step_success * isb).sum()
             b_arg_succ_cnt = (arg_step_success * isb).sum()
             b_cnt = isb.sum()
@@ -377,28 +393,26 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
             "act_type_step_sr": type_per_step_success_rate,
             "act_arg_step_sr": arg_per_step_success_rate,
             "act_step_sr": act_per_step_success_rate,
-
             "act_type_seq_sr": type_sequence_success_rate,
             "act_arg_seq_sr": arg_sequence_success_rate,
-            "act_seq_sr": act_sequence_success_rate
+            "act_seq_sr": act_sequence_success_rate,
         }
         return metrics
 
-    def loss(self, batch: Dict):
+    def loss(self, batch: dict):
         # This is now forward
         return self.forward(batch)
 
-    def forward(self, batch: Dict):
-        if batch["states"] is None:
-            states = batch["states_preproc"]
-        else:
-            states = batch["states"]
+    def forward(self, batch: dict):
+        states = batch["states_preproc"] if batch["states"] is None else batch["states"]
         tasks = batch["task_reprs"]
-        subgoals_gt : AlfredSubgoal = batch["subgoals"]
+        subgoals_gt: AlfredSubgoal = batch["subgoals"]
         batch_id = batch["batch_id"]
         actions_gt_sem_tensor = subgoals_gt.to_tensor()
 
-        act_type_logprob, act_arg_logprob, task_emb = self._forward_model(states, tasks, actions_gt_sem_tensor, batch_id)
+        act_type_logprob, act_arg_logprob, task_emb = self._forward_model(
+            states, tasks, actions_gt_sem_tensor, batch_id
+        )
 
         act_type_gt = actions_gt_sem_tensor[:, 0]
         act_arg_gt = actions_gt_sem_tensor[:, 1] + 1
@@ -407,9 +421,10 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         act_arg_logprob = batched_index_select(act_arg_logprob, dim=1, index=act_type_gt)[:, 0, :]
 
         # Predict action argument masks
-        action_history_gt: List[AlfredSubgoal] = subgoals_gt.disperse()
+        action_history_gt: list[AlfredSubgoal] = subgoals_gt.disperse()
         act_mask_pred_logprob_2d, act_mask_proposed_2d = self.forward_mask(
-            states, task_emb, subgoals_gt, action_history_gt, batch_training=True)
+            states, task_emb, subgoals_gt, action_history_gt, batch_training=True
+        )
 
         # It only makes sense to learn action argument prediction over observed space
         obs_mask = states.get_observability_map_2d()
@@ -428,11 +443,13 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         # Spatial cross-entropy loss:
         argmask_loss = -((act_mask_gt_2d * act_mask_pred_logprob_2d).sum(dim=(2, 3)) * has_arg_mask).mean()
         # BCE loss:
-        #argmask_loss = -((act_mask_gt_2d * torch.log(act_mask_pred_2d)).sum(dim=(1, 2, 3)) / (
+        # argmask_loss = -((act_mask_gt_2d * torch.log(act_mask_pred_2d)).sum(dim=(1, 2, 3)) / (
         #    act_mask_gt_2d.sum(dim=(1, 2, 3)) + 1e-10)).mean()
         loss = type_loss + arg_loss + argmask_loss
 
-        metrics = self.collect_metrics(act_type_logprob, act_type_gt, act_arg_logprob, act_arg_gt, actions_gt_sem_tensor, batch_id)
+        metrics = self.collect_metrics(
+            act_type_logprob, act_type_gt, act_arg_logprob, act_arg_gt, actions_gt_sem_tensor, batch_id
+        )
 
         metrics["loss"] = loss.detach().cpu().item()
         metrics["type_loss"] = type_loss.detach().cpu().item()
@@ -442,8 +459,10 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
         VIZ = GLOBAL_VIZ
         if VIZ:
             with torch.no_grad():
-                mask_viz = torch.cat([act_mask_gt_2d[0], act_mask_proposed_2d[0], act_mask_pred_prob_2d[0] * domain_size[0]], dim=0).clamp(0, 1)
-                mask_viz = mask_viz * has_arg_mask[0] # Just blank out examples where there are no argument labels
+                mask_viz = torch.cat(
+                    [act_mask_gt_2d[0], act_mask_proposed_2d[0], act_mask_pred_prob_2d[0] * domain_size[0]], dim=0
+                ).clamp(0, 1)
+                mask_viz = mask_viz * has_arg_mask[0]  # Just blank out examples where there are no argument labels
                 mask_viz_np = mask_viz.permute((1, 2, 0)).detach().cpu().numpy()
                 show_image(mask_viz_np, "R: gt, G: proposal, B: refined pred", scale=4, waitkey=1)
 
@@ -454,4 +473,6 @@ class HlsmSubgoalModel(ActionProposal, LearnableModel):
 
 
 import hlsm.lgp.model_registry
+
 hlsm.lgp.model_registry.register_model("alfred_subgoal_model", HlsmSubgoalModel)
+

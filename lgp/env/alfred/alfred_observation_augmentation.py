@@ -15,9 +15,9 @@ class TextureBank():
         fnames = [os.path.join(path, f) for f in os.listdir(path)]
         self.texture_bank = {}
         for i, f in enumerate(fnames):
-            print(f"Loading texture {i}/{len(fnames)}")
+           #print(f"Loading texture {i}/{len(fnames)}")
             self.texture_bank[f] = imageio.imread(f)
-        print("ding")
+       #print("ding")
 
 
 #TEXTUREBANK = TextureBank()

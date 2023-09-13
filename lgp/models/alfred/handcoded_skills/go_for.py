@@ -1,5 +1,4 @@
 import math
-from typing import Dict
 
 import torch
 
@@ -22,9 +21,8 @@ LEGACY_YAW = False
 
 
 class TriedPosYawGrid:
-
-    def __init__(self, h, w):
-        self.grid = torch.ones((1, 4, h, w)) # B x yaw x y x x
+    def __init__(self, h, w) -> None:
+        self.grid = torch.ones((1, 4, h, w))  # B x yaw x y x x
 
     def mark_attempt(self, y, x, ry, rx, yaw, pitch):
         yaw_id = int(((yaw % (2 * math.pi)) + 1e-3) / (math.pi / 2))
@@ -41,7 +39,7 @@ class TriedPosYawGrid:
 
 
 class GoForSkill(Skill):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.goto_skill = GoToSkill()
         self.rotate_to_yaw = RotateToYawSkill()
@@ -59,7 +57,7 @@ class GoForSkill(Skill):
         self.act_count = 0
 
         self.rewardmap = None
-        self.yawmap = None # B x 4 x H x W map that includes a yaw channel
+        self.yawmap = None  # B x 4 x H x W map that includes a yaw channel
         self.pitchmap = None
         self.target_yaw = None
         self.target_pitch = None
@@ -89,11 +87,11 @@ class GoForSkill(Skill):
         self.goal_pos = None
 
         if not remember_past_failures:
-            #print("GOFOR SKILL: CLEARING ATTEMPT HISTORY !!!")
+            # print("GOFOR SKILL: CLEARING ATTEMPT HISTORY !!!")
             self.tried_grid = None
         else:
-            #print("GOFOR SKILL: KEEPING ATTEMPT HISTORY !!!")
-            pass # Keep the "tried grid" from the previous attempt
+            # print("GOFOR SKILL: KEEPING ATTEMPT HISTORY !!!")
+            pass  # Keep the "tried grid" from the previous attempt
 
         self.trace = {}
 
@@ -103,17 +101,22 @@ class GoForSkill(Skill):
         # TOOD: Check the values are correct here
         act_arg_2d_features = self.subgoal.get_spatial_arg_2d_features()
 
-        #spatial_arg = spatial_arg.max(dim=4).values
+        # spatial_arg = spatial_arg.max(dim=4).values
         spatial_action_arg_features_centered = state_repr.center_2d_map_around_agent(act_arg_2d_features)
         subgoal_tensor = self.subgoal.to_tensor(device=features_2d_centered.device)
 
         self.navigation_model = self.navigation_model.to(features_2d_centered.device)
 
         pos_pred_log_distr, yaw_pred_log_distr, pitch_prediction = self.navigation_model.forward_model(
-            features_2d_centered, spatial_action_arg_features_centered, subgoal_tensor)
+            features_2d_centered,
+            spatial_action_arg_features_centered,
+            subgoal_tensor,
+        )
 
         pos_pred_distr = torch.exp(pos_pred_log_distr)  # 1x1xHxW map of P(x,y) position probabilities
-        yaw_pred_distr = torch.exp(yaw_pred_log_distr)  # 1x4xHxW map of P(yaw | x,y) yaw probabilities conditioned on position
+        yaw_pred_distr = torch.exp(
+            yaw_pred_log_distr,
+        )  # 1x4xHxW map of P(yaw | x,y) yaw probabilities conditioned on position
         # pitch_prediction is a 1x4xHxW map of E(pitch | yaw, x, y) # TODO: Consider binning this too and allow sampling a pitch
         pitch_prediction = pitch_prediction.clamp(-math.pi / 2 + math.radians(0.15), math.pi / 2 - math.radians(0.15))
 
@@ -133,7 +136,12 @@ class GoForSkill(Skill):
             untried_mask = self.tried_grid.get_pos_mask(device=pos_pred_distr.device)
 
             # Only allow sampling goals in free and observed space along positions that haven't been tried
-            sampling_distr = pos_pred_distr * (1 - state_repr.get_obstacle_map_2d()) * state_repr.get_observability_map_2d(floor_only=True) * untried_mask
+            sampling_distr = (
+                pos_pred_distr
+                * (1 - state_repr.get_obstacle_map_2d())
+                * state_repr.get_observability_map_2d(floor_only=True)
+                * untried_mask
+            )
             sampling_distr = sampling_distr + 1e-20
             sampling_distr = sampling_distr / (sampling_distr.sum())
 
@@ -144,18 +152,26 @@ class GoForSkill(Skill):
             full_pos_reward = torch.zeros_like(pos_pred_distr)
             full_pos_reward[0, 0, pos_y, pos_x] = 1.0
 
-            print(f"GO FOR SAMPLED GOAL: {pos_x}, {pos_y}")
+            # print(f"GO FOR SAMPLED GOAL: {pos_x}, {pos_y}")
 
             # Give partial credit for getting near the goal position
             partial_credit_kernel = torch.tensor(
-                [[0.2, 0.4, 0.6, 0.4, 0.2],
-                 [0.4, 0.6, 0.8, 0.6, 0.4],
-                 [0.6, 0.8, 1.0, 0.8, 0.6],
-                 [0.4, 0.6, 0.8, 0.6, 0.4],
-                 [0.2, 0.4, 0.6, 0.4, 0.2]],
-                device=full_pos_reward.device)[None, None, :, :]
+                [
+                    [0.2, 0.4, 0.6, 0.4, 0.2],
+                    [0.4, 0.6, 0.8, 0.6, 0.4],
+                    [0.6, 0.8, 1.0, 0.8, 0.6],
+                    [0.4, 0.6, 0.8, 0.6, 0.4],
+                    [0.2, 0.4, 0.6, 0.4, 0.2],
+                ],
+                device=full_pos_reward.device,
+            )[None, None, :, :]
 
-            full_pos_reward = torch.conv2d(full_pos_reward, partial_credit_kernel, stride=1, padding=int(partial_credit_kernel.shape[2] / 2))
+            full_pos_reward = torch.conv2d(
+                full_pos_reward,
+                partial_credit_kernel,
+                stride=1,
+                padding=int(partial_credit_kernel.shape[2] / 2),
+            )
 
         # Compute probability over positions and set that as the goal map.
         else:
@@ -168,7 +184,10 @@ class GoForSkill(Skill):
 
             device = features_2d_centered.device
             s2d = state_repr.represent_as_image(topdown2d=True)
-            colors = torch.tensor([[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [0.5, 0.5, 0.5]], device=device)
+            colors = torch.tensor(
+                [[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [0.5, 0.5, 0.5]],
+                device=device,
+            )
             colors4 = torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0]], device=device)
             f2d_colors = (features_2d_centered[:, :, None, :, :] * colors[None, :, :, None, None]).sum(dim=1) / 3
 
@@ -200,16 +219,17 @@ class GoForSkill(Skill):
 
         return full_pos_reward, yaw_pred_distr, pitch_prediction, (pos_y, pos_x)
 
-    def _construct_cost_function_manual(self, state_repr : AlfredSpatialStateRepr):
+    def _construct_cost_function_manual(self, state_repr: AlfredSpatialStateRepr):
         b, c, w, l, h = state_repr.data.data.shape
-        spatial_arg = self.subgoal.get_argument_mask()#state_repr)
+        spatial_arg = self.subgoal.get_argument_mask()  # state_repr)
 
         max_response = spatial_arg.max().item()
         if max_response < 1e-10:
-            print(f"WHOOPS! OBJECT {self.subgoal.arg_str()} NOT FOUND!")
+            pass
+            # print(f"WHOOPS! OBJECT {self.subgoal.arg_str()} NOT FOUND!")
 
         goal_coord_flat = torch.argmax(spatial_arg.view([b, -1]), dim=1)
-        x, y, z = unravel_spatial_arg(goal_coord_flat, w, l, h) # Unravel goal_coord_flat
+        x, y, z = unravel_spatial_arg(goal_coord_flat, w, l, h)  # Unravel goal_coord_flat
         goal_coord_vx = torch.stack([x, y, z], dim=1)
         goal_coord_m = (goal_coord_vx * state_repr.data.voxel_size) + state_repr.data.origin
         coords_xy = state_repr.data.get_centroid_coord_grid()[:, 0:2, :, :, 0] - goal_coord_m[:, 0:2, None, None]
@@ -217,10 +237,10 @@ class GoForSkill(Skill):
         cy = coords_xy[:, 1]
 
         NOMINAL_INTERACT_DIST = 0.8
-        NOMINAL_INTERACT_ANGLE = 0.2 # was 0.2
+        NOMINAL_INTERACT_ANGLE = 0.2  # was 0.2
 
         def _cost_fn_a(cx, cy, intract_dist, interact_angle):
-            distance_cost = -torch.exp(-(torch.sqrt(cx**2 + cy**2) - intract_dist) ** 2)
+            distance_cost = -torch.exp(-((torch.sqrt(cx**2 + cy**2) - intract_dist) ** 2))
             direction_cost_a = torch.exp(-(torch.sin(torch.atan2(cy, cx)) ** 2) / interact_angle)
             direction_cost_b = torch.exp(-(torch.cos(torch.atan2(cy, cx)) ** 2) / interact_angle)
             full_pos_cost = distance_cost * (direction_cost_a + direction_cost_b)
@@ -258,7 +278,7 @@ class GoForSkill(Skill):
 
         return target_yaw, target_pitch
 
-    def get_trace(self, device="cpu") -> Dict:
+    def get_trace(self, device="cpu") -> dict:
         trace = {
             "goto": self.goto_skill.get_trace(device),
             "rotatetoyaw": self.rotate_to_yaw.get_trace(device),
@@ -272,7 +292,7 @@ class GoForSkill(Skill):
         self.rotate_to_yaw.clear_trace()
         self.trace = {}
 
-    def set_goal(self, subgoal : AlfredSubgoal, remember_past_failures : bool = False):
+    def set_goal(self, subgoal: AlfredSubgoal, remember_past_failures: bool = False):
         self._reset(remember_past_failures)
         self.subgoal = subgoal
 
@@ -298,7 +318,6 @@ class GoForSkill(Skill):
 
         # Haven't yet gone to the goal position
         if not self.goto_done:
-
             # First time, and then every N times. Less frequent updates avoid oscillations.
             if self.act_count % PREDICT_EVERY_N == 1:
                 self.rewardmap, self.yawmap, self.pitchmap, self.goal_pos = self._construct_cost_function(state_repr)
@@ -320,7 +339,7 @@ class GoForSkill(Skill):
             a_x_vx, a_y_vx, a_z_vx = state_repr.get_pos_xyz_vx()
             self.trace["goal"] = self.subgoal.get_argument_mask()
 
-            g_x_vx, g_y_vx, g_z_vx = self.subgoal.get_argmax_spatial_arg_pos_xyz_vx()#state_repr)
+            g_x_vx, g_y_vx, g_z_vx = self.subgoal.get_argmax_spatial_arg_pos_xyz_vx()  # state_repr)
             legacy_target_yaw = math.atan2(g_y_vx - a_y_vx, g_x_vx - a_x_vx + 1e-10)
 
             if LEGACY_YAW:
@@ -348,3 +367,4 @@ class GoForSkill(Skill):
 
         # Finally, if finished going to the position and rotating, report "STOP
         return AlfredAction(action_type="Stop", argument_mask=None)
+

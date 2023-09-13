@@ -40,7 +40,7 @@ def save_checkpoint(model, optimizers, model_file, checkpoint_file, epoch, iter)
     save_model_file_e = f"{model_file}_e{epoch}.pytorch"
     torch.save(state_dict, resolve_model_path(save_model_file_last))
     torch.save(state_dict, resolve_model_path(save_model_file_e))
-    print(f"Saved trained model in: {save_model_file_e} and {save_model_file_last}")
+   #print(f"Saved trained model in: {save_model_file_e} and {save_model_file_last}")
 
     checkpoint = {
         "nonbert_optimizer": optimizers[0].state_dict(),
@@ -52,7 +52,7 @@ def save_checkpoint(model, optimizers, model_file, checkpoint_file, epoch, iter)
     # and allows recovering training
     torch.save(checkpoint, resolve_checkpoint_path(checkpoint_file))
     torch.save(checkpoint, resolve_checkpoint_path(f"{checkpoint_file}_b"))
-    print(f"Saved checkpoint in: {checkpoint_file} and {checkpoint_file}_b")
+   #print(f"Saved checkpoint in: {checkpoint_file} and {checkpoint_file}_b")
 
 
 def load_checkpoint(checkpoint_file, model_file):
@@ -85,7 +85,7 @@ def train_main(exp_def: Dict):
     num_workers = setup.get("num_workers", 0)
 
     hyperparams = Hyperparams(exp_def.get("Hyperparams"))
-    print(f"Loading dataset")
+   #print(f"Loading dataset")
     if dataset_type == "subgoals":
         train_loader, val_loader = make_disk_dataloaders("tapm", env_setup, max_rollouts, env_type, hyperparams, batch_size, num_workers)
     elif dataset_type == "navigation":
@@ -99,13 +99,13 @@ def train_main(exp_def: Dict):
     writer = BetterSummaryWriter(paths.get_experiment_runs_dir(exp_name), start_iter=0)
 
     # Model
-    print(f"Loading model: {model_type}")
+   #print(f"Loading model: {model_type}")
     model = model_registry.get_model(model_type)(hyperparams)
-    print(f"Total # parameters: {sum(p.numel() for p in model.parameters())}")
+   #print(f"Total # parameters: {sum(p.numel() for p in model.parameters())}")
 
     # Continue from a checkpoint
     if load_checkpoint_file is not None:
-        print(f"LOADING CHECKPOINT FROM: {load_checkpoint_file} WITH MODEL FROM {load_model_file}")
+       #print(f"LOADING CHECKPOINT FROM: {load_checkpoint_file} WITH MODEL FROM {load_model_file}")
         optimizers = None
         optimizer_states, model_state, start_epoch, start_iter = load_checkpoint(load_checkpoint_file, load_model_file)
         model.load_state_dict(model_state)
@@ -115,7 +115,7 @@ def train_main(exp_def: Dict):
         start_epoch = 0
         start_iter = 0
         if load_model_file is not None:
-            print(f"LOADING MODEL FROM: {load_model_file}")
+           #print(f"LOADING MODEL FROM: {load_model_file}")
             # I think this is initializing the cuda context?
             model.load_state_dict(torch.load(load_model_file))
 

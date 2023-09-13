@@ -92,7 +92,7 @@ def train_eval_loop(dataloader,
                 switch_lr(bert_optimizer, bert_step_lr)
                 metrics["bert_step_lr"] = bert_step_lr
 
-        print(f"Iter: {i}, " + " | ".join([f"{k}: {v}" for k, v in metrics.items()]))
+       #print(f"Iter: {i}, " + " | ".join([f"{k}: {v}" for k, v in metrics.items()]))
         if writer is not None:
             writer.add_scalar_dict(f"{prefix}/rewardvalue", metrics)
             writer.inc_iter()

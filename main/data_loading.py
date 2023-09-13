@@ -12,7 +12,7 @@ from hlsm.lgp.models.alfred.hlsm.hlsm_model_factory import HlsmModelFactory
 
 def get_model_factory(env_type, hparams):
     if env_type == "Alfred":
-        print("ALFRED enviornment")
+       #print("ALFRED enviornment")
         model_factory = HlsmModelFactory(hparams)
     else:
         raise ValueError(f"Unrecognized environment: {env_type}")

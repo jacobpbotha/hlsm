@@ -153,10 +153,10 @@ class World:
 from hlsm.lgp.utils.utils import tensorshow
 if __name__ == "__main__":
     # Test generating random world
-    print("Creating a random world state!")
+   #print("Creating a random world state!")
     world = World.make_random()
-    print("Building image representation")
+   #print("Building image representation")
     img_repr = world.represent_as_image()
-    print("Displaying")
+   #print("Displaying")
     tensorshow("test_world", img_repr, scale=16, waitkey=0, normalize=False)
-    print("Done!")
+   #print("Done!")

@@ -113,15 +113,15 @@ import gzip
 
 def convert_path(arg):
     i, rollout_path = arg
-    print(f"Converting: {i} : {rollout_path}")
-    print("             Loading")
+   #print(f"Converting: {i} : {rollout_path}")
+   #print("             Loading")
     try:
         rollout = pickle.load(rollout_path)
         rollout = rollouts_to_device(rollout, "cpu")
         pickle.dump(rollout, rollout_path)
-        print("             Saving")
+       #print("             Saving")
     except (EOFError, gzip.BadGzipFile) as e:
-        print(f"Deleting corrupted file: {rollout_path}")
+       #print(f"Deleting corrupted file: {rollout_path}")
         os.remove(rollout_path)
 
 
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     dataset_paths = [os.path.join(dataset_dir, f) for f in os.listdir(dataset_dir)]
     older_than = datetime.datetime(year=2021, month=4, day=22, hour=6, minute=0, second=0, microsecond=0)
     old_dataset_paths = filter_older(dataset_paths, older_than)
-    print(f"{len(old_dataset_paths)} / {len(dataset_paths)} files are older than {older_than}")
+   #print(f"{len(old_dataset_paths)} / {len(dataset_paths)} files are older than {older_than}")
     old_dataset_paths = dataset_paths
 
     old_dataset_paths = [(i, f) for i, f in enumerate(old_dataset_paths)]

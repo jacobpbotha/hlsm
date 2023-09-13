@@ -39,7 +39,7 @@ class PointcloudToVoxels(nn.Module):
         num_oob_points = (point_in_bounds_mask.int() == 0).int().sum().detach().cpu().item()
         if num_oob_points > 20000:
             pass
-            # print(f"Number of OOB points: {num_oob_points}")
+            ##print(f"Number of OOB points: {num_oob_points}")
 
         # Convert coordinates into a flattened voxel grid
         point_in_voxel_flat_coords = point_in_voxel_coords[:, 0] * l * h + point_in_voxel_coords[:, 1] * h + point_in_voxel_coords[:, 2]

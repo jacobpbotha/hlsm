@@ -24,7 +24,7 @@ class HlsmModelFactory(ModelFactory):
 
         self.use_explore_skill = hparams.get("use_explore_skill", False)
         self.use_heuristic_gofor_skill = hparams.get("use_heuristic_gofor_skill", False)
-        print(f"USE HEURISTIC GOFOR SKILL: {self.use_heuristic_gofor_skill}")
+       #print(f"USE HEURISTIC GOFOR SKILL: {self.use_heuristic_gofor_skill}")
 
     def get_skillset(self) -> Dict[str, Skill]:
         # Returns the set of skills (low-level agents) used by the hierarchical agent
@@ -35,7 +35,7 @@ class HlsmModelFactory(ModelFactory):
             explore_skill = ExploreSkill()
             explore_skill_b = ExploreSkill()
         else:
-            print("NOT USING EXPLORATION SKILL!!!")
+           #print("NOT USING EXPLORATION SKILL!!!")
             explore_skill = None
             explore_skill_b = None
 

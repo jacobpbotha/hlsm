@@ -16,7 +16,7 @@ def viz_collected_rollouts(exp_def):
     rollouts_dir = exp_def.Setup.get("save_rollouts_dir", False)
     rollout_files = os.listdir(rollouts_dir)
     for rollout_file in rollout_files:
-        print(f"Loading rollout: {rollout_file}")
+       #print(f"Loading rollout: {rollout_file}")
         rollout = rd.load(os.path.join(rollouts_dir, rollout_file))
         voxel_viz(rollout)
 

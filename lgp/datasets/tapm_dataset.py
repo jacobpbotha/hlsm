@@ -47,7 +47,7 @@ class TapmDataset(ExtensibleDataset):
         rollout = load_rollout_from_path(self.rollout_paths[i])
         rollout = rollout[:MAX_LEN] # Clip to max length of 10 for now
         if len(rollout) == 0:
-            print("SKIPPING EMPTY ROLLOUT")
+           #print("SKIPPING EMPTY ROLLOUT")
             return self.__getitem__(i+1)
         if self._is_rollout_processed(rollout):
             return rollout
@@ -181,11 +181,11 @@ class TapmDataset(ExtensibleDataset):
         return batch_id
 
     def _collate_one(self, list_of_examples: List[Dict]):
-        print(len(list_of_examples))
+       #print(len(list_of_examples))
 
         # Sometimes we sample multiple very long rollouts and otherwise result in out-of-memory
         if len(list_of_examples) > MAX_LEN:
-            print(f"Pruning example from: {len(list_of_examples)} to {MAX_LEN}")
+           #print(f"Pruning example from: {len(list_of_examples)} to {MAX_LEN}")
             list_of_examples = list_of_examples[:MAX_LEN]
 
         tasks = [l["task"] for l in list_of_examples]

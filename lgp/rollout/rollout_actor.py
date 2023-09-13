@@ -61,7 +61,7 @@ class RolloutActorLocal:
                 if task is None:
                     return None, None, True
 
-                print("Task: ", str(task))
+                # print("Task: ", str(task))
                 self.agent.start_new_rollout(task)
                 action = self.agent.act(observation)
                 start = 0
@@ -127,10 +127,10 @@ class RolloutActorLocal:
                     new_ret = None
 
             if new_ret is not None:
-                print(f"Pause rollout: {self.counter}, length: {len(rollout)}")
+                # print(f"Pause rollout: {self.counter}, length: {len(rollout)}")
                 return rollout, new_ret, False
             else:
-                print(f"Finished rollout: {self.counter}, length: {len(rollout)}")
+                # print(f"Finished rollout: {self.counter}, length: {len(rollout)}")
                 self.counter += 1
                 return rollout, new_ret, True
 
@@ -144,7 +144,7 @@ class RolloutActorLocal:
                 return None
             sg_obs = self.env2.reset(self.env.task.get_task_id()[6:])
 
-            print("Task: ", str(task))
+            # print("Task: ", str(task))
             self.agent.start_new_rollout(task)
             translate = {
                 "PickupObject": "Pickup",
@@ -159,21 +159,28 @@ class RolloutActorLocal:
 
             action = self.agent.act(observation)
             total_reward = 0
+            found = False
             for _t in range(self.horizon):
                 next_observation, reward, done, md = self.env.step(action)
                 print(self.agent.current_goal)
                 print(md)
+                if self.agent.current_skill and not found and not self.agent.current_skill.found:
+                    # Find the target I need to navigate to
+                    self.agent.current_goal.arg_str()
+                    self.agent.current_goal.type_str()
+                    pass
                 if action.action_type in action.get_interact_action_list() and md["action_success"]:
                     if translate[action.action_type] == "Put":
-                        if md["api_action"]["objectId"] not in self.env2.scene_graph.graph["Nearby"]:
-                            action2 = f"Go__{md['api_action']['receptacleObjectId']}"
-                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
-                        action2 = f"{translate[action.action_type]}__{md['api_action']['receptacleObjectId']}"
+                        target = md["api_action"]["receptacleObjectId"]
+                        if target not in self.env2.scene_graph.graph["Nearby"]:
+                            action_go = f"Go__{target}"
+                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
                     else:
-                        if md["api_action"]["objectId"] not in self.env2.scene_graph.graph["Nearby"]:
-                            action2 = f"Go__{md['api_action']['objectId']}"
-                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
-                        action2 = f"{translate[action.action_type]}__{md['api_action']['objectId']}"
+                        target = md["api_action"]["receptacleObjectId"]
+                        if target not in self.env2.scene_graph.graph["Nearby"]:
+                            action_go = f"Go__{target}"
+                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
+                    action2 = f"{translate[action.action_type]}__{target}"
                     sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
                 total_reward += reward
 
@@ -213,7 +220,7 @@ class RolloutActorLocal:
                 else:
                     action = self.agent.act(observation)
 
-            print(f"Finished rollout: {self.counter}, length: {len(rollout)}")
+            # print(f"Finished rollout: {self.counter}, length: {len(rollout)}")
             self.counter += 1
             return rollout
 

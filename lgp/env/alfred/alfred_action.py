@@ -87,10 +87,10 @@ class AlfredAction(Action):
         if self.action_type in NAV_ACTION_TYPES:
             return True
         elif self.argument_mask is None:
-            print("AlfredAction::is_valid -> missing argument mask")
+           #print("AlfredAction::is_valid -> missing argument mask")
             return False
         elif self.argument_mask.sum() < 1:
-            print("AlfredAction::is_valid -> empty argument mask")
+           #print("AlfredAction::is_valid -> empty argument mask")
             return False
         return True
 

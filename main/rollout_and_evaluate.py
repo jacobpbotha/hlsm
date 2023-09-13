@@ -17,7 +17,7 @@ from sga.envs.scene_graph_thor import SceneGraphThorEnv
 
 def evaluate_rollouts(exp_def, rollouts):
     metrics = get_multiple_rollout_metrics_alfred(rollouts)
-    print("Results: ")
+   #print("Results: ")
     metrics.printout()
 
 
@@ -55,7 +55,7 @@ def collect_rollouts(exp_def):
 
     # Collect the rollouts
     for i in range(num_rollouts):
-        print(f"Rollout {i}/{num_rollouts}")
+       #print(f"Rollout {i}/{num_rollouts}")
         try:
             rollout = rollout_actor.rollout(skip_tasks=eval_progress.get_done_tasks())
 

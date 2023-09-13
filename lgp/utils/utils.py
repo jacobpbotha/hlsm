@@ -1,4 +1,3 @@
-import functools
 import os
 
 import cv2
@@ -7,11 +6,10 @@ import numpy as np
 from imageio import imwrite
 
 from hlsm.lgp import paths
-from hlsm.lgp.parameters import Hyperparams
 
 
 def save_png(frame, fname):
-    #frame = standardize_image(frame, normalize=False)
+    # frame = standardize_image(frame, normalize=False)
     imwrite(fname, frame)
 
 
@@ -23,17 +21,18 @@ def save_frames(frames, framedir, start_t=0):
 
 
 def save_gif(frames, gif_name, fps: float = 2):
-    if len(frames) > 0 and frames[0].max() < 1.001 and not frames[0].dtype == np.uint8:
+    if len(frames) > 0 and frames[0].max() < 1.001 and frames[0].dtype != np.uint8:
         frames = [(f * 255).astype(np.uint8) for f in frames]
     clip = mpy.ImageSequenceClip(frames, fps=fps)
     try:
         clip.write_gif(gif_name)
-    except Exception as e:
-        print(f"ERROR: Failed to write gif: {gif_name}")
+    except Exception:
+        pass
+    # print(f"ERROR: Failed to write gif: {gif_name}")
 
 
 def save_mp4(frames, mp4_name, fps: float = 1.0):
-    if len(frames) > 0 and frames[0].max() < 1.001 and not frames[0].dtype == np.uint8:
+    if len(frames) > 0 and frames[0].max() < 1.001 and frames[0].dtype != np.uint8:
         frames = [(f * 255).astype(np.uint8) for f in frames]
     clip = mpy.ImageSequenceClip(frames, fps=fps)
     clip.write_videofile(mp4_name, fps=fps)
@@ -89,13 +88,13 @@ def standardize_image(ndarray_or_tensor, scale=1, normalize=True, uint8=False):
     # Shift and scale to 0-1 range
     if normalize:
         img -= img.min()
-        img /= (img.max() + 1e-10)
+        img /= img.max() + 1e-10
 
     # Scale according to the scaling factor
     if scale != 1:
-        img = cv2.resize(img,
-                         dsize=(int(img.shape[1] * scale), int(img.shape[0] * scale)),
-                         interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(
+            img, dsize=(int(img.shape[1] * scale), int(img.shape[0] * scale)), interpolation=cv2.INTER_NEAREST
+        )
 
     if uint8:
         if np.max(img) < 1.01:
@@ -105,24 +104,26 @@ def standardize_image(ndarray_or_tensor, scale=1, normalize=True, uint8=False):
     return img
 
 
-import pprint
-
 import torch
 
 
 def millis():
     import datetime
+
     stampnow = datetime.datetime.now().timestamp()
     m = stampnow * 1000.0
     return m
+
 
 """
 A profiler used to time execution of code.
 Every time "tick" is called, it adds the amount of elapsed time to the "key" accumulator
 This allows timing multiple things simultaneously and keeping track of how much time each takes
 """
-class SimpleProfilerDummy():
-    def __init__(self, torch_sync=False, print=True):
+
+
+class SimpleProfilerDummy:
+    def __init__(self, torch_sync=False, print=True) -> None:
         pass
 
     def reset(self):
@@ -137,12 +138,13 @@ class SimpleProfilerDummy():
     def print_stats(self, every_n_times=1):
         pass
 
-class SimpleProfilerReal():
-    def __init__(self, torch_sync=False, print=True):
+
+class SimpleProfilerReal:
+    def __init__(self, torch_sync=False, print=True) -> None:
         """
         When debugging GPU code, torch_sync must be true, because GPU and CPU computation is asynchronous
         :param torch_sync: If true, will call cuda synchronize.
-        :param print: If true, will print stats when print_stats is called. Pass False to disable output for release code
+        :param print: If true, will print stats when print_stats is called. Pass False to disable output for release code.
         """
         self.time = millis()
         self.loops = 0
@@ -169,7 +171,7 @@ class SimpleProfilerReal():
 
     def loop(self):
         self.loops += 1
-        for key, time in self.times.items():
+        for key, _time in self.times.items():
             self.avg_times[key] = self.times[key] / self.loops
 
     def print_stats(self, every_n_times=1):
@@ -177,14 +179,17 @@ class SimpleProfilerReal():
         if self.print and self.print_time % every_n_times == 0:
             total_time = 0
             if len(self.avg_times) > 0:
-                print("Avg times per loop: ")
-                pprint.pprint(self.avg_times)
-                for k,v in self.avg_times.items():
+                # print("Avg times per loop: ")
+                # pprint.pprint(self.avg_times)
+                for k, v in self.avg_times.items():
                     if k != "out" and k != ".":
                         total_time += v
-                print(f"Total avg loop time: {total_time}")
+            # print(f"Total avg loop time: {total_time}")
             else:
-                print("Cumulative times: ")
-                pprint.pprint(self.times)
+                pass
+            # print("Cumulative times: ")
+            # pprint.pprint(self.times)
+
 
 SimpleProfiler = SimpleProfilerReal
+

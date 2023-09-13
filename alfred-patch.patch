@@ -152,13 +152,13 @@ index 932fd597..9a7512c5 100644
 -                return success, None, None, err, None
 +                return success, None, [], None, err, None
 +
-+            print(f"Put Instance IDS: {instance_ids}")
++           #print(f"Put Instance IDS: {instance_ids}")
  
              target_instance_id = instance_ids[0]
          else:
 @@ -560,10 +565,11 @@ class ThorEnv(Controller):
          if debug:
-             print("taking action: " + str(action) + " on target_instance_id " + str(target_instance_id))
+            #print("taking action: " + str(action) + " on target_instance_id " + str(target_instance_id))
          try:
 -            event, api_action = self.to_thor_api_exec(action, target_instance_id, smooth_nav)
 +            event, events, api_action = self.to_thor_api_exec(action, target_instance_id, smooth_nav)
@@ -172,7 +172,7 @@ index 932fd597..9a7512c5 100644
              if interact_mask is not None and debug:
 @@ -577,10 +583,10 @@ class ThorEnv(Controller):
                  cv2.waitKey(0)
-                 print(event.metadata['errorMessage'])
+                #print(event.metadata['errorMessage'])
              success = False
 -            return success, event, target_instance_id, event.metadata['errorMessage'], api_action
 +            return success, event, events, target_instance_id, event.metadata['errorMessage'], api_action

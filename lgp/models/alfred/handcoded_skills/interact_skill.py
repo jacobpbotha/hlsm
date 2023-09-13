@@ -110,10 +110,10 @@ class InteractSkill(Skill):
         if not self.found and self.explore_skill is not None:
             action : Action = self.explore_skill.act(state_repr)
             if action.is_stop():
-                print(f"EXPLORE FINISHED: {self.subgoal.arg_str()}")
+               #print(f"EXPLORE FINISHED: {self.subgoal.arg_str()}")
                 self.found = True
             else:
-                print(f"NOT FOUND. LOOKING FOR: {self.subgoal.arg_str()}")
+               #print(f"NOT FOUND. LOOKING FOR: {self.subgoal.arg_str()}")
                 return action
 
         self.trace["llc_flow_state"] = "Interacting"

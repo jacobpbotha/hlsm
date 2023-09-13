@@ -77,12 +77,12 @@ class AlfredTask(Task):
                           data_splits=("train",),
                           task_filter: Union[None, Callable[["AlfredTask"], bool]] = None) -> Iterator[Tuple["AlfredTask", int]]:
         if task_filter is None:
-            print("USING DEFAULT TASK FILTER - INCLUDE ALL TASKS")
+           #print("USING DEFAULT TASK FILTER - INCLUDE ALL TASKS")
             task_filter = lambda m: True
 
         count = 0
         alfred_annotations = AlfredAnnotations()
-        print(f"Iterating tasks from: {alfred_annotations.splits_path}")
+       #print(f"Iterating tasks from: {alfred_annotations.splits_path}")
         for data_split in data_splits:
             all_task_ids = alfred_annotations.get_all_task_ids_in_split(data_split)
             for i, task_id in enumerate(all_task_ids):
@@ -91,11 +91,11 @@ class AlfredTask(Task):
                     task = AlfredTask(data_split, task_id, repeat_idx)
                     # Only yield tasks that pass the task filter
                     if task_filter(task):
-                        print(f"INCLUDE {count:5d} : {task.get_task_id()}: {str(task)}:{repeat_idx}")
+                       #print(f"INCLUDE {count:5d} : {task.get_task_id()}: {str(task)}:{repeat_idx}")
                         count += 1
                         yield task, count
                     else:
-                        print(f"EXCLUDE {count:5d} : {task.get_task_id()}: {str(task)}:{repeat_idx}")
+                       #print(f"EXCLUDE {count:5d} : {task.get_task_id()}: {str(task)}:{repeat_idx}")
                         count += 1
 
                 if QUICK_DEBUG and count > QUICK_DEBUG_CUTOFF:
@@ -136,12 +136,12 @@ def task_traj_lengths():
                f"{np.percentile(l, 90):.3f}"]
         print_data.append(row)
         #
-        # print(f"Task: {task_type}, mean len: {l.mean()}, stddev len: {l.std()}")
+        ##print(f"Task: {task_type}, mean len: {l.mean()}, stddev len: {l.std()}")
 
     from tabulate import tabulate
 
-    print("High-level action sequence length:")
-    print(tabulate(print_data, headers=["Task Type", "Mean", "Stddev", "10th %ile", "90th %ile"]))
+   #print("High-level action sequence length:")
+   #print(tabulate(print_data, headers=["Task Type", "Mean", "Stddev", "10th %ile", "90th %ile"]))
 
 
 def extract_seen_scenes():
@@ -150,8 +150,8 @@ def extract_seen_scenes():
         #assert task.data_split == "tests_unseen"
         scenes.append(task.traj_data.get_scene_number())
     scenes = list(sorted(set(scenes)))
-    print("")
-    print(scenes)
+   #print("")
+   #print(scenes)
 
 
 if __name__ == "__main__":

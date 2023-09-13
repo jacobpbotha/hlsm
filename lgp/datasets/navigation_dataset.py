@@ -70,7 +70,7 @@ class NavigationDataset(ExtensibleDataset):
             example_out = None
             return example_out
 
-        # print("Yaw bin: ", g_yaw_bin)
+        ##print("Yaw bin: ", g_yaw_bin)
         #nav_goal_rel = torch.tensor([[rgy, rgx, 0]], device=f2d.device, dtype=torch.long)
         g_pitch_rad, g_yaw_rad = example["nav_goal_rot"]
 
@@ -119,7 +119,7 @@ class NavigationDataset(ExtensibleDataset):
     # Inherited from hlsm.lgp.abcd.dataset.ExtensibleDataset
     def collate_fn(self, list_of_examples: Union[List[Dict], List[List[Dict]]]) -> Dict:
         list_of_examples = [l for l in list_of_examples if l is not None]
-        print(len(list_of_examples))
+       #print(len(list_of_examples))
 
         state_images = [l["state_image_rel"] for l in list_of_examples]
         features_2d = [l["features_2d_rel"] for l in list_of_examples]

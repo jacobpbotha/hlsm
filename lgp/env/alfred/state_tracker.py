@@ -296,7 +296,7 @@ class StateTracker():
             assert self.latest_action is not None, "Didn't log an action, but got two observations in a row?"
             rgb_diff = (rgb_image - self.latest_observation.rgb_image).float().abs().mean()
             if rgb_diff < 1e-4:
-                print(f"Action: {self.latest_action}, RGB Diff: {rgb_diff}. Counting as failed.")
+               #print(f"Action: {self.latest_action}, RGB Diff: {rgb_diff}. Counting as failed.")
                 action_failed = True
             else:
                 pass
@@ -309,7 +309,7 @@ class StateTracker():
             self.inventory_info.simulate_successful_action(self.latest_action, self.latest_observation)
             if len(oinv.inventory_object_ids) != len(self.inventory_info.inventory_object_ids):
                 pass
-                # print(self.inventory_info.summarize())
+                ##print(self.inventory_info.summarize())
 
         # Pose
         if self.reference_pose:
