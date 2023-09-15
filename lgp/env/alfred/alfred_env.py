@@ -268,3 +268,90 @@ class AlfredEnv(Env):
         self.prof.print_stats(20)
         return observation, reward, done, md
 
+    def teleport(self, x, y, z, rotation, horizon, standing) -> tuple[AlfredObservation, float, bool, dict]:
+        self.prof.tick("out")
+
+        # The ALFRED API does not accept the Stop action, do nothing
+        message = ""
+        self.prof.tick("proc")
+        api_action = {
+            "action": "TeleportFull",
+            "x": x,
+            "y": y,
+            "z": z,
+            "rotation": rotation,
+            "horizon": horizon,
+            "standing": True,
+        }
+        target_instance_id = ""
+        event = self.thor_env.step(api_action)
+        success = True
+        ret = (success, event, target_instance_id, "", api_action)
+
+        # Default version of ALFRED
+        if len(ret) == 5:
+            exec_success, event, target_instance_id, err, api_action = ret
+            events = []
+        # Patched version of ALFRED that returns intermediate events from smooth actions
+        # To use this, apply the patch alfred-patch.patch onto the ALFRED code:
+        # $ git am alfred-patch.patch
+        elif len(ret) == 6:
+            exec_success, event, events, target_instance_id, err, api_action = ret
+        else:
+            raise ValueError("Invalid number of return values from ThorEnv")
+
+        self.prof.tick("thor_env_interact")
+        if not self.task.traj_data.is_test():
+            transition_reward, done = self.thor_env.get_transition_reward()
+            done = False
+        else:
+            transition_reward, done = 0, False
+
+        if not exec_success:
+            fatal = self._error_is_fatal(err)
+            # print(f"ThorEnv {'fatal' if fatal else 'non-fatal'} Exec Error: {err}")
+            if fatal:
+                done = True
+                api_action = None
+            message = str(err)
+
+        self.prof.tick("step")
+
+        # Track state (pose and inventory) from RGB images and actions
+        event = self.thor_env.last_event
+        self.state_tracker.log_action(AlfredAction("Teleport", AlfredAction.get_empty_argument_mask()))
+        self.state_tracker.log_event(event)
+        self.state_tracker.log_extra_events(events)
+
+        observation = self.state_tracker.get_observation()
+        observation.privileged_info.attach_task(self.task)  # TODO: See if we can get rid of this?
+        if self.device:
+            observation = observation.to(self.device)
+
+        # Rewards and progress tracking metadata
+        if not self.task.traj_data.is_test():
+            reward = transition_reward - 0.05
+            goal_satisfied = self.thor_env.get_goal_satisfied()
+            goal_conditions_met = self.thor_env.get_goal_conditions_met()
+            task_success = goal_satisfied
+            md = {
+                "success": task_success,
+                "goal_satisfied": goal_satisfied,
+                "goal_conditions_met": goal_conditions_met,
+                "message": message,
+            }
+        else:
+            reward = 0
+            md = {}
+
+        # This is used to generate leaderboard replay traces:
+        md["api_action"] = api_action
+        md["action_success"] = exec_success
+
+        self.steps += 1
+
+        self.prof.tick("proc")
+        self.prof.loop()
+        self.prof.print_stats(20)
+        return observation, reward, done, md
+
