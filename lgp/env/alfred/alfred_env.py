@@ -4,7 +4,6 @@ from collections.abc import Collection
 from collections.abc import Iterator
 from typing import Union
 
-from alfred.env.thor_env import ThorEnv
 from hlsm.lgp.abcd.env import Env
 from hlsm.lgp.env.alfred import config
 from hlsm.lgp.env.alfred.alfred_action import AlfredAction
@@ -12,8 +11,8 @@ from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
 from hlsm.lgp.env.alfred.state_tracker import StateTracker
 from hlsm.lgp.env.alfred.tasks import AlfredTask
 from hlsm.lgp.env.alfred.tasks import TaskRecord
-from hlsm.lgp.env.alfred.wrapping.args import get_faux_args
 from hlsm.lgp.utils.utils import SimpleProfiler
+from sga.envs.alfred.thor_env import ThorEnv
 
 PROFILE = False
 
@@ -163,7 +162,7 @@ class AlfredEnv(Env):
         # If this is not a test example, estting the task here allows tracking results (e.g. goal-conditions)
         if not self.task.traj_data.is_test():
             # The only argument in args that ThorEnv uses is args.reward_config, which is kept to its default
-            self.thor_env.set_task(self.task.traj_data.data, get_faux_args(), reward_type=self.reward_type)
+            self.thor_env.set_task(self.task.traj_data.data, None, reward_type=self.reward_type)
         self.prof.tick("thor_env_reset")
         # print(f"Task: {str(self.task)}")
         event = self.thor_env.last_event

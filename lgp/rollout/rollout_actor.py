@@ -176,7 +176,7 @@ class RolloutActorLocal:
                             action_go = f"Go__{target}"
                             sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
                     else:
-                        target = md["api_action"]["receptacleObjectId"]
+                        target = md["api_action"]["objectId"]
                         if target not in self.env2.scene_graph.graph["Nearby"]:
                             action_go = f"Go__{target}"
                             sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
