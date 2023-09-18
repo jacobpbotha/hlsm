@@ -61,6 +61,9 @@ class HierarchicalAgent(Agent):
         self.hl_agent.clear_trace()
         self.observation_function.clear_trace()
 
+    def update_state(self, observation) -> None:
+        self.state_repr = self.observation_function(observation, self.state_repr, goal=self.current_goal)
+
     def act(self, observation: Observation) -> Action:
         self.state_repr = self.observation_function(observation, self.state_repr, goal=self.current_goal)
 
