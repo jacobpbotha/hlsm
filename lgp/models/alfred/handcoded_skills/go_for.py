@@ -324,43 +324,67 @@ class GoForSkill(Skill):
                 self.goto_skill.set_goal(self.rewardmap)
 
             self.trace["goal"] = self.subgoal.get_argument_mask()
-            # TODO: Right now we are re-setting the goal on the goto skill every time.
-            # this results in a value iteration network run every time too.
-            # should we run the value iteration network less frequently?
-            action = self.goto_skill.act(state_repr)
-            if action.is_stop():
-                self.goto_done = True
-                self.target_yaw, self.target_pitch = self._sample_rotation_goal(state_repr)
-            else:
-                return action
+            action = AlfredAction(action_type="Teleport", argument_mask=AlfredAction.get_empty_argument_mask())
+            ypos, xpos = self.goal_pos
 
-        # Have gone to the goal position, rotate to face the goal
-        if not self.rotate_yaw_done:
-            a_x_vx, a_y_vx, a_z_vx = state_repr.get_pos_xyz_vx()
-            self.trace["goal"] = self.subgoal.get_argument_mask()
+            # Only sample from yaw angles that haven't been attempted at this position before
+            yaw_mask = self.tried_grid.get_yaw_mask(xpos, ypos, device=state_repr.data.data.device)
 
-            g_x_vx, g_y_vx, g_z_vx = self.subgoal.get_argmax_spatial_arg_pos_xyz_vx()  # state_repr)
-            legacy_target_yaw = math.atan2(g_y_vx - a_y_vx, g_x_vx - a_x_vx + 1e-10)
+            # Sample a yaw angle to turn to
+            yawdistr = self.yawmap[:, :, xpos, ypos] + 1e-3
+            yawdistr = yawdistr * yaw_mask + 1e-6
+            yawdistr = yawdistr / yawdistr.sum()
+            target_yaw = torch.distributions.Categorical(probs=yawdistr).sample_n(1)
 
-            if LEGACY_YAW:
-                self.rotate_to_yaw.set_goal(legacy_target_yaw)
-            else:
-                self.rotate_to_yaw.set_goal(self.target_yaw)
+            # Grab the pitch angle to tilt the head to - this is computed using regression and is not distributional
+            target_pitch = self.pitchmap[:, :, xpos, ypos]
 
-            action = self.rotate_to_yaw.act(state_repr)
-            if action.is_stop():
-                self.rotate_yaw_done = True
-                self.tilt_to_pitch.set_goal(self.target_pitch)
-            else:
-                return action
+            # Convert from grid to ai2thor coordinates, rotation, and horizon.
 
-        # Pitch according to the prediction
-        if not self.rotate_pitch_done:
-            action = self.tilt_to_pitch.act(state_repr)
-            if action.is_stop():
-                self.rotate_pitch_done = True
-            else:
-                return action
+            # This has been checked and is correct
+            z = -7.625 + 0.25 * ypos
+            x = -7.625 + 0.25 * xpos
+
+            # TODO verify this is correct
+            rotation = {"x": 0, "y": [0, 90, 180, 270][target_yaw], "z": 0}
+            rotation = {"x": 0, "y": [90, 180, 270, 0][target_yaw], "z": 0}
+            rotation = {"x": 0, "y": [180, 270, 0, 90][target_yaw], "z": 0}
+            # rotation = {"x": 0, "y": [270, 0, 90, 180][target_yaw], "z": 0}
+            # rotation = {"x": 0, "y": [0, 270, 180, 90][target_yaw], "z": 0}
+
+            # TODO -- verify this is correct
+            horizon = math.degrees(target_pitch)
+
+            action.set_teleport_coords(x, z, rotation, horizon)
+            return action
+
+        # # Have gone to the goal position, rotate to face the goal
+        # if not self.rotate_yaw_done:
+        #     a_x_vx, a_y_vx, a_z_vx = state_repr.get_pos_xyz_vx()
+        #     self.trace["goal"] = self.subgoal.get_argument_mask()
+
+        #     g_x_vx, g_y_vx, g_z_vx = self.subgoal.get_argmax_spatial_arg_pos_xyz_vx()  # state_repr)
+        #     legacy_target_yaw = math.atan2(g_y_vx - a_y_vx, g_x_vx - a_x_vx + 1e-10)
+
+        #     if LEGACY_YAW:
+        #         self.rotate_to_yaw.set_goal(legacy_target_yaw)
+        #     else:
+        #         self.rotate_to_yaw.set_goal(self.target_yaw)
+
+        #     action = self.rotate_to_yaw.act(state_repr)
+        #     if action.is_stop():
+        #         self.rotate_yaw_done = True
+        #         self.tilt_to_pitch.set_goal(self.target_pitch)
+        #     else:
+        #         return action
+
+        # # Pitch according to the prediction
+        # if not self.rotate_pitch_done:
+        #     action = self.tilt_to_pitch.act(state_repr)
+        #     if action.is_stop():
+        #         self.rotate_pitch_done = True
+        #     else:
+        #         return action
 
         # Remember the final position and yaw so that we can avoid sampling it again
         self.remember_final_pose(state_repr)
