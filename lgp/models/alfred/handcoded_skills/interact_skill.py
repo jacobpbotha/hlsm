@@ -1,6 +1,4 @@
 import copy
-from typing import Dict
-from typing import Union
 
 import torch
 
@@ -16,9 +14,9 @@ NOMINAL_PITCH = 0.5235988419208105
 
 
 class InteractSkill(Skill):
-    def __init__(self, gofor_skill : GoForSkill, explore_skill : Skill = None):
+    def __init__(self, gofor_skill: GoForSkill, explore_skill: Skill = None) -> None:
         super().__init__()
-        self.gofor_skill : GoForSkill = gofor_skill
+        self.gofor_skill: GoForSkill = gofor_skill
         self.explore_skill = explore_skill
         self.tilt_to_pitch = TiltToPitchSkill()
 
@@ -51,8 +49,8 @@ class InteractSkill(Skill):
             self.explore_skill.start_new_rollout()
         self.tilt_to_pitch.start_new_rollout()
 
-    def get_trace(self, device="cpu") -> Dict:
-        for k,v in self.trace.items():
+    def get_trace(self, device="cpu") -> dict:
+        for k, v in self.trace.items():
             self.trace[k] = v.to(device) if hasattr(v, "to") else v
         tr = {
             "gofor": self.gofor_skill.get_trace(device),
@@ -70,7 +68,7 @@ class InteractSkill(Skill):
             "fpv_argument_mask": torch.zeros((1, 1, 300, 300)),
             "fpv_voxel_argument_mask": torch.zeros((1, 1, 300, 300)),
             "fpv_semantic_argument_mask": torch.zeros((1, 1, 300, 300)),
-            "llc_flow_state": " "
+            "llc_flow_state": " ",
         }
 
     def _fpv_trace(self, trace_stuff):
@@ -89,7 +87,7 @@ class InteractSkill(Skill):
         self._reset()
         self.subgoal = subgoal
 
-        same_goal = (self.subgoal == prev_goal)
+        same_goal = self.subgoal == prev_goal
         if self.explore_skill is not None:
             self.explore_skill.set_goal(subgoal)
         self.gofor_skill.set_goal(subgoal, remember_past_failures=same_goal)
@@ -108,19 +106,19 @@ class InteractSkill(Skill):
 
         # Use the "Explore" skill (if we have one) to locate the object
         if not self.found and self.explore_skill is not None:
-            action : Action = self.explore_skill.act(state_repr)
+            action: Action = self.explore_skill.act(state_repr)
             if action.is_stop():
-               #print(f"EXPLORE FINISHED: {self.subgoal.arg_str()}")
+                # print(f"EXPLORE FINISHED: {self.subgoal.arg_str()}")
                 self.found = True
             else:
-               #print(f"NOT FOUND. LOOKING FOR: {self.subgoal.arg_str()}")
+                # print(f"NOT FOUND. LOOKING FOR: {self.subgoal.arg_str()}")
                 return action
 
         self.trace["llc_flow_state"] = "Interacting"
 
         # First go to a position from which this interaction action can be executed
         if not self.wentfor:
-            action : Action = self.gofor_skill.act(state_repr)
+            action: Action = self.gofor_skill.act(state_repr)
             if action.is_stop():
                 self.wentfor = True
             else:
@@ -153,3 +151,4 @@ class InteractSkill(Skill):
 
         # Finally, execute the stop action to end the skill and revert to the high-level policy
         return AlfredAction("Stop", AlfredAction.get_empty_argument_mask())
+

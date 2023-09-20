@@ -185,6 +185,10 @@ class AlfredEnv(Env):
     def step(self, action: AlfredAction) -> tuple[AlfredObservation, float, bool, dict]:
         self.prof.tick("out")
 
+        # Special case of teleport action
+        if action.type_str() == "Teleport":
+            return self.teleport(**action.teleport_coords)
+
         # The ALFRED API does not accept the Stop action, do nothing
         message = ""
         if action.is_stop():
@@ -268,7 +272,9 @@ class AlfredEnv(Env):
         self.prof.print_stats(20)
         return observation, reward, done, md
 
-    def teleport(self, x, y, z, rotation, horizon, standing) -> tuple[AlfredObservation, float, bool, dict]:
+    def teleport(self, x, z, rotation, horizon) -> tuple[AlfredObservation, float, bool, dict]:
+        x0, y0, z0 = self.thor_env.last_event.metadata["agent"]["position"].values()
+        y = y0
         self.prof.tick("out")
 
         # The ALFRED API does not accept the Stop action, do nothing

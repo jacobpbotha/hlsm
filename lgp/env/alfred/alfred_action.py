@@ -18,11 +18,12 @@ IDX_TO_ACTION_TYPE = {
     9: "ToggleObjectOn",
     10: "ToggleObjectOff",
     11: "SliceObject",
-    12: "Stop"
+    12: "Stop",
+    13: "Teleport",
 }
 # TODO: Reinstate Stop action as an action type
 
-ACTION_TYPE_TO_IDX = {v:k for k,v in IDX_TO_ACTION_TYPE.items()}
+ACTION_TYPE_TO_IDX = {v: k for k, v in IDX_TO_ACTION_TYPE.items()}
 ACTION_TYPES = [IDX_TO_ACTION_TYPE[i] for i in range(len(IDX_TO_ACTION_TYPE))]
 
 NAV_ACTION_TYPES = [
@@ -30,7 +31,8 @@ NAV_ACTION_TYPES = [
     "RotateRight",
     "MoveAhead",
     "LookUp",
-    "LookDown"
+    "LookDown",
+    "Teleport",
 ]
 
 INTERACT_ACTION_TYPES = [
@@ -40,13 +42,12 @@ INTERACT_ACTION_TYPES = [
     "PutObject",
     "ToggleObjectOn",
     "ToggleObjectOff",
-    "SliceObject"
+    "SliceObject",
 ]
 
+
 class AlfredAction(Action):
-    def __init__(self,
-                 action_type: str,
-                 argument_mask : torch.tensor):
+    def __init__(self, action_type: str, argument_mask: torch.tensor) -> None:
         super().__init__()
         self.action_type = action_type
         self.argument_mask = argument_mask
@@ -54,6 +55,10 @@ class AlfredAction(Action):
     def to(self, device):
         self.argument_mask = self.argument_mask.to(device) if self.argument_mask is not None else None
         return self
+
+    def set_teleport_coords(self, x, z, rotation, horizon):
+        """Set the coordinates for the teleport action."""
+        self.teleport_coords = {"x": x, "z": z, "rotation": rotation, "horizon": horizon}
 
     @classmethod
     def stop_action(cls):
@@ -68,11 +73,11 @@ class AlfredAction(Action):
         return len(ACTION_TYPE_TO_IDX)
 
     @classmethod
-    def action_type_str_to_intid(cls, action_type_str : str) -> int:
+    def action_type_str_to_intid(cls, action_type_str: str) -> int:
         return ACTION_TYPE_TO_IDX[action_type_str]
 
     @classmethod
-    def action_type_intid_to_str(cls, action_type_intid : int) -> str:
+    def action_type_intid_to_str(cls, action_type_intid: int) -> str:
         return IDX_TO_ACTION_TYPE[action_type_intid]
 
     @classmethod
@@ -87,10 +92,10 @@ class AlfredAction(Action):
         if self.action_type in NAV_ACTION_TYPES:
             return True
         elif self.argument_mask is None:
-           #print("AlfredAction::is_valid -> missing argument mask")
+            # print("AlfredAction::is_valid -> missing argument mask")
             return False
         elif self.argument_mask.sum() < 1:
-           #print("AlfredAction::is_valid -> empty argument mask")
+            # print("AlfredAction::is_valid -> empty argument mask")
             return False
         return True
 
@@ -103,7 +108,7 @@ class AlfredAction(Action):
     def to_alfred_api(self) -> (str, Union[None, np.ndarray]):
         if self.action_type in NAV_ACTION_TYPES:
             argmask_np = None
-        else: # Interaction action needs a mask
+        else:  # Interaction action needs a mask
             if self.argument_mask is not None:
                 if isinstance(self.argument_mask, torch.Tensor):
                     argmask_np = self.argument_mask.detach().cpu().numpy()
@@ -127,3 +132,4 @@ class AlfredAction(Action):
             return torch.zeros((1, 300, 300))
         else:
             return self.argument_mask
+
