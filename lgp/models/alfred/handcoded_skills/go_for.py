@@ -327,35 +327,32 @@ class GoForSkill(Skill):
             action = AlfredAction(action_type="Teleport", argument_mask=AlfredAction.get_empty_argument_mask())
             ypos, xpos = self.goal_pos
 
-            # Only sample from yaw angles that haven't been attempted at this position before
-            yaw_mask = self.tried_grid.get_yaw_mask(xpos, ypos, device=state_repr.data.data.device)
+            # TODO verify this is correct
+            z = state_repr.data.voxel_size * ypos + state_repr.data.origin[0, 1].item() + 0.125
+            z *= -1
+            x = state_repr.data.voxel_size * xpos + state_repr.data.origin[0, 0].item() + 0.125
+            # x_vx = (x_m - self.data.origin[0, 0]) / self.data.voxel_size
+            # y_vx = (y_m - self.data.origin[0, 1]) / self.data.voxel_size
+            # z_vx = (z_m - self.data.origin[0, 2]) / self.data.voxel_size
 
             # Sample a yaw angle to turn to
+            # Only sample from yaw angles that haven't been attempted at this position before
+            yaw_mask = self.tried_grid.get_yaw_mask(xpos, ypos, device=state_repr.data.data.device)
             yawdistr = self.yawmap[:, :, xpos, ypos] + 1e-3
             yawdistr = yawdistr * yaw_mask + 1e-6
             yawdistr = yawdistr / yawdistr.sum()
-            target_yaw = torch.distributions.Categorical(probs=yawdistr).sample_n(1)
+            yaw_id = torch.distributions.Categorical(probs=yawdistr).sample_n(1)
+            target_yaw = [0, 90, 180, 270][yaw_id]
+            # TODO verify this is correct
+            rotation = {"x": 0, "y": target_yaw, "z": 0}
 
             # Grab the pitch angle to tilt the head to - this is computed using regression and is not distributional
             target_pitch = self.pitchmap[:, :, xpos, ypos]
-
-            # Convert from grid to ai2thor coordinates, rotation, and horizon.
-
-            # This has been checked and is correct
-            z = -7.625 + 0.25 * ypos
-            x = -7.625 + 0.25 * xpos
-
-            # TODO verify this is correct
-            rotation = {"x": 0, "y": [0, 90, 180, 270][target_yaw], "z": 0}
-            rotation = {"x": 0, "y": [90, 180, 270, 0][target_yaw], "z": 0}
-            rotation = {"x": 0, "y": [180, 270, 0, 90][target_yaw], "z": 0}
-            # rotation = {"x": 0, "y": [270, 0, 90, 180][target_yaw], "z": 0}
-            # rotation = {"x": 0, "y": [0, 270, 180, 90][target_yaw], "z": 0}
-
             # TODO -- verify this is correct
             horizon = math.degrees(target_pitch)
 
             action.set_teleport_coords(x, z, rotation, horizon)
+            self.goto_done = True
             return action
 
         # # Have gone to the goal position, rotate to face the goal

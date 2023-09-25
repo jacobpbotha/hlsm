@@ -187,7 +187,7 @@ class AlfredEnv(Env):
 
         # Special case of teleport action
         if action.type_str() == "Teleport":
-            return self.teleport(**action.teleport_coords)
+            return self.teleport(action)
 
         # The ALFRED API does not accept the Stop action, do nothing
         message = ""
@@ -195,6 +195,7 @@ class AlfredEnv(Env):
             done = True
             transition_reward = 0
             api_action = None
+            event = self.thor_env.last_event
             events = []
             exec_success = True
 
@@ -235,7 +236,6 @@ class AlfredEnv(Env):
         self.prof.tick("step")
 
         # Track state (pose and inventory) from RGB images and actions
-        event = self.thor_env.last_event
         self.state_tracker.log_action(action)
         self.state_tracker.log_event(event)
         self.state_tracker.log_extra_events(events)
@@ -272,10 +272,10 @@ class AlfredEnv(Env):
         self.prof.print_stats(20)
         return observation, reward, done, md
 
-    def teleport(self, x, z, rotation, horizon) -> tuple[AlfredObservation, float, bool, dict]:
+    def teleport(self, action: AlfredAction) -> tuple[AlfredObservation, float, bool, dict]:
+        x, z, rotation, horizon = action.teleport_coords.values()
         x0, y0, z0 = self.thor_env.last_event.metadata["agent"]["position"].values()
         y = y0
-        self.prof.tick("out")
 
         # The ALFRED API does not accept the Stop action, do nothing
         message = ""
@@ -324,8 +324,7 @@ class AlfredEnv(Env):
         self.prof.tick("step")
 
         # Track state (pose and inventory) from RGB images and actions
-        event = self.thor_env.last_event
-        self.state_tracker.log_action(AlfredAction("Teleport", AlfredAction.get_empty_argument_mask()))
+        self.state_tracker.log_action(action)
         self.state_tracker.log_event(event)
         self.state_tracker.log_extra_events(events)
 

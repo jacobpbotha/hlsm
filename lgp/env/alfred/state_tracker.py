@@ -16,26 +16,35 @@ from hlsm.lgp.models.alfred.hlsm.alfred_perception_model import AlfredSegmentati
 PERCEPTION_DEVICE = "cuda"
 
 
-class PoseInfo():
+class PoseInfo:
     """
     Given all the different inputs from AI2Thor event, constructs a pose matrix and a position vector
     to add to the observation.
     """
 
-    def __init__(self,
-                 cam_horizon_deg,
-                 cam_pos_enu,
-                 rot_3d_enu_deg,
-                 ):
+    def __init__(
+        self,
+        cam_horizon_deg,
+        cam_pos_enu,
+        rot_3d_enu_deg,
+    ) -> None:
         self.cam_horizon_deg = cam_horizon_deg
         self.cam_pos_enu = cam_pos_enu
         self.rot_3d_enu_deg = rot_3d_enu_deg
 
     def is_close(self, pi: "PoseInfo"):
         horizon_close = math.isclose(self.cam_horizon_deg, pi.cam_horizon_deg, abs_tol=1e-3, rel_tol=1e-3)
-        cam_pos_close = [math.isclose(a, b) for a,b in zip(self.cam_pos_enu, pi.cam_pos_enu)]
-        rot_close = [math.isclose(a, b) for a,b in zip(self.rot_3d_enu_deg, pi.rot_3d_enu_deg)]
-        all_close = horizon_close and cam_pos_close[0] and cam_pos_close[1] and cam_pos_close[2] and rot_close[0] and rot_close[1] and rot_close[2]
+        cam_pos_close = [math.isclose(a, b) for a, b in zip(self.cam_pos_enu, pi.cam_pos_enu)]
+        rot_close = [math.isclose(a, b) for a, b in zip(self.rot_3d_enu_deg, pi.rot_3d_enu_deg)]
+        all_close = (
+            horizon_close
+            and cam_pos_close[0]
+            and cam_pos_close[1]
+            and cam_pos_close[2]
+            and rot_close[0]
+            and rot_close[1]
+            and rot_close[2]
+        )
         return all_close
 
     @classmethod
@@ -44,31 +53,25 @@ class PoseInfo():
         # We want to convert to a right-handed coordinate frame with X-Y axis on ground, and Z axis pointing up.
         # To do this, all you have to do is swap Y and Z axes.
 
-        cam_horizon_deg = event.metadata['agent']['cameraHorizon']
+        cam_horizon_deg = event.metadata["agent"]["cameraHorizon"]
 
         # Translation from world origin to camera/agent position
-        cam_pos_dict_3d_unity = event.metadata['cameraPosition']
+        cam_pos_dict_3d_unity = event.metadata["cameraPosition"]
         # Remap Unity left-handed frame to ENU right-handed frame (X Y Z -> X Z -Y)
-        cam_pos_enu = [cam_pos_dict_3d_unity['z'],
-                       -cam_pos_dict_3d_unity['x'],
-                       -cam_pos_dict_3d_unity['y']]
+        cam_pos_enu = [cam_pos_dict_3d_unity["z"], -cam_pos_dict_3d_unity["x"], -cam_pos_dict_3d_unity["y"]]
 
         # ... rotation to agent frame (x-forward, y-left, z-up)
-        rot_dict_3d_unity = event.metadata['agent']['rotation']
-        rot_3d_enu_deg = [rot_dict_3d_unity['x'], rot_dict_3d_unity['z'], rot_dict_3d_unity['y']]
+        rot_dict_3d_unity = event.metadata["agent"]["rotation"]
+        rot_3d_enu_deg = [rot_dict_3d_unity["x"], rot_dict_3d_unity["z"], rot_dict_3d_unity["y"]]
 
-        return PoseInfo(cam_horizon_deg=cam_horizon_deg,
-                        cam_pos_enu=cam_pos_enu,
-                        rot_3d_enu_deg=rot_3d_enu_deg)
+        return PoseInfo(cam_horizon_deg=cam_horizon_deg, cam_pos_enu=cam_pos_enu, rot_3d_enu_deg=rot_3d_enu_deg)
 
     @classmethod
     def create_new_initial(cls):
         cam_horizon_deg = 30.0
         cam_pos_enu = [0.0, 0.0, -1.576]
         rot_3d_enu_deg = [0.0, 0.0, 0.0]
-        return PoseInfo(cam_horizon_deg=cam_horizon_deg,
-                        cam_pos_enu=cam_pos_enu,
-                        rot_3d_enu_deg=rot_3d_enu_deg)
+        return PoseInfo(cam_horizon_deg=cam_horizon_deg, cam_pos_enu=cam_pos_enu, rot_3d_enu_deg=rot_3d_enu_deg)
 
     def simulate_successful_action(self, action: AlfredAction):
         MOVE_STEP = 0.25
@@ -100,7 +103,7 @@ class PoseInfo():
         cam_pos = [
             -self.cam_pos_enu[0],
             -self.cam_pos_enu[1],
-            self.cam_pos_enu[2]
+            self.cam_pos_enu[2],
         ]
         cam_pos = torch.tensor(cam_pos, device=device, dtype=torch.float32)
         return cam_pos
@@ -108,33 +111,43 @@ class PoseInfo():
     def get_pose_mat(self):
         cam_pos_enu = torch.tensor(self.cam_pos_enu)
         # Translation from world origin to camera/agent position
-        T_world_to_agent_pos = np.array([[1, 0, 0, cam_pos_enu[0]],
-                                         [0, 1, 0, cam_pos_enu[1]],
-                                         [0, 0, 1, cam_pos_enu[2]],
-                                         [0, 0, 0, 1]])
+        T_world_to_agent_pos = np.array(
+            [[1, 0, 0, cam_pos_enu[0]], [0, 1, 0, cam_pos_enu[1]], [0, 0, 1, cam_pos_enu[2]], [0, 0, 0, 1]],
+        )
 
         # ... rotation to agent frame (x-forward, y-left, z-up)
         rot_3d_enu_rad = [math.radians(r) for r in self.rot_3d_enu_deg]
         R_agent = euler.euler2mat(rot_3d_enu_rad[0], rot_3d_enu_rad[1], rot_3d_enu_rad[2])
-        T_agent_pos_to_agent = np.asarray([[R_agent[0, 0], R_agent[0, 1], R_agent[0, 2], 0],
-                                           [R_agent[1, 0], R_agent[1, 1], R_agent[1, 2], 0],
-                                           [R_agent[2, 0], R_agent[2, 1], R_agent[2, 2], 0],
-                                           [0, 0, 0, 1]])
+        T_agent_pos_to_agent = np.asarray(
+            [
+                [R_agent[0, 0], R_agent[0, 1], R_agent[0, 2], 0],
+                [R_agent[1, 0], R_agent[1, 1], R_agent[1, 2], 0],
+                [R_agent[2, 0], R_agent[2, 1], R_agent[2, 2], 0],
+                [0, 0, 0, 1],
+            ],
+        )
 
         # .. transform to camera-forward frame (x-right, y-down, z-forward) that ignores camera pitch
         R_agent_to_camflat = euler.euler2mat(0, math.radians(90), math.radians(-90))
         T_agent_to_camflat = np.asarray(
-            [[R_agent_to_camflat[0, 0], R_agent_to_camflat[0, 1], R_agent_to_camflat[0, 2], 0],
-             [R_agent_to_camflat[1, 0], R_agent_to_camflat[1, 1], R_agent_to_camflat[1, 2], 0],
-             [R_agent_to_camflat[2, 0], R_agent_to_camflat[2, 1], R_agent_to_camflat[2, 2], 0],
-             [0, 0, 0, 1]])
+            [
+                [R_agent_to_camflat[0, 0], R_agent_to_camflat[0, 1], R_agent_to_camflat[0, 2], 0],
+                [R_agent_to_camflat[1, 0], R_agent_to_camflat[1, 1], R_agent_to_camflat[1, 2], 0],
+                [R_agent_to_camflat[2, 0], R_agent_to_camflat[2, 1], R_agent_to_camflat[2, 2], 0],
+                [0, 0, 0, 1],
+            ],
+        )
 
         # .. transform to camera frame (x-right, y-down, z-forward) that also incorporates camera pitch
         R_camflat_to_cam = euler.euler2mat(math.radians(self.cam_horizon_deg), 0, 0)
-        T_camflat_to_cam = np.asarray([[R_camflat_to_cam[0, 0], R_camflat_to_cam[0, 1], R_camflat_to_cam[0, 2], 0],
-                                       [R_camflat_to_cam[1, 0], R_camflat_to_cam[1, 1], R_camflat_to_cam[1, 2], 0],
-                                       [R_camflat_to_cam[2, 0], R_camflat_to_cam[2, 1], R_camflat_to_cam[2, 2], 0],
-                                       [0, 0, 0, 1]])
+        T_camflat_to_cam = np.asarray(
+            [
+                [R_camflat_to_cam[0, 0], R_camflat_to_cam[0, 1], R_camflat_to_cam[0, 2], 0],
+                [R_camflat_to_cam[1, 0], R_camflat_to_cam[1, 1], R_camflat_to_cam[1, 2], 0],
+                [R_camflat_to_cam[2, 0], R_camflat_to_cam[2, 1], R_camflat_to_cam[2, 2], 0],
+                [0, 0, 0, 1],
+            ],
+        )
 
         # compose into a transform from world to camera
         T_world_to_cam = T_camflat_to_cam @ T_agent_to_camflat @ T_agent_pos_to_agent @ T_world_to_agent_pos
@@ -142,8 +155,8 @@ class PoseInfo():
         return T_world_to_cam
 
 
-class InventoryInfo():
-    def __init__(self, inventory_objects):
+class InventoryInfo:
+    def __init__(self, inventory_objects) -> None:
         self.inventory_object_ids = inventory_objects
 
     @classmethod
@@ -154,15 +167,17 @@ class InventoryInfo():
     def from_ai2thor_event(cls, event):
         # For each object in the inventory, mark the corresponding dimension in the inventory vector with a 1.0
         inventory_objects = []
-        for object in event.metadata['inventoryObjects']:
-            object_str = object['objectType'].split("_")[0]
+        for object in event.metadata["inventoryObjects"]:
+            object_str = object["objectType"].split("_")[0]
             object_id = segdef.object_string_to_intid(object_str)
             inventory_objects.append(object_id)
         return InventoryInfo(inventory_objects)
 
     def simulate_successful_action(self, action, latest_observaton):
         if action.action_type == "PickupObject":
-            selecton = (action.argument_mask[None, None] * latest_observaton.semantic_image.to(action.argument_mask.device)).sum(dim=(2, 3))
+            selecton = (
+                action.argument_mask[None, None] * latest_observaton.semantic_image.to(action.argument_mask.device)
+            ).sum(dim=(2, 3))
             arg_id = selecton.argmax(dim=1)[0].item()
             # TODO: Is it better to get inventory object class from seg_image and depth_estimate or from
             # whatever action the agent was trying to execute before.
@@ -183,22 +198,24 @@ class InventoryInfo():
         return summary
 
 
-class StateTracker():
+class StateTracker:
     """
     Converts raw RGB images and executed actions to AlfredObservation instances that eval:
     - Segmentation
     - Depth
     - Pose
-    - Inventory information
+    - Inventory information.
     """
 
-    def __init__(self,
-                 reference_seg=False,
-                 reference_depth=False,
-                 reference_pose=False,
-                 reference_inventory=False,
-                 hparams=None,
-                 fov=60):
+    def __init__(
+        self,
+        reference_seg=False,
+        reference_depth=False,
+        reference_pose=False,
+        reference_inventory=False,
+        hparams=None,
+        fov=60,
+    ) -> None:
         self.first_event = None
         self.latest_event = None
         self.latest_observation = None
@@ -256,7 +273,7 @@ class StateTracker():
 
     def log_event(self, event):
         self.latest_event = event
-        #self.latest_observation = self._make_observation()
+        # self.latest_observation = self._make_observation()
 
     def log_extra_events(self, events):
         self.latest_extra_events = events
@@ -280,7 +297,7 @@ class StateTracker():
             depth_image = torch.from_numpy(event.depth_frame.copy()).unsqueeze(0).unsqueeze(0) / 1000
         else:
             _, pred_depth = self.depth_model.predict(rgb_image.float().to(PERCEPTION_DEVICE))
-            depth_image = pred_depth.to("cpu") # TODO: Maybe skip this? We later move it to GPU anyway
+            depth_image = pred_depth.to("cpu")  # TODO: Maybe skip this? We later move it to GPU anyway
 
         # Segmentation
         if self.reference_seg:
@@ -296,20 +313,22 @@ class StateTracker():
             assert self.latest_action is not None, "Didn't log an action, but got two observations in a row?"
             rgb_diff = (rgb_image - self.latest_observation.rgb_image).float().abs().mean()
             if rgb_diff < 1e-4:
-               #print(f"Action: {self.latest_action}, RGB Diff: {rgb_diff}. Counting as failed.")
+                # print(f"Action: {self.latest_action}, RGB Diff: {rgb_diff}. Counting as failed.")
                 action_failed = True
             else:
                 pass
-                #print(f"Action: {self.latest_action} Success with RGB Diff: {rgb_diff}")
+                # print(f"Action: {self.latest_action} Success with RGB Diff: {rgb_diff}")
 
         # Use dead-reckoning to estimate the pose, and track state of the inventory
         if not action_failed and self.latest_action is not None:
-            self.pose_info.simulate_successful_action(self.latest_action)
-            oinv = copy.deepcopy(self.inventory_info)
-            self.inventory_info.simulate_successful_action(self.latest_action, self.latest_observation)
-            if len(oinv.inventory_object_ids) != len(self.inventory_info.inventory_object_ids):
-                pass
-                ##print(self.inventory_info.summarize())
+            if not self.reference_pose:
+                self.pose_info.simulate_successful_action(self.latest_action)
+            if not self.reference_inventory:
+                oinv = copy.deepcopy(self.inventory_info)
+                self.inventory_info.simulate_successful_action(self.latest_action, self.latest_observation)
+                if len(oinv.inventory_object_ids) != len(self.inventory_info.inventory_object_ids):
+                    pass
+                    ##print(self.inventory_info.summarize())
 
         # Pose
         if self.reference_pose:
@@ -326,14 +345,16 @@ class StateTracker():
         inventory_vector = inventory_vector.unsqueeze(0)
 
         privileged_info = PrivilegedInfo(event)
-        observation = AlfredObservation(rgb_image,
-                                         depth_image,
-                                         semantic_image,
-                                         inventory_vector,
-                                         T_world_to_cam,
-                                         self.fov,
-                                         cam_horizon_deg,
-                                         privileged_info)
+        observation = AlfredObservation(
+            rgb_image,
+            depth_image,
+            semantic_image,
+            inventory_vector,
+            T_world_to_cam,
+            self.fov,
+            cam_horizon_deg,
+            privileged_info,
+        )
 
         # TODO: Use pose instead:
         observation.set_agent_pos(agent_pos)
@@ -342,7 +363,10 @@ class StateTracker():
 
         # Add extra RGB frames from smooth navigation
         if self.latest_extra_events:
-            extra_frames = [torch.from_numpy(e.frame.copy()).permute((2, 0, 1)).unsqueeze(0).half() / 255 for e in self.latest_extra_events]
+            extra_frames = [
+                torch.from_numpy(e.frame.copy()).permute((2, 0, 1)).unsqueeze(0).half() / 255
+                for e in self.latest_extra_events
+            ]
             observation.extra_rgb_frames = extra_frames
 
         return observation
@@ -351,15 +375,15 @@ class StateTracker():
     def _extract_reference_semantic_image(cls, event, device="cpu"):
         """
         The segmentation images that come from AI2Thor have unstable color<->object mappings.
-        Instead, we can build up a one-hot object image from the dictionary of class masks
+        Instead, we can build up a one-hot object image from the dictionary of class masks.
         """
         num_objects = segdef.get_num_objects()
         h, w = event.frame.shape[0:2]
         seg_image = torch.zeros([num_objects, h, w], dtype=torch.int16, device=device)
 
         inventory_obj_strs = set()
-        for object in event.metadata['inventoryObjects']:
-            inventory_obj_string = object['objectType'].split("_")[0]
+        for object in event.metadata["inventoryObjects"]:
+            inventory_obj_string = object["objectType"].split("_")[0]
             inventory_obj_strs.add(inventory_obj_string)
 
         for obj_str, class_mask in event.class_masks.items():
@@ -373,8 +397,9 @@ class StateTracker():
         num_objects = segdef.get_num_objects()
         inv_vector = torch.zeros([num_objects], device=device, dtype=torch.uint8)
         # For each object in the inventory, mark the corresponding dimension in the inventory vector with a 1.0
-        for object in event.metadata['inventoryObjects']:
-            object_str = object['objectType'].split("_")[0]
+        for object in event.metadata["inventoryObjects"]:
+            object_str = object["objectType"].split("_")[0]
             object_id = segdef.object_string_to_intid(object_str)
             inv_vector[object_id] = 1
         return inv_vector
+

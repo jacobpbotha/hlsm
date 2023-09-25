@@ -105,6 +105,7 @@ class InteractSkill(Skill):
         self.trace["llc_flow_state"] = "Exploring"
 
         # Use the "Explore" skill (if we have one) to locate the object
+        self.found = True
         if not self.found and self.explore_skill is not None:
             action: Action = self.explore_skill.act(state_repr)
             if action.is_stop():
@@ -141,6 +142,7 @@ class InteractSkill(Skill):
             self.interaction_failed = state_repr.observation.last_action_error
 
         # Finally reset pitch to the default/nominal value with which the agent keeps navigating around
+        self.restored_nominal_pitch = True
         if not self.restored_nominal_pitch:
             action = self.tilt_to_pitch.act(state_repr)
             if action.is_stop():

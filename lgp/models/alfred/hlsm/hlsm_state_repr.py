@@ -1,8 +1,5 @@
 import math
-from typing import Dict
-from typing import Iterable
-from typing import List
-from typing import Tuple
+from collections.abc import Iterable
 from typing import Union
 
 import numpy as np
@@ -35,18 +32,21 @@ class AlfredSpatialStateRepr(StateRepr):
     Represents world with:
         - self.data: BxCxHxWxL voxel grid
         - self.obs_mask: Bx1xHxWxL observability grid
-        - self.inventory_vector: BxC agent inventory
+        - self.inventory_vector: BxC agent inventory.
     """
-    def __init__(self,
-                 data: VoxelGrid,
-                 obs_mask: VoxelGrid,
-                 vector: torch.tensor,
-                 observation: Union[AlfredObservation, None]):
+
+    def __init__(
+        self,
+        data: VoxelGrid,
+        obs_mask: VoxelGrid,
+        vector: torch.tensor,
+        observation: Union[AlfredObservation, None],
+    ) -> None:
         super().__init__()
-        self.data : VoxelGrid = data
-        self.obs_mask : VoxelGrid = obs_mask
-        self.inventory_vector : torch.tensor = vector
-        self.observation : Union[AlfredObservation, None] = observation
+        self.data: VoxelGrid = data
+        self.obs_mask: VoxelGrid = obs_mask
+        self.inventory_vector: torch.tensor = vector
+        self.observation: Union[AlfredObservation, None] = observation
         self.annotations = {}
 
     def to(self, device):
@@ -59,10 +59,12 @@ class AlfredSpatialStateRepr(StateRepr):
         return AlfredSpatialStateRepr(data, obs_mask, inventory_vector, observation)
 
     def __getitem__(self, item: int) -> "AlfredSpatialStateRepr":
-        return AlfredSpatialStateRepr(self.data[item],
-                                      self.obs_mask[item],
-                                      self.inventory_vector[item],
-                                      self.observation[item] if self.observation is not None else None)
+        return AlfredSpatialStateRepr(
+            self.data[item],
+            self.obs_mask[item],
+            self.inventory_vector[item],
+            self.observation[item] if self.observation is not None else None,
+        )
 
     @classmethod
     def get_num_tensor_channels(cls):
@@ -82,7 +84,7 @@ class AlfredSpatialStateRepr(StateRepr):
         h = self.data.data.shape[4]
         # Spread out the vector across the spatial dimensions and concatenate to the spatial channels
         # Don't do the division - over a large voxel grid that might result in tiny tiny numbers
-        expanded_vector = self.inventory_vector[:, :, None, None, None].repeat((1, 1, w, l, h))# / (w * l * h)
+        expanded_vector = self.inventory_vector[:, :, None, None, None].repeat((1, 1, w, l, h))  # / (w * l * h)
         concat = torch.cat([expanded_vector, self.data.data, self.obs_mask.data], dim=1)
         return concat
 
@@ -91,10 +93,14 @@ class AlfredSpatialStateRepr(StateRepr):
         c_spatial = cls.get_num_data_channels()
         c_vec = cls.get_num_vec_channels()
         expanded_vector = tensor[:, :c_vec]
-        vector = expanded_vector.mean(dim=2).mean(dim=2).mean(dim=2) # Average across spatial dimensions to obtain agent vector
+        vector = (
+            expanded_vector.mean(dim=2).mean(dim=2).mean(dim=2)
+        )  # Average across spatial dimensions to obtain agent vector
         data = tensor[:, c_vec:-1, :, :, :]
         obs_mask = tensor[:, -1:, :, :, :]
-        assert data.shape[1] == c_spatial, f"After slicing away agent vector, got wrong number of data channels: {data.shape[1]}, expected: {c_spatial}"
+        assert (
+            data.shape[1] == c_spatial
+        ), f"After slicing away agent vector, got wrong number of data channels: {data.shape[1]}, expected: {c_spatial}"
         return cls(data, obs_mask, vector, None)
 
     @classmethod
@@ -102,25 +108,32 @@ class AlfredSpatialStateRepr(StateRepr):
         c_spatial = cls.get_num_data_channels()
         c_vec = cls.get_num_vec_channels()
         expanded_vector = tensor[:, :c_vec]
-        vector = torch.sigmoid(expanded_vector.sum(dim=2).sum(dim=2)) # Average across spatial dimensions to obtain agent vector
+        vector = torch.sigmoid(
+            expanded_vector.sum(dim=2).sum(dim=2),
+        )  # Average across spatial dimensions to obtain agent vector
         data = torch.sigmoid(tensor[:, c_vec:-1, :, :, :])
         obs_mask = torch.sigmoid(tensor[:, -1:, :, :, :])
-        assert data.shape[1] == c_spatial, f"After slicing away agent vector, got wrong number of data channels: {data.shape[1]}, expected: {c_spatial}"
+        assert (
+            data.shape[1] == c_spatial
+        ), f"After slicing away agent vector, got wrong number of data channels: {data.shape[1]}, expected: {c_spatial}"
         return cls(data, obs_mask, vector, None)
 
     def get_obstacle_map_2d(self):
         # Consider "Wall" class to be obstacle even at ground level.
         occupancy_map_2d = self.data.occupancy[:, :, :, :, OBSLVL:].max(dim=4).values
         wall_id = object_string_to_intid("Wall")
-        wall_map_2d = self.data.data[:, wall_id:wall_id+1, :, :, GNDLVL:CEILLVL].max(dim=4).values
+        wall_map_2d = self.data.data[:, wall_id : wall_id + 1, :, :, GNDLVL:CEILLVL].max(dim=4).values
         door_id = object_string_to_intid("Door")
-        door_map_2d = self.data.data[:, door_id:door_id+1, :, :, GNDLVL:CEILLVL].max(dim=4).values
+        door_map_2d = self.data.data[:, door_id : door_id + 1, :, :, GNDLVL:CEILLVL].max(dim=4).values
         window_id = object_string_to_intid("Window")
-        window_map_2d = self.data.data[:, window_id:window_id+1, :, :, GNDLVL:CEILLVL].max(dim=4).values
-        #floor_id = object_string_to_intid("Floor")
-        #floor_map_2d = self.data.data[:, floor_id:floor_id+1, :, :, GNDLVL:OBSLVL].max(dim=4).values
-        obstacle_map_2d = (occupancy_map_2d + wall_map_2d + door_map_2d + window_map_2d).clamp(0, 1)# - floor_map_2d).clamp(0, 1)
-        #obstacle_map_2d = occupancy_map_2d
+        window_map_2d = self.data.data[:, window_id : window_id + 1, :, :, GNDLVL:CEILLVL].max(dim=4).values
+        # floor_id = object_string_to_intid("Floor")
+        # floor_map_2d = self.data.data[:, floor_id:floor_id+1, :, :, GNDLVL:OBSLVL].max(dim=4).values
+        obstacle_map_2d = (occupancy_map_2d + wall_map_2d + door_map_2d + window_map_2d).clamp(
+            0,
+            1,
+        )  # - floor_map_2d).clamp(0, 1)
+        # obstacle_map_2d = occupancy_map_2d
         return obstacle_map_2d
 
     @classmethod
@@ -157,7 +170,10 @@ class AlfredSpatialStateRepr(StateRepr):
         open_map_2d = self.data.data[:, openable_ids].max(dim=4).values.sum(dim=1, keepdim=True)
         ground_map_2d = self.data.data[:, ground_ids].max(dim=4).values.sum(dim=1, keepdim=True)
 
-        features_2d = torch.cat([observability_map, obstacle_map, pickable_map_2d, recep_map_2d, toggle_map_2d, open_map_2d, ground_map_2d], dim=1)
+        features_2d = torch.cat(
+            [observability_map, obstacle_map, pickable_map_2d, recep_map_2d, toggle_map_2d, open_map_2d, ground_map_2d],
+            dim=1,
+        )
 
         if center_around_agent:
             features_2d = self.center_2d_map_around_agent(features_2d)
@@ -167,7 +183,10 @@ class AlfredSpatialStateRepr(StateRepr):
 
     def viz_nav_features_2d(self, nav_features_2d):
         device = nav_features_2d.device
-        colors = torch.tensor([[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [0.5, 0.5, 0.5]], device=device)
+        colors = torch.tensor(
+            [[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [0.5, 0.5, 0.5]],
+            device=device,
+        )
         nav_features_2d_viz = (nav_features_2d[:, :, None, :, :] * colors[None, :, :, None, None]).sum(dim=1) / 3
         return nav_features_2d_viz
 
@@ -179,12 +198,17 @@ class AlfredSpatialStateRepr(StateRepr):
         if floor_level:
             observability_map_2d = self.obs_mask.data[:, :, :, :, GNDLVL:OBSLVL].max(dim=4).values
         elif floor_only:
-            observability_map_2d = self.data.data[:, segdef.get_ground_ids(), :, :, GNDLVL:OBSLVL].max(dim=1, keepdim=True).values.max(dim=4).values
+            observability_map_2d = (
+                self.data.data[:, segdef.get_ground_ids(), :, :, GNDLVL:OBSLVL]
+                .max(dim=1, keepdim=True)
+                .values.max(dim=4)
+                .values
+            )
         else:
             observability_map_2d = self.obs_mask.data[:, :, :, :, OBSLVL:].max(dim=4).values
         return observability_map_2d
 
-    def get_rpy(self) -> Tuple[float, float, float]:
+    def get_rpy(self) -> tuple[float, float, float]:
         assert self.observation.pose.shape[0] == 1, "Only batch size 1 state reprs can return rpy"
         pose4f = self.observation.pose[0].detach().cpu().numpy()
         T, R, Z, S = affines.decompose44(pose4f)
@@ -204,11 +228,11 @@ class AlfredSpatialStateRepr(StateRepr):
         pitch = self.get_camera_pitch_rad()
         return pitch, yaw
 
-    def get_pos_xyz_m(self) -> Tuple[float, float, float]:
+    def get_pos_xyz_m(self) -> tuple[float, float, float]:
         assert self.observation.pose.shape[0] == 1, "Only batch size 1 state reprs can return a position"
-        #pose4f = self.observation.pose[0].detach().cpu().numpy()
-        #T, R, Z, S = affines.decompose44(pose4f)
-        #x, y, z = T[0], T[1], T[2]
+        # pose4f = self.observation.pose[0].detach().cpu().numpy()
+        # T, R, Z, S = affines.decompose44(pose4f)
+        # x, y, z = T[0], T[1], T[2]
 
         p = self.observation.pose.detach().cpu()
         x = p[:, 0, 3].item()
@@ -216,7 +240,7 @@ class AlfredSpatialStateRepr(StateRepr):
         z = p[:, 2, 3].item()
 
         # TODO: Figure out why this seems to be needed to make the skill work out correctly:
-        #y = -y
+        # y = -y
         x = -x
         return x, y, z
 
@@ -228,25 +252,25 @@ class AlfredSpatialStateRepr(StateRepr):
 
         # TODO: Figure out:
         y = -y
-        vec = torch.stack([x,y,z], dim=1)
+        vec = torch.stack([x, y, z], dim=1)
         return vec
 
     def get_agent_pos_m(self):
         agent_pos = self.observation.get_agent_pos()
         return agent_pos
 
-    def get_pos_xyz_vx(self) -> Tuple[float, float, float]:
+    def get_pos_xyz_vx(self) -> tuple[float, float, float]:
         agent_pos_m = self.get_agent_pos_m().detach().cpu()
         x_m = agent_pos_m[0].item()
         y_m = agent_pos_m[1].item()
         z_m = agent_pos_m[2].item()
-        #x_m, y_m, z_m = self.get_pos_xyz_m()
-        x_vx = (x_m - self.data.origin[0, 0]) / self.data.voxel_size
-        y_vx = (y_m - self.data.origin[0, 1]) / self.data.voxel_size
-        z_vx = (z_m - self.data.origin[0, 2]) / self.data.voxel_size
+        # x_m, y_m, z_m = self.get_pos_xyz_m()
+        x_vx = (x_m - self.data.origin[0, 0] - 0.125) / self.data.voxel_size
+        y_vx = (y_m - self.data.origin[0, 1] - 0.125) / self.data.voxel_size
+        z_vx = (z_m - self.data.origin[0, 2] - 0.125) / self.data.voxel_size
         return x_vx, y_vx, z_vx
 
-    def get_origin_xyz_vx(self) -> Tuple[float, float, float]:
+    def get_origin_xyz_vx(self) -> tuple[float, float, float]:
         x_vx = int((0 - self.data.origin[0, 0]) / self.data.voxel_size)
         y_vx = int((0 - self.data.origin[0, 1]) / self.data.voxel_size)
         z_vx = int((0 - self.data.origin[0, 2]) / self.data.voxel_size)
@@ -254,7 +278,7 @@ class AlfredSpatialStateRepr(StateRepr):
 
     def get_agent_coord(self) -> torch.tensor:
         # TODO: Implement if needed
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def new(cls, b, c, h, w, c2, device="cpu") -> "AlfredSpatialStateRepr":
@@ -265,18 +289,20 @@ class AlfredSpatialStateRepr(StateRepr):
 
     @classmethod
     def collate(cls, states: Iterable["AlfredSpatialStateRepr"]) -> "AlfredSpatialStateRepr":
-        """
-        Creates a single Action that represents a batch of actions
-        """
+        """Creates a single Action that represents a batch of actions."""
         datas = VoxelGrid.collate([s.data for s in states])
         obs_masks = VoxelGrid.collate([s.obs_mask for s in states])
         vectors = torch.cat([s.inventory_vector for s in states], dim=0)
-        observation = (AlfredObservation.collate([s.observation for s in states])
-                       if next(iter(states)).observation is not None else None)
+        observation = (
+            AlfredObservation.collate([s.observation for s in states])
+            if next(iter(states)).observation is not None
+            else None
+        )
         return cls(datas, obs_masks, vectors, observation)
 
     def view_voxel_map(self):
         import hlsm.lgp.utils.render3d as r3d
+
         rgb_voxelgrid = self.make_rgb_voxelgrid(False)
         r3d.view_voxel_grid(rgb_voxelgrid)
 
@@ -300,11 +326,13 @@ class AlfredSpatialStateRepr(StateRepr):
     def represent_as_image(self, topdown2d=True, inventory=True) -> torch.tensor:
         return self.represent_as_image_with_inventory(topdown2d=topdown2d, inventory=inventory)
 
-    def represent_as_image_with_inventory(self,
-                                          animate=False,
-                                          observability=False,
-                                          topdown2d=False,
-                                          inventory=True) -> List[np.ndarray]:
+    def represent_as_image_with_inventory(
+        self,
+        animate=False,
+        observability=False,
+        topdown2d=False,
+        inventory=True,
+    ) -> list[np.ndarray]:
         if topdown2d:
             occupancy = self.data.occupancy.float()
             heights = torch.arange(0, occupancy.shape[4], device=occupancy.device)[None, None, None, None, :]
@@ -312,16 +340,17 @@ class AlfredSpatialStateRepr(StateRepr):
             grab_idx = grab_idx.repeat((1, self.data.data.shape[1], 1, 1, 1))
             grab_2d_data = self.data.data.float().gather(dim=4, index=grab_idx)
 
-            #proj2d_data = self.data.data.max(4).values
+            # proj2d_data = self.data.data.max(4).values
             rgb_data = intid_tensor_to_rgb(grab_2d_data.float())
             image = rgb_data[:, :, :, :, 0]
 
             if inventory:
                 vec_rgb = intid_tensor_to_rgb(self.inventory_vector.float())
-                image[:, :, image.shape[2]-1, image.shape[3]-1] = vec_rgb
+                image[:, :, image.shape[2] - 1, image.shape[3] - 1] = vec_rgb
             return image
         else:
             import hlsm.lgp.utils.render3d as r3d
+
             rgb_voxelgrid = self.make_rgb_voxelgrid(observability)
             image_or_images = r3d.render_voxel_grid(rgb_voxelgrid, animate=animate)
 
@@ -329,3 +358,4 @@ class AlfredSpatialStateRepr(StateRepr):
                 return [image[np.newaxis, :, :, :] for image in image_or_images]
             else:
                 return image_or_images[np.newaxis, :, :, :]
+
