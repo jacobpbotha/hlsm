@@ -72,6 +72,7 @@ class HierarchicalAgent(Agent):
             if action.is_stop():
                 self.initialized = True
             else:
+                print("Initializing")
                 return action
 
         # Keep
@@ -80,10 +81,12 @@ class HierarchicalAgent(Agent):
                 hl_action: Subgoal = self.hl_agent.act(self.state_repr)
                 # If the high-level policy signals a stop, we emit a stop action
                 if hl_action.is_stop():
+                    print(f"Stopping High Action {hl_action}")
                     return self.ActionCls.stop_action()
                 self.current_skill = self.skillset[hl_action.type_str()]
                 self.current_skill.set_goal(hl_action)
                 self.current_goal = hl_action
+                print(f"Selecting Subgoal {hl_action}")
             ll_action: Action = self.current_skill.act(self.state_repr)
             if self.current_skill.has_failed():
                 self.hl_agent.action_execution_failed()
@@ -91,8 +94,10 @@ class HierarchicalAgent(Agent):
             # If a low-level policy signals a stop, it indicates that the skill has completed it's job
             # invoke the high-level policy to decide the next action
             if ll_action.is_stop():
+                print(f"Stopping Low Action {ll_action}")
                 self.current_skill = None
             else:
+                print(f"Selecting Low Action {ll_action}")
                 break
         return ll_action
 

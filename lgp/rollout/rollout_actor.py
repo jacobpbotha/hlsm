@@ -3,6 +3,8 @@ import torch
 
 from hlsm.lgp import paths
 from hlsm.lgp.abcd.agent import TrainableAgent
+from hlsm.lgp.env.alfred.alfred_action import AlfredAction
+from hlsm.lgp.env.alfred.alfred_observation import AlfredObservation
 
 
 class RolloutActorLocal:
@@ -134,6 +136,47 @@ class RolloutActorLocal:
                 self.counter += 1
                 return rollout, new_ret, True
 
+    def _explore_via_teleport(self) -> AlfredObservation:
+        event = self.env.thor_env.step({"action": "GetReachablePositions"})
+        list_of_pos = event.metadata["actionReturn"]
+        x0, y0, z0 = event.metadata["agent"]["position"].values()
+        rotation = event.metadata["agent"]["rotation"]
+        horizon = event.metadata["agent"]["cameraHorizon"]
+        for pos in list_of_pos[::2]:
+            x, y, z = pos.values()
+            action = AlfredAction(action_type="Teleport", argument_mask=AlfredAction.get_empty_argument_mask())
+            action.set_teleport_coords(x, z, rotation, horizon)
+            observation, reward, done, md = self.env.step(action)
+            self.agent.update_state(observation)
+            self.agent.clear_trace()
+            # print(md)
+            # print(pos)
+            # print(sr.get_agent_pos_m())
+            # print(sr.get_pos_xyz_vx())
+            # print(sr.get_origin_xyz_vx())
+
+            action = AlfredAction(action_type="RotateLeft", argument_mask=AlfredAction.get_empty_argument_mask())
+            observation, reward, done, md = self.env.step(action)
+            self.agent.update_state(observation)
+            self.agent.clear_trace()
+
+            observation, reward, done, md = self.env.step(action)
+            self.agent.update_state(observation)
+            self.agent.clear_trace()
+
+            observation, reward, done, md = self.env.step(action)
+            self.agent.update_state(observation)
+            self.agent.clear_trace()
+
+            observation, reward, done, md = self.env.step(action)
+            self.agent.update_state(observation)
+            self.agent.clear_trace()
+
+        action = AlfredAction(action_type="Teleport", argument_mask=AlfredAction.get_empty_argument_mask())
+        action.set_teleport_coords(x0, z0, rotation, horizon)
+        observation, reward, done, md = self.env.step(action)
+        return observation
+
     def rollout(self, skip_tasks=None):
         rollout = []
         with torch.no_grad():
@@ -142,46 +185,46 @@ class RolloutActorLocal:
             # Skipped:
             if task is None:
                 return None
-            sg_obs = self.env2.reset(self.env.task.get_task_id()[6:])
+            observation = self._explore_via_teleport()
+            # sg_obs = self.env2.reset(self.env.task.get_task_id()[6:])
 
             # print("Task: ", str(task))
             self.agent.start_new_rollout(task)
-            translate = {
-                "PickupObject": "Pickup",
-                "CloseObject": "Close",
-                "OpenObject": "Open",
-                "PutObject": "Put",
-                "ToggleObjectOn": "ToggleOn",
-                "ToggleObjectOff": "ToggleOff",
-                "SliceObject": "Slice",
-                "Stop": "Done",
-            }
+            # translate = {
+            #     "PickupObject": "Pickup",
+            #     "CloseObject": "Close",
+            #     "OpenObject": "Open",
+            #     "PutObject": "Put",
+            #     "ToggleObjectOn": "ToggleOn",
+            #     "ToggleObjectOff": "ToggleOff",
+            #     "SliceObject": "Slice",
+            #     "Stop": "Done",
+            # }
 
             action = self.agent.act(observation)
             total_reward = 0
-            found = False
+            # found = False
             for _t in range(self.horizon):
                 next_observation, reward, done, md = self.env.step(action)
-                print(self.agent.current_goal)
-                print(md)
-                if self.agent.current_skill and not found and not self.agent.current_skill.found:
-                    # Find the target I need to navigate to
-                    self.agent.current_goal.arg_str()
-                    self.agent.current_goal.type_str()
-                    pass
-                if action.action_type in action.get_interact_action_list() and md["action_success"]:
-                    if translate[action.action_type] == "Put":
-                        target = md["api_action"]["receptacleObjectId"]
-                        if target not in self.env2.scene_graph.graph["Nearby"]:
-                            action_go = f"Go__{target}"
-                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
-                    else:
-                        target = md["api_action"]["objectId"]
-                        if target not in self.env2.scene_graph.graph["Nearby"]:
-                            action_go = f"Go__{target}"
-                            sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
-                    action2 = f"{translate[action.action_type]}__{target}"
-                    sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
+
+                # if self.agent.current_skill and not found and not self.agent.current_skill.found:
+                #     # Find the target I need to navigate to
+                #     self.agent.current_goal.arg_str()
+                #     self.agent.current_goal.type_str()
+                #     pass
+                # if action.action_type in action.get_interact_action_list() and md["action_success"]:
+                #     if translate[action.action_type] == "Put":
+                #         target = md["api_action"]["receptacleObjectId"]
+                #         if target not in self.env2.scene_graph.graph["Nearby"]:
+                #             action_go = f"Go__{target}"
+                #             sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
+                #     else:
+                #         target = md["api_action"]["objectId"]
+                #         if target not in self.env2.scene_graph.graph["Nearby"]:
+                #             action_go = f"Go__{target}"
+                #             sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action_go))
+                #     action2 = f"{translate[action.action_type]}__{target}"
+                #     sg_obs, r2, d2 = self.env2.step(sg_obs.node_keys.index(action2))
                 total_reward += reward
 
                 rollout.append(
@@ -219,6 +262,12 @@ class RolloutActorLocal:
                     break
                 else:
                     action = self.agent.act(observation)
+                    event = self.env.thor_env.last_event
+                    sr = self.agent.state_repr
+                    print(md)
+                    print(event.metadata["cameraPosition"])
+                    print(sr.get_agent_pos_m())
+                    print(sr.get_pos_xyz_vx())
 
             # print(f"Finished rollout: {self.counter}, length: {len(rollout)}")
             self.counter += 1

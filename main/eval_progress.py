@@ -2,17 +2,17 @@ import json
 import os
 import sys
 from collections import namedtuple
-from typing import Collection
+from collections.abc import Collection
 
 import hlsm.lgp.paths
 import hlsm.lgp.rollout.rollout_data as rd
 from hlsm.lgp.env.alfred.tasks import TaskRecord
 
-Progress = namedtuple('Progress', ['datasplit', 'task_id', 'repeat_idx', 'action_seq'])
+Progress = namedtuple("Progress", ["datasplit", "task_id", "repeat_idx", "action_seq"])
 
 
 class EvalProgress:
-    def __init__(self, exp_name):
+    def __init__(self, exp_name) -> None:
         results_dir = hlsm.lgp.paths.get_results_dir(exp_name)
         self.exp_name = exp_name
 
@@ -20,15 +20,15 @@ class EvalProgress:
         self.rollouts = {}
 
         if os.path.exists(results_dir):
-           #print(f"Existing progress found in: {results_dir}")
-           #print(f"Continue where left off?")
+            print(f"Existing progress found in: {results_dir}")
+            print("Continue where left off?")
             inp = input("y/n >")
             if inp != "y":
-               #print("Stopping.")
+                print("Stopping.")
                 sys.exit(0)
             self._load_json()
             self._load_rollouts()
-           #print(f"Continuing... {len(self.progress)} rollouts completed!")
+            print(f"Continuing... {len(self.progress)} rollouts completed!")
         else:
             os.makedirs(results_dir, exist_ok=True)
 
@@ -36,7 +36,7 @@ class EvalProgress:
 
     def _load_json(self):
         progress_file = hlsm.lgp.paths.get_leaderboard_progress_path(self.exp_name)
-        with open(progress_file, "r") as fp:
+        with open(progress_file) as fp:
             self.progress = json.load(fp)
             self.progress = [Progress(*p) for p in self.progress]
 
@@ -80,7 +80,8 @@ class EvalProgress:
     def save(self):
         self._save_json()
         self._save_rollouts()
-       #print(f"Saved progress in {hlsm.lgp.paths.get_results_dir(self.exp_name)}")
+
+    # print(f"Saved progress in {hlsm.lgp.paths.get_results_dir(self.exp_name)}")
 
     def did_already_collect(self, datasplit, task_id, repeat_idx):
         return TaskRecord(datasplit, task_id, repeat_idx) in self.tasks_done
@@ -107,5 +108,6 @@ class EvalProgress:
         leaderboard_export_file = hlsm.lgp.paths.get_leaderboard_result_path(self.exp_name)
         with open(leaderboard_export_file, "w") as fp:
             json.dump(leaderboard_json, fp, indent=4, sort_keys=True)
-           #print(f"Saved leaderboard action sequences to: {leaderboard_export_file}")
-           #print(f"Upload to ALFRED leaderboard to obtain test results")
+        # print(f"Saved leaderboard action sequences to: {leaderboard_export_file}")
+        # print(f"Upload to ALFRED leaderboard to obtain test results")
+

@@ -113,6 +113,7 @@ class InteractSkill(Skill):
                 self.found = True
             else:
                 # print(f"NOT FOUND. LOOKING FOR: {self.subgoal.arg_str()}")
+                print("Exploring")
                 return action
 
         self.trace["llc_flow_state"] = "Interacting"
@@ -123,6 +124,7 @@ class InteractSkill(Skill):
             if action.is_stop():
                 self.wentfor = True
             else:
+                print("Going to object")
                 return action
 
         # Then execute the interaction action
@@ -132,6 +134,7 @@ class InteractSkill(Skill):
             self.interacted = True
             # Try to preempt invalid interaction actions without executing them
             if action.is_valid():
+                print("Interacting with object")
                 return action
             else:
                 self.interaction_failed = True
@@ -149,6 +152,7 @@ class InteractSkill(Skill):
                 self.restored_nominal_pitch = True
                 self.tilt_to_pitch.set_goal(NOMINAL_PITCH)
             else:
+                print("Restoring Pitch")
                 return action
 
         # Finally, execute the stop action to end the skill and revert to the high-level policy

@@ -236,6 +236,10 @@ class AlfredEnv(Env):
         self.prof.tick("step")
 
         # Track state (pose and inventory) from RGB images and actions
+        if event is None:
+            import pdb
+
+            pdb.set_trace()
         self.state_tracker.log_action(action)
         self.state_tracker.log_event(event)
         self.state_tracker.log_extra_events(events)
